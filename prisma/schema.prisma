@@ -11,18 +11,21 @@ datasource db {
 }
 
 model Player {
-  id          String        @id @default(cuid())
-  firstName   String
-  lastName    String
-  dateOfBirth DateTime
-  nationality Country       @relation(fields: [countryId], references: [id])
-  imageSlug   String?
-  countryId   String
-  currentTeam Team?         @relation(fields: [clubId], references: [id])
-  clubId      String?
-  goals       Goal[]        @relation("goals")
-  assists     Goal[]        @relation("assists")
-  CardAwarded CardAwarded[]
+  id                 String        @id @default(cuid())
+  firstName          String
+  lastName           String
+  primaryShirtNumber Int
+  primaryPosition    Position
+  dateOfBirth        DateTime
+  nationality        Country       @relation(fields: [countryId], references: [id])
+  imageSlug          String?
+  countryId          String
+  currentTeam        Team?         @relation(fields: [clubId], references: [id])
+  clubId             String?
+  goals              Goal[]        @relation("goals")
+  assists            Goal[]        @relation("assists")
+  CardAwarded        CardAwarded[]
+  Lineup             Lineup[]
 }
 
 model Competition {
@@ -52,6 +55,19 @@ model Country {
   Competition Competition[]
 }
 
+model PlayerInGameLineup {
+  id                String    @id @default(cuid())
+  player            Player    @relation(fields: [playerId], references: [id])
+  playerId          String
+  gamePosition      Position?
+  shirtNumber       Int?
+  subbedInMinute    Decimal
+  subbedInHalftime  Halftime
+  subbedOutMinute   Decimal?
+  subbedOutHalftime Halftime?
+  startedGame       Boolean
+}
+
 model Game {
   id               String         @id @default(cuid())
   competition      Competition    @relation(fields: [competitionId], references: [id])
@@ -77,14 +93,33 @@ model Goal {
 }
 
 model GameStatistics {
-  id                     String @id @default(cuid())
-  homeTeamBallPossession Float
-  game                   Game?
-  homeTeamTotalShots     Int
-  homeTeamShotsOnTarget  Int
-  homeTeamCornerKicks    Int
-  homeOffsides           Int
-  homeFouls              Int
+  id                       String @id @default(cuid())
+  homeTeamBallPossession   Float
+  game                     Game?
+  homeTeamTotalShots       Int
+  homeTeamShotsOnTarget    Int
+  homeTeamCornerKicks      Int
+  homeTeamOffsides         Int
+  homeTeamFouls            Int
+  homeTeamBigChances       Int
+  homeTeampasses           Int
+  homeTeamcrosses          Int
+  homeTeamtackles          Int
+  homeTeamdribbles         Int
+  homeTeamdriblesSucessful Int
+
+  // Away team repeats
+  awayTeamTotalShots       Int
+  awayTeamShotsOnTarget    Int
+  awayTeamCornerKicks      Int
+  awayTeamOffsides         Int
+  awayTeamFouls            Int
+  awayTeamBigChances       Int
+  awayTeampasses           Int
+  awayTeamcrosses          Int
+  awayTeamtackles          Int
+  awayTeamdribbles         Int
+  awayTeamdriblesSucessful Int
 }
 
 model CardAwarded {
@@ -106,4 +141,21 @@ enum Halftime {
 enum CardType {
   RED
   YELLOW
+}
+
+enum Position {
+  GOAL_KEEPER
+  CENTRE_BACK
+  LEFT_BACK
+  RIGHT_BACK
+  LEFT_WING_BACK
+  RIGHT_WING_BACK
+  CENTER_DEFNSIVE_MIDFIELDER
+  CENTER_MIDFIELDER
+  RIGHT_MIDFIELDER
+  LEFT_MIDFIELDER
+  CENTER_ATTACKING_MIDFIELDER
+  RIGHT_WINGER
+  LEFT_WINGER
+  CENTER_FORWARD
 }
