@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  id          String   @id @default(cuid())
+  firstName   String
+  lastName    String
+  dateOfBirth DateTime
+  nationality Country  @relation(fields: [countryId], references: [id])
+  imageSlug   String?
+  countryId   String
+  currentTeam Team?    @relation(fields: [clubId], references: [id])
+  clubId      String?
+  goals       Goal[]   @relation("goals")
+  assists     Goal[]   @relation("assists")
+}
+
+model Competition {
+  id        String  @id @default(cuid())
+  name      String
+  country   Country @relation(fields: [countryId], references: [id])
+  countryId String
+  Game      Game[]
+}
+
+model Team {
+  id        String   @id @default(cuid())
+  name      String
+  country   Country  @relation(fields: [countryId], references: [id])
+  Player    Player[]
+  countryId String
+  homeGames Game[]   @relation("homeGames")
+  awayGames Game[]   @relation("awayGames")
+}
+
+model Country {
+  id          String        @id @default(cuid())
+  code        String        @unique
+  name        String        @unique
+  Player      Player[]
+  team        Team[]
+  Competition Competition[]
+}
+
+model Game {
+  id            String      @id @default(cuid())
+  competition   Competition @relation(fields: [competitionId], references: [id])
+  competitionId String
+  homeTeam      Team        @relation("homeGames", fields: [homeTeamId], references: [id])
+  homeTeamId    String      @map("homeTeamId")
+  awayTeam      Team        @relation("awayGames", fields: [awayTeamId], references: [id])
+  awayTeamId    String      @map("awayTeamId")
+}
+
+model Goal {
+  id               String   @id @default(cuid())
+  scoredBy         Player   @relation("goals", fields: [scorerId], references: [id])
+  scorerId         String
+  isOwnGoal        Boolean
+  scoredInMinute   Decimal
+  scoredInHalftime Halftime
+  assistedBy       Player?  @relation("assists", fields: [assistentId], references: [id])
+  assistentId      String?
+}
+
+enum Halftime {
+  FIRST_HALF
+  SECOND_HALF
+  EXTRA_FIRST_HALF
+  EXTRA_SECOND_HALF
+}
