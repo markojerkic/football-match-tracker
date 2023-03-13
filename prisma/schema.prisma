@@ -11,17 +11,18 @@ datasource db {
 }
 
 model Player {
-  id          String   @id @default(cuid())
+  id          String        @id @default(cuid())
   firstName   String
   lastName    String
   dateOfBirth DateTime
-  nationality Country  @relation(fields: [countryId], references: [id])
+  nationality Country       @relation(fields: [countryId], references: [id])
   imageSlug   String?
   countryId   String
-  currentTeam Team?    @relation(fields: [clubId], references: [id])
+  currentTeam Team?         @relation(fields: [clubId], references: [id])
   clubId      String?
-  goals       Goal[]   @relation("goals")
-  assists     Goal[]   @relation("assists")
+  goals       Goal[]        @relation("goals")
+  assists     Goal[]        @relation("assists")
+  CardAwarded CardAwarded[]
 }
 
 model Competition {
@@ -52,13 +53,16 @@ model Country {
 }
 
 model Game {
-  id            String      @id @default(cuid())
-  competition   Competition @relation(fields: [competitionId], references: [id])
-  competitionId String
-  homeTeam      Team        @relation("homeGames", fields: [homeTeamId], references: [id])
-  homeTeamId    String      @map("homeTeamId")
-  awayTeam      Team        @relation("awayGames", fields: [awayTeamId], references: [id])
-  awayTeamId    String      @map("awayTeamId")
+  id               String         @id @default(cuid())
+  competition      Competition    @relation(fields: [competitionId], references: [id])
+  competitionId    String
+  homeTeam         Team           @relation("homeGames", fields: [homeTeamId], references: [id])
+  homeTeamId       String         @map("homeTeamId")
+  awayTeam         Team           @relation("awayGames", fields: [awayTeamId], references: [id])
+  awayTeamId       String         @map("awayTeamId")
+  statistics       GameStatistics @relation(fields: [gameStatisticsId], references: [id])
+  gameStatisticsId String         @unique
+  cardsAwarded     CardAwarded[]
 }
 
 model Goal {
@@ -72,9 +76,34 @@ model Goal {
   assistentId      String?
 }
 
+model GameStatistics {
+  id                     String @id @default(cuid())
+  homeTeamBallPossession Float
+  game                   Game?
+  homeTeamTotalShots     Int
+  homeTeamShotsOnTarget  Int
+  homeTeamCornerKicks    Int
+  homeOffsides           Int
+  homeFouls              Int
+}
+
+model CardAwarded {
+  id       String   @id @default(cuid())
+  cardType CardType
+  player   Player   @relation(fields: [playerId], references: [id])
+  playerId String
+  game     Game?    @relation(fields: [gameId], references: [id])
+  gameId   String?
+}
+
 enum Halftime {
   FIRST_HALF
   SECOND_HALF
   EXTRA_FIRST_HALF
   EXTRA_SECOND_HALF
+}
+
+enum CardType {
+  RED
+  YELLOW
 }
