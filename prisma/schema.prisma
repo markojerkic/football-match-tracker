@@ -76,7 +76,7 @@ model Player {
   nationality        Country              @relation(fields: [countryId], references: [id])
   imageSlug          String?
   countryId          String
-  currentTeam        Team?                @relation(fields: [clubId], references: [id])
+  currentTeam        Team?                @relation(fields: [teamId], references: [id])
   teamId             String?
   goals              Goal[]               @relation("goals")
   assists            Goal[]               @relation("assists")
@@ -166,8 +166,8 @@ model Game {
   homeTeamId       String          @map("homeTeamId")
   awayTeam         Team            @relation("awayGames", fields: [awayTeamId], references: [id])
   awayTeamId       String          @map("awayTeamId")
-  statistics       GameStatistics? @relation(fields: [gameStatisticsId], references: [id])
-  gameStatisticsId String?         @unique
+  statistics       GameStatistics?
+  gameStatisticsId String?
   cardsAwarded     CardAwarded[]
   kickoffTime      DateTime
   isOver           Boolean
@@ -197,7 +197,8 @@ model Goal {
 model GameStatistics {
   id                       String @id @default(cuid())
   homeTeamBallPossession   Float
-  game                     Game
+  game                     Game   @relation(fields: [gameId], references: [id])
+  gameId                   String @unique
   homeTeamTotalShots       Int
   homeTeamShotsOnTarget    Int
   homeTeamCornerKicks      Int
