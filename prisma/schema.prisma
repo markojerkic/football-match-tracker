@@ -10,6 +10,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id               String            @id @default(cuid())
+  firstName        String
+  lastName         String
+  email            String
+  role             UserRole
+  favouritePlayers FavouritePlayer[]
+  favouriteTeams   FavouriteTeam[]
+  imageSlug        String?
+}
+
+model FavouriteTeam {
+  id     String @id @default(cuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+  team   Team   @relation(fields: [teamId], references: [id])
+  teamId String
+}
+
+model FavouritePlayer {
+  id       String @id @default(cuid())
+  user     User   @relation(fields: [userId], references: [id])
+  player   Player @relation(fields: [playerId], references: [id])
+  userId   String
+  playerId String
+}
+
 model Player {
   id                 String               @id @default(cuid())
   firstName          String
@@ -24,8 +51,17 @@ model Player {
   clubId             String?
   goals              Goal[]               @relation("goals")
   assists            Goal[]               @relation("assists")
-  CardAwarded        CardAwarded[]
-  Lineup             PlayerInGameLineup[]
+  cardAwarded        CardAwarded[]
+  lineup             PlayerInGameLineup[]
+  favouritedByUser   FavouritePlayer[]
+}
+
+model TeamInCompetition {
+  id            String      @id @default(cuid())
+  team          Team        @relation(fields: [teamId], references: [id])
+  compatition   Competition @relation(fields: [competitionId], references: [id])
+  teamId        String
+  competitionId String
 }
 
 model Competition {
@@ -35,6 +71,8 @@ model Competition {
   countryId               String
   games                   Game[]
   highlightedCompetitions HighlightedCompetitions[]
+  teams                   TeamInCompetition[]
+  imageSlug               String?
 }
 
 model HighlightedCompetitions {
@@ -44,14 +82,17 @@ model HighlightedCompetitions {
 }
 
 model Team {
-  id               String            @id @default(cuid())
+  id               String              @id @default(cuid())
   name             String
-  country          Country           @relation(fields: [countryId], references: [id])
+  country          Country             @relation(fields: [countryId], references: [id])
   Player           Player[]
   countryId        String
-  homeGames        Game[]            @relation("homeGames")
-  awayGames        Game[]            @relation("awayGames")
+  homeGames        Game[]              @relation("homeGames")
+  awayGames        Game[]              @relation("awayGames")
   highlightedTeams HighlightedTeam[]
+  favouritedByUser FavouriteTeam[]
+  competitions     TeamInCompetition[]
+  imageSlug        String?
 }
 
 model HighlightedTeam {
@@ -67,6 +108,7 @@ model Country {
   Player      Player[]
   team        Team[]
   competition Competition[]
+  imageSlug   String?
 }
 
 model PlayerInGameLineup {
@@ -172,4 +214,9 @@ enum Position {
   RIGHT_WINGER
   LEFT_WINGER
   CENTER_FORWARD
+}
+
+enum UserRole {
+  USER
+  ADMIN
 }
