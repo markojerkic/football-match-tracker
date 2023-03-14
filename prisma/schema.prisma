@@ -191,11 +191,11 @@ model GameStatistics {
   homeTeamOffsides         Int
   homeTeamFouls            Int
   homeTeamBigChances       Int
-  homeTeampasses           Int
-  homeTeamcrosses          Int
-  homeTeamtackles          Int
-  homeTeamdribbles         Int
-  homeTeamdriblesSucessful Int
+  homeTeamPasses           Int
+  homeTeamCrosses          Int
+  homeTeamTackles          Int
+  homeTeamDribbles         Int
+  homeTeamDriblesSucessful Int
 
   // Away team repeats
   awayTeamTotalShots       Int
@@ -218,6 +218,8 @@ model CardAwarded {
   playerId String
   game     Game?    @relation(fields: [gameId], references: [id])
   gameId   String?
+  minute   Decimal
+  halftime Halftime
 }
 
 enum Halftime {
