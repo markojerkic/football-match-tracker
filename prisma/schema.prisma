@@ -37,6 +37,35 @@ model FavouritePlayer {
   playerId String
 }
 
+model Manager {
+  id            String            @id @default(cuid())
+  firstName     String
+  lastName      String
+  currentTeam   Team?             @relation(fields: [teamId], references: [id])
+  teamId        String?           @unique
+  previousClubs PreviousManager[]
+}
+
+model PreviousManager {
+  id          String    @id @default(cuid())
+  manager     Manager   @relation(fields: [managerId], references: [id])
+  managerId   String
+  team        Team      @relation(fields: [teamId], references: [id])
+  teamId      String
+  tenureStart DateTime
+  tenureEnd   DateTime?
+}
+
+model PreviousTeam {
+  id          String    @id @default(cuid())
+  team        Team      @relation(fields: [teamId], references: [id])
+  teamId      String
+  player      Player    @relation(fields: [playerId], references: [id])
+  playerId    String
+  tenureStart DateTime
+  tenureEnd   DateTime?
+}
+
 model Player {
   id                 String               @id @default(cuid())
   firstName          String
@@ -54,6 +83,7 @@ model Player {
   cardAwarded        CardAwarded[]
   lineup             PlayerInGameLineup[]
   favouritedByUser   FavouritePlayer[]
+  previousTeams      PreviousTeam[]
 }
 
 model TeamInCompetition {
@@ -93,6 +123,9 @@ model Team {
   favouritedByUser FavouriteTeam[]
   competitions     TeamInCompetition[]
   imageSlug        String?
+  currentManager   Manager?
+  previousManagers PreviousManager[]
+  previousPlayers  PreviousTeam[]
 }
 
 model HighlightedTeam {
