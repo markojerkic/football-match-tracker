@@ -77,7 +77,7 @@ model Player {
   imageSlug          String?
   countryId          String
   currentTeam        Team?                @relation(fields: [clubId], references: [id])
-  clubId             String?
+  teamId             String?
   goals              Goal[]               @relation("goals")
   assists            Goal[]               @relation("assists")
   cardAwarded        CardAwarded[]
@@ -105,6 +105,7 @@ model Competition {
   imageSlug               String?
 }
 
+// TODO: možda da bude flag na predmetu umjesto vlastite tablice?
 model HighlightedCompetitions {
   id            String      @id @default(cuid())
   compatition   Competition @relation(fields: [competitionId], references: [id])
@@ -158,33 +159,45 @@ model PlayerInGameLineup {
 }
 
 model Game {
-  id               String         @id @default(cuid())
-  competition      Competition    @relation(fields: [competitionId], references: [id])
+  id               String          @id @default(cuid())
+  competition      Competition     @relation(fields: [competitionId], references: [id])
   competitionId    String
-  homeTeam         Team           @relation("homeGames", fields: [homeTeamId], references: [id])
-  homeTeamId       String         @map("homeTeamId")
-  awayTeam         Team           @relation("awayGames", fields: [awayTeamId], references: [id])
-  awayTeamId       String         @map("awayTeamId")
-  statistics       GameStatistics @relation(fields: [gameStatisticsId], references: [id])
-  gameStatisticsId String         @unique
+  homeTeam         Team            @relation("homeGames", fields: [homeTeamId], references: [id])
+  homeTeamId       String          @map("homeTeamId")
+  awayTeam         Team            @relation("awayGames", fields: [awayTeamId], references: [id])
+  awayTeamId       String          @map("awayTeamId")
+  statistics       GameStatistics? @relation(fields: [gameStatisticsId], references: [id])
+  gameStatisticsId String?         @unique
   cardsAwarded     CardAwarded[]
+  kickoffTime      DateTime
+  isOver           Boolean
+  goals            GoalInGame[]
+}
+
+model GoalInGame {
+  id     String @id @default(cuid())
+  inGame Game   @relation(fields: [gameId], references: [id])
+  goal   Goal   @relation(fields: [goalId], references: [id])
+  gameId String
+  goalId String
 }
 
 model Goal {
-  id               String   @id @default(cuid())
-  scoredBy         Player   @relation("goals", fields: [scorerId], references: [id])
+  id               String       @id @default(cuid())
+  scoredBy         Player       @relation("goals", fields: [scorerId], references: [id])
   scorerId         String
   isOwnGoal        Boolean
   scoredInMinute   Decimal
   scoredInHalftime Halftime
-  assistedBy       Player?  @relation("assists", fields: [assistentId], references: [id])
+  assistedBy       Player?      @relation("assists", fields: [assistentId], references: [id])
   assistentId      String?
+  inGame           GoalInGame[]
 }
 
 model GameStatistics {
   id                       String @id @default(cuid())
   homeTeamBallPossession   Float
-  game                     Game?
+  game                     Game
   homeTeamTotalShots       Int
   homeTeamShotsOnTarget    Int
   homeTeamCornerKicks      Int
@@ -216,8 +229,8 @@ model CardAwarded {
   cardType CardType
   player   Player   @relation(fields: [playerId], references: [id])
   playerId String
-  game     Game?    @relation(fields: [gameId], references: [id])
-  gameId   String?
+  game     Game     @relation(fields: [gameId], references: [id])
+  gameId   String
   minute   Decimal
   halftime Halftime
 }
@@ -249,6 +262,7 @@ enum Position {
   RIGHT_WINGER
   LEFT_WINGER
   CENTER_FORWARD
+  SUBSTITUTE
 }
 
 enum UserRole {
