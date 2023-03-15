@@ -15,32 +15,88 @@ import {
 } from "solid-start";
 import "./root.css";
 
-export default function Root() {
-  const location = useLocation();
-  const active = (path: string) =>
-    path == location.pathname
-      ? "border-sky-600"
-      : "border-transparent hover:border-sky-600";
+const Navbar = () => {
   return (
-    <Html lang="en">
+    <div class="navbar mx-auto w-[98%] rounded-lg bg-secondary px-2 text-white">
+      <div class="flex-1">
+        <a class="btn-ghost btn rounded-lg text-xl normal-case">footyTracker</a>
+      </div>
+      <div class="flex-none">
+        <div class="dropdown-end dropdown">
+          <label tabIndex={0} class="btn-ghost btn-circle btn">
+            <div class="indicator">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="h-6 w-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                />
+              </svg>
+
+              <span class="badge badge-sm indicator-item">8</span>
+            </div>
+          </label>
+          <div
+            tabIndex={0}
+            class="card dropdown-content card-compact mt-3 w-52 bg-base-100 text-neutral-focus shadow"
+          >
+            <div class="card-body">
+              <span class="text-lg font-bold">8 Items</span>
+              <span class="text-info">Subtotal: $999</span>
+              <div class="card-actions">
+                <button class="btn-primary btn-block btn">View cart</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="dropdown-end dropdown text-neutral-focus">
+          <label tabIndex={0} class="btn-ghost btn-circle avatar btn">
+            <div class="w-10 rounded-full">
+              <img src="https://daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+            </div>
+          </label>
+          <ul
+            tabIndex={0}
+            class="dropdown-content menu rounded-box menu-compact mt-3 w-52 bg-base-100 p-2 shadow"
+          >
+            <li>
+              <a class="justify-between">
+                Profile
+                <span class="badge">New</span>
+              </a>
+            </li>
+            <li>
+              <a>Settings</a>
+            </li>
+            <li>
+              <a>Logout</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default function Root() {
+  return (
+    <Html lang="en" data-theme="corporate">
       <Head>
-        <Title>SolidStart - With TailwindCSS</Title>
+        <Title>Football tracker</Title>
         <Meta charset="utf-8" />
         <Meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <Body>
+      <Body class="flex flex-col space-y-4 py-4">
         <Suspense>
           <ErrorBoundary>
-            <nav class="bg-sky-800">
-              <ul class="container flex items-center p-3 text-gray-200">
-                <li class={`border-b-2 ${active("/")} mx-1.5 sm:mx-6`}>
-                  <A href="/">Home</A>
-                </li>
-                <li class={`border-b-2 ${active("/about")} mx-1.5 sm:mx-6`}>
-                  <A href="/about">About</A>
-                </li>
-              </ul>
-            </nav>
+            <Navbar />
             <Routes>
               <FileRoutes />
             </Routes>
