@@ -16,8 +16,8 @@ create table "Country"
     code        text not null,
     name        text not null,
     "imageSlug" text,
-    unique(code),
-    unique(name)
+    unique("code"),
+    unique("name")
 );
 
 create table "Competition"
