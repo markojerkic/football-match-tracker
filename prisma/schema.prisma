@@ -95,21 +95,38 @@ model TeamInCompetition {
 }
 
 model Competition {
-  id                      String                    @id @default(cuid())
-  name                    String
-  country                 Country                   @relation(fields: [countryId], references: [id])
-  countryId               String
-  games                   Game[]
-  highlightedCompetitions HighlightedCompetitions[]
-  teams                   TeamInCompetition[]
-  imageSlug               String?
+  id            String              @id @default(cuid())
+  name          String
+  country       Country             @relation(fields: [countryId], references: [id])
+  countryId     String
+  games         Game[]
+  isHighlighted Boolean
+  teams         TeamInCompetition[]
+  imageSlug     String?
+  type          CompetitionType
 }
 
-// TODO: možda da bude flag na predmetu umjesto vlastite tablice?
-model HighlightedCompetitions {
-  id            String      @id @default(cuid())
-  compatition   Competition @relation(fields: [competitionId], references: [id])
-  competitionId String
+model KnockoutGame {
+  id           String  @id @default(cuid())
+  game         Game    @relation("knockoutGames", fields: [gameId], references: [id])
+  gameId       String  @map("gameId")
+  returnGame   Game?   @relation("knockoutReturnGames", fields: [returnGameId], references: [id])
+  returnGameId String? @map("returnGameId")
+}
+
+model Group {
+  id    String        @id @default(cuid())
+  name  String
+  teams TeamInGroup[]
+  Team  Team[]
+}
+
+model TeamInGroup {
+  id      String @id @default(cuid())
+  group   Group  @relation(fields: [groupId], references: [id])
+  team    Team   @relation(fields: [teamId], references: [id])
+  groupId String
+  teamId  String
 }
 
 model Team {
@@ -127,6 +144,9 @@ model Team {
   currentManager   Manager?
   previousManagers PreviousManager[]
   previousPlayers  PreviousTeam[]
+  Group            Group?              @relation(fields: [groupId], references: [id])
+  groupId          String?
+  groups           TeamInGroup[]
 }
 
 model HighlightedTeam {
@@ -159,19 +179,27 @@ model PlayerInGameLineup {
 }
 
 model Game {
-  id               String          @id @default(cuid())
-  competition      Competition     @relation(fields: [competitionId], references: [id])
-  competitionId    String
-  homeTeam         Team            @relation("homeGames", fields: [homeTeamId], references: [id])
-  homeTeamId       String          @map("homeTeamId")
-  awayTeam         Team            @relation("awayGames", fields: [awayTeamId], references: [id])
-  awayTeamId       String          @map("awayTeamId")
-  statistics       GameStatistics?
-  gameStatisticsId String?
-  cardsAwarded     CardAwarded[]
-  kickoffTime      DateTime
-  isOver           Boolean
-  goals            GoalInGame[]
+  id                                        String          @id @default(cuid())
+  competition                               Competition     @relation(fields: [competitionId], references: [id])
+  competitionId                             String
+  homeTeam                                  Team            @relation("homeGames", fields: [homeTeamId], references: [id])
+  homeTeamId                                String          @map("homeTeamId")
+  awayTeam                                  Team            @relation("awayGames", fields: [awayTeamId], references: [id])
+  awayTeamId                                String          @map("awayTeamId")
+  statistics                                GameStatistics?
+  gameStatisticsId                          String?
+  cardsAwarded                              CardAwarded[]
+  kickoffTime                               DateTime
+  firstHalfEndedAferAdditionalTime          Int
+  secondHalfEndedAferAdditionalTime         Int
+  isOver                                    Boolean
+  goals                                     GoalInGame[]
+  hasExtraTime                              Boolean
+  firstExtendedHalfEndedAferAdditionalTime  Int?
+  secondExtendedHalfEndedAferAdditionalTime Int?
+  hasPenaltyShootout                        Boolean
+  knockoutGames                             KnockoutGame[]  @relation("knockoutGames")
+  knockoutReturnGames                       KnockoutGame[]  @relation("knockoutReturnGames")
 }
 
 model GoalInGame {
@@ -183,15 +211,17 @@ model GoalInGame {
 }
 
 model Goal {
-  id               String       @id @default(cuid())
-  scoredBy         Player       @relation("goals", fields: [scorerId], references: [id])
-  scorerId         String
-  isOwnGoal        Boolean
-  scoredInMinute   Decimal
-  scoredInHalftime Halftime
-  assistedBy       Player?      @relation("assists", fields: [assistentId], references: [id])
-  assistentId      String?
-  inGame           GoalInGame[]
+  id                  String       @id @default(cuid())
+  scoredBy            Player       @relation("goals", fields: [scorerId], references: [id])
+  scorerId            String
+  isOwnGoal           Boolean
+  isPenalty           Boolean
+  isPenaltyInShootout Boolean
+  scoredInMinute      Int
+  scoredInHalftime    Halftime
+  assistedBy          Player?      @relation("assists", fields: [assistentId], references: [id])
+  assistentId         String?
+  inGame              GoalInGame[]
 }
 
 model GameStatistics {
@@ -269,4 +299,10 @@ enum Position {
 enum UserRole {
   USER
   ADMIN
+}
+
+enum CompetitionType {
+  LEAGUE
+  GROUP_STAGE_AND_KNOCKOUTS
+  TOURNAMENT
 }
