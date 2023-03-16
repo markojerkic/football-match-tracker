@@ -95,30 +95,51 @@ model TeamInCompetition {
 }
 
 model Competition {
-  id            String              @id @default(cuid())
-  name          String
-  country       Country             @relation(fields: [countryId], references: [id])
-  countryId     String
-  games         Game[]
-  isHighlighted Boolean
-  teams         TeamInCompetition[]
-  imageSlug     String?
-  type          CompetitionType
+  id                  String                @id @default(cuid())
+  name                String
+  country             Country               @relation(fields: [countryId], references: [id])
+  countryId           String
+  games               Game[]
+  isHighlighted       Boolean
+  teams               TeamInCompetition[]
+  imageSlug           String?
+  type                CompetitionType
+  competitionInSeason CompetitionInSeason[]
+  groups              Group[]
 }
 
 model KnockoutGame {
   id           String  @id @default(cuid())
-  game         Game    @relation("knockoutGames", fields: [gameId], references: [id])
-  gameId       String  @map("gameId")
-  returnGame   Game?   @relation("knockoutReturnGames", fields: [returnGameId], references: [id])
-  returnGameId String? @map("returnGameId")
+  game         Game    @relation("knockoutGame", fields: [gameId], references: [id])
+  gameId       String  @unique @map("gameId")
+  returnGame   Game?   @relation("knockoutReturnGame", fields: [returnGameId], references: [id])
+  returnGameId String? @unique @map("returnGameId")
+}
+
+model CompetitionInSeason {
+  id            String      @id @default(cuid())
+  competition   Competition @relation(fields: [competitionId], references: [id])
+  season        Season      @relation(fields: [seasonId], references: [id])
+  competitionId String
+  seasonId      String
+}
+
+model Season {
+  id                  String                @id @default(cuid())
+  title               String
+  competitionInSeason CompetitionInSeason[]
+  games               Game[]
+  groups              Group[]
 }
 
 model Group {
-  id    String        @id @default(cuid())
-  name  String
-  teams TeamInGroup[]
-  Team  Team[]
+  id            String        @id @default(cuid())
+  name          String
+  competition   Competition   @relation(fields: [competitionId], references: [id])
+  season        Season        @relation(fields: [seasonId], references: [id])
+  teams         TeamInGroup[]
+  competitionId String
+  seasonId      String
 }
 
 model TeamInGroup {
@@ -144,7 +165,6 @@ model Team {
   currentManager   Manager?
   previousManagers PreviousManager[]
   previousPlayers  PreviousTeam[]
-  Group            Group?              @relation(fields: [groupId], references: [id])
   groupId          String?
   groups           TeamInGroup[]
 }
@@ -198,8 +218,10 @@ model Game {
   firstExtendedHalfEndedAferAdditionalTime  Int?
   secondExtendedHalfEndedAferAdditionalTime Int?
   hasPenaltyShootout                        Boolean
-  knockoutGames                             KnockoutGame[]  @relation("knockoutGames")
-  knockoutReturnGames                       KnockoutGame[]  @relation("knockoutReturnGames")
+  knockoutGame                              KnockoutGame?   @relation("knockoutGame")
+  knockoutReturnGame                        KnockoutGame?   @relation("knockoutReturnGame")
+  season                                    Season?         @relation(fields: [seasonId], references: [id])
+  seasonId                                  String?
 }
 
 model GoalInGame {
@@ -239,7 +261,7 @@ model GameStatistics {
   homeTeamCrosses          Int
   homeTeamTackles          Int
   homeTeamDribbles         Int
-  homeTeamDriblesSucessful Int
+  homeTeamDribblesSucessful Int
 
   // Away team repeats
   awayTeamTotalShots       Int
@@ -249,10 +271,10 @@ model GameStatistics {
   awayTeamFouls            Int
   awayTeamBigChances       Int
   awayTeampasses           Int
-  awayTeamcrosses          Int
-  awayTeamtackles          Int
-  awayTeamdribbles         Int
-  awayTeamdriblesSucessful Int
+  awayTeamCrosses          Int
+  awayTeamTackles          Int
+  awayTeamDribbles         Int
+  awayTeamDriblesSucessful Int
 }
 
 model CardAwarded {

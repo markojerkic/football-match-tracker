@@ -1,4 +1,14 @@
-create table "User"
+create type "Halftime" as enum ('FIRST_HALF', 'SECOND_HALF', 'EXTRA_FIRST_HALF', 'EXTRA_SECOND_HALF');
+
+create type "CardType" as enum ('RED', 'YELLOW');
+
+create type "Position" as enum ('GOAL_KEEPER', 'CENTRE_BACK', 'LEFT_BACK', 'RIGHT_BACK', 'LEFT_WING_BACK', 'RIGHT_WING_BACK', 'CENTER_DEFNSIVE_MIDFIELDER', 'CENTER_MIDFIELDER', 'RIGHT_MIDFIELDER', 'LEFT_MIDFIELDER', 'CENTER_ATTACKING_MIDFIELDER', 'RIGHT_WINGER', 'LEFT_WINGER', 'CENTER_FORWARD', 'SUBSTITUTE');
+
+create type "UserRole" as enum ('USER', 'ADMIN');
+
+create type "CompetitionType" as enum ('LEAGUE', 'GROUP_STAGE_AND_KNOCKOUTS', 'TOURNAMENT');
+
+create table if not exists "User"
 (
     id          text       not null
         primary key,
@@ -9,18 +19,28 @@ create table "User"
     "imageSlug" text
 );
 
-create table "Country"
+
+create table if not exists "Season"
+(
+    id    text not null
+        primary key,
+    title text not null
+);
+
+
+create table if not exists "Country"
 (
     id          text not null
         primary key,
     code        text not null,
     name        text not null,
     "imageSlug" text,
-    unique("code"),
-    unique("name")
+    unique ("code"),
+    unique ("name")
 );
 
-create table "Competition"
+
+create table if not exists "Competition"
 (
     id              text              not null
         primary key,
@@ -28,19 +48,39 @@ create table "Competition"
     "countryId"     text              not null
         references "Country"
             on update cascade on delete restrict,
-    "imageSlug"     text,
     "isHighlighted" boolean           not null,
+    "imageSlug"     text,
     type            "CompetitionType" not null
 );
 
-create table "Group"
+
+create table if not exists "CompetitionInSeason"
 (
-    id   text not null
+    id              text not null
         primary key,
-    name text not null
+    "competitionId" text not null
+        references "Competition"
+            on update cascade on delete restrict,
+    "seasonId"      text not null
+        references "Season"
+            on update cascade on delete restrict
 );
 
-create table "Team"
+
+create table if not exists "Group"
+(
+    id              text not null
+        primary key,
+    name            text not null,
+    "competitionId" text not null
+        references "Competition"
+            on update cascade on delete restrict,
+    "seasonId"      text not null
+        references "Season"
+            on update cascade on delete restrict
+);
+
+create table if not exists "Team"
 (
     id          text not null
         primary key,
@@ -50,11 +90,10 @@ create table "Team"
             on update cascade on delete restrict,
     "imageSlug" text,
     "groupId"   text
-                     references "Group"
-                         on update cascade on delete set null
 );
 
-create table "FavouriteTeam"
+
+create table if not exists "FavouriteTeam"
 (
     id       text not null
         primary key,
@@ -63,12 +102,11 @@ create table "FavouriteTeam"
             on update cascade on delete restrict,
     "teamId" text not null
         references "Team"
-            on update cascade on delete restrict,
-    foreign key (awayTeamId) references "User"
-        on update cascade on delete restrict
+            on update cascade on delete restrict
 );
 
-create table "Manager"
+
+create table if not exists "Manager"
 (
     id          text not null
         primary key,
@@ -77,10 +115,11 @@ create table "Manager"
     "teamId"    text
                      references "Team"
                          on update cascade on delete set null,
-    unique("teamId")
+    unique ("teamId")
 );
 
-create table "PreviousManager"
+
+create table if not exists "PreviousManager"
 (
     id            text         not null
         primary key,
@@ -94,7 +133,8 @@ create table "PreviousManager"
     "tenureEnd"   timestamp(3)
 );
 
-create table "Player"
+
+create table if not exists "Player"
 (
     id                   text         not null
         primary key,
@@ -108,11 +148,12 @@ create table "Player"
         references "Country"
             on update cascade on delete restrict,
     "teamId"             text
-              references "Team"
-                  on update cascade on delete set null
+                                      references "Team"
+                                          on update cascade on delete set null
 );
 
-create table "FavouritePlayer"
+
+create table if not exists "FavouritePlayer"
 (
     id         text not null
         primary key,
@@ -124,7 +165,8 @@ create table "FavouritePlayer"
             on update cascade on delete restrict
 );
 
-create table "PreviousTeam"
+
+create table if not exists "PreviousTeam"
 (
     id            text         not null
         primary key,
@@ -138,7 +180,8 @@ create table "PreviousTeam"
     "tenureEnd"   timestamp(3)
 );
 
-create table "TeamInCompetition"
+
+create table if not exists "TeamInCompetition"
 (
     id              text not null
         primary key,
@@ -150,18 +193,31 @@ create table "TeamInCompetition"
             on update cascade on delete restrict
 );
 
-create table "HighlightedTeam"
+
+create table if not exists "TeamInGroup"
+(
+    id        text not null
+        primary key,
+    "groupId" text not null
+        references "Group"
+            on update cascade on delete restrict,
+    "teamId"  text not null
+        references "Team"
+            on update cascade on delete restrict
+);
+
+
+create table if not exists "HighlightedTeam"
 (
     id       text not null
         primary key,
     "teamId" text not null
         references "Team"
             on update cascade on delete restrict,
-    foreign key (playerId) references "Player"
-        on update cascade on delete restrict
 );
 
-create table "PlayerInGameLineup"
+
+create table if not exists "PlayerInGameLineup"
 (
     id                  text            not null
         primary key,
@@ -177,7 +233,8 @@ create table "PlayerInGameLineup"
     "startedGame"       boolean         not null
 );
 
-create table "Game"
+
+create table if not exists "Game"
 (
     id                                          text         not null
         primary key,
@@ -192,16 +249,34 @@ create table "Game"
             on update cascade on delete restrict,
     "gameStatisticsId"                          text,
     "kickoffTime"                               timestamp(3) not null,
+    "firstHalfEndedAferAdditionalTime"          integer      not null,
+    "secondHalfEndedAferAdditionalTime"         integer      not null,
     "isOver"                                    boolean      not null,
     "hasExtraTime"                              boolean      not null,
-    "hasPenaltyShootout"                        boolean      not null,
     "firstExtendedHalfEndedAferAdditionalTime"  integer,
     "secondExtendedHalfEndedAferAdditionalTime" integer,
-    "firstHalfEndedAferAdditionalTime"          integer      not null,
-    "secondHalfEndedAferAdditionalTime"         integer      not null
+    "hasPenaltyShootout"                        boolean      not null,
+    "seasonId"                                  text
+                                                             references "Season"
+                                                                 on update cascade on delete set null
 );
 
-create table "Goal"
+
+create table if not exists "KnockoutGame"
+(
+    id             text not null
+        primary key,
+    "gameId"       text not null
+        references "Game"
+            on update cascade on delete restrict,
+    "returnGameId" text
+                        references "Game"
+                            on update cascade on delete set null,
+    unique ("gameId"),
+    unique ("returnGameId")
+);
+
+create table if not exists "Goal"
 (
     id                    text       not null
         primary key,
@@ -209,16 +284,17 @@ create table "Goal"
         references "Player"
             on update cascade on delete restrict,
     "isOwnGoal"           boolean    not null,
+    "isPenalty"           boolean    not null,
+    "isPenaltyInShootout" boolean    not null,
     "scoredInMinute"      integer    not null,
     "scoredInHalftime"    "Halftime" not null,
     "assistentId"         text
                                      references "Player"
-                                         on update cascade on delete set null,
-    "isPenalty"           boolean    not null,
-    "isPenaltyInShootout" boolean    not null
+                                         on update cascade on delete set null
 );
 
-create table "GoalInGame"
+
+create table if not exists "GoalInGame"
 (
     id       text not null
         primary key,
@@ -230,7 +306,8 @@ create table "GoalInGame"
             on update cascade on delete restrict
 );
 
-create table "GameStatistics"
+
+create table if not exists "GameStatistics"
 (
     id                         text             not null
         primary key,
@@ -248,22 +325,23 @@ create table "GameStatistics"
     "homeTeamCrosses"          integer          not null,
     "homeTeamTackles"          integer          not null,
     "homeTeamDribbles"         integer          not null,
-    "homeTeamDriblesSucessful" integer          not null,
+    homeTeamDribblesSuccessful integer          not null,
     "awayTeamTotalShots"       integer          not null,
     "awayTeamShotsOnTarget"    integer          not null,
     "awayTeamCornerKicks"      integer          not null,
     "awayTeamOffsides"         integer          not null,
     "awayTeamFouls"            integer          not null,
     "awayTeamBigChances"       integer          not null,
-    "awayTeampasses"           integer          not null,
-    "awayTeamcrosses"          integer          not null,
-    "awayTeamtackles"          integer          not null,
-    "awayTeamdribbles"         integer          not null,
-    "awayTeamdriblesSucessful" integer          not null,
-    unique("gameId")
+    awayTeamPasses             integer          not null,
+    awayTeamCrosses            integer          not null,
+    awayTeamTackles            integer          not null,
+    awayTeamDribbles           integer          not null,
+    awayTerriblesSuccessful    integer          not null,
+    unique ("gameId")
 );
 
-create table "CardAwarded"
+
+create table if not exists "CardAwarded"
 (
     id         text            not null
         primary key,
@@ -277,29 +355,3 @@ create table "CardAwarded"
     minute     numeric(65, 30) not null,
     halftime   "Halftime"      not null
 );
-
-create table "KnockoutGame"
-(
-    id             text not null
-        primary key,
-    "gameId"       text not null
-        references "Game"
-            on update cascade on delete restrict,
-    "returnGameId" text
-                        references "Game"
-                            on update cascade on delete set null
-);
-
-create table "TeamInGroup"
-(
-    id        text not null
-        primary key,
-    "groupId" text not null
-        references "Group"
-            on update cascade on delete restrict,
-    "teamId"  text not null
-        references "Team"
-            on update cascade on delete restrict
-);
-
-
