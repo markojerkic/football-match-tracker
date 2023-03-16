@@ -4,11 +4,13 @@
     "dev": "solid-start dev",
     "build": "solid-start build",
     "start": "solid-start start",
-    "prettier": "prettier --write \"**/*.{ts,tsx,md,mjs}\""
+    "prettier": "prettier --write \"**/*.{ts,tsx,md,mjs}\"",
+    "seed": "npx ts-node --require esbuild-register prisma/seed.ts"
   },
   "type": "module",
   "devDependencies": {
     "autoprefixer": "^10.4.13",
+    "esbuild-register": "^3.4.2",
     "postcss": "^8.4.21",
     "prettier": "^2.8.4",
     "prettier-plugin-tailwindcss": "^0.2.4",
