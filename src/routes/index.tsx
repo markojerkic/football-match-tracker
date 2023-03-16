@@ -101,12 +101,12 @@ const Hero = () => {
   );
 };
 
-const HighlightedTeams = () => {
+const HighlightedCompetitions = () => {
   return (
-    <>
-      <p class="p-4 text-center text-5xl font-bold">Highlighted teams</p>
+    <div class="bg-accent-focus min-h-screen py-8 text-white">
+      <p class="p-4 text-center text-5xl font-bold">Highlighted competitions</p>
 
-      <div class="py-4 flex flex-col space-y-4">
+      <div class="flex flex-col space-y-4 py-4">
         <HighlightedTeam
           side="right"
           gradient={Gradient.RED}
@@ -135,7 +135,45 @@ const HighlightedTeams = () => {
           }}
         />
       </div>
-    </>
+    </div>
+  );
+};
+
+const HighlightedTeams = () => {
+  return (
+    <div class="min-h-screen">
+      <p class="p-4 text-center text-5xl font-bold">Highlighted teams</p>
+
+      <div class="flex flex-col space-y-4 py-4">
+        <HighlightedTeam
+          side="right"
+          gradient={Gradient.RED}
+          team={{
+            name: "FC Bayern",
+            imageSlug:
+              "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg/1200px-FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg.png",
+          }}
+        />
+        <HighlightedTeam
+          side="left"
+          gradient={Gradient.SKY_BLUE}
+          team={{
+            name: "Manchaster City",
+            imageSlug:
+              "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/1200px-Manchester_City_FC_badge.svg.png",
+          }}
+        />
+        <HighlightedTeam
+          side="right"
+          gradient={Gradient.ICE}
+          team={{
+            name: "Real Madrid",
+            imageSlug:
+              "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/1200px-Real_Madrid_CF.svg.png",
+          }}
+        />
+      </div>
+    </div>
   );
 };
 
@@ -145,6 +183,7 @@ export default function Home() {
       <div class="min-h-screen bg-primary-content">
         <Hero />
         <HighlightedTeams />
+        <HighlightedCompetitions />
       </div>
     </main>
   );
