@@ -22,9 +22,11 @@
     "@prisma/client": "4.11.0",
     "@solidjs/meta": "^0.28.2",
     "@solidjs/router": "^0.7.0",
+    "clsx": "^1.2.1",
     "daisyui": "^2.51.4",
     "solid-js": "^1.6.11",
     "solid-start": "^0.2.23",
+    "tailwind-merge": "^1.10.0",
     "undici": "^5.15.1"
   },
   "engines": {

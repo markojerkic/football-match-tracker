@@ -1,5 +1,6 @@
 import { A } from "@solidjs/router";
 import { createMemo } from "solid-js";
+import { twMerge } from "tailwind-merge";
 
 const Gradient = {
   RED: "from-rose-700 to-pink-600",
@@ -25,11 +26,18 @@ const HighlightedTeam = (props: {
 
   return (
     <div
-      class={`flex items-center border-t-2 ${
-        props.side === "right" ? "flex-row-reverse" : ""
-      } justify-around space-x-4 border-${noBorderOnSide()}-2 border-b-2 p-4 rounded-${noBorderOnSide()}-xl mx-4 w-[65%] self-${
-        props.side === "right" ? "end" : "start"
-      } bg-gradient-to-r ${props.gradient}`}
+      class={twMerge(
+        "flex items-center border-t-2 ",
+        props.side === "right" && "flex-row-reverse",
+        "justify-around space-x-4",
+        `border-${noBorderOnSide()}-2 `,
+        "border-b-2 p-4 ",
+        `rounded-${noBorderOnSide()}-xl `,
+        "mx-4 w-[65%]",
+        `self-${props.side === "right" ? "end" : "start"}`,
+        "bg-gradient-to-r",
+        props.gradient
+      )}
     >
       <img
         class="h-32 w-32 object-contain"
@@ -75,55 +83,68 @@ const HighlightedTeam = (props: {
   );
 };
 
+const Hero = () => {
+  return (
+    <div class="hero min-h-screen bg-accent-focus">
+      <div class="hero-content text-start">
+        <div class="max-w-md">
+          <h1 class="text-5xl font-bold">Football results tracker</h1>
+          <p class="py-6">
+            Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
+            excepturi exercitationem quasi. In deleniti eaque aut repudiandae et
+            a id nisi.
+          </p>
+          <button class="btn-primary btn">Get Started</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const HighlightedTeams = () => {
+  return (
+    <>
+      <p class="p-4 text-center text-5xl font-bold">Highlighted teams</p>
+
+      <div class="py-4 flex flex-col space-y-4">
+        <HighlightedTeam
+          side="right"
+          gradient={Gradient.RED}
+          team={{
+            name: "FC Bayern",
+            imageSlug:
+              "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg/1200px-FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg.png",
+          }}
+        />
+        <HighlightedTeam
+          side="left"
+          gradient={Gradient.SKY_BLUE}
+          team={{
+            name: "Manchaster City",
+            imageSlug:
+              "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/1200px-Manchester_City_FC_badge.svg.png",
+          }}
+        />
+        <HighlightedTeam
+          side="right"
+          gradient={Gradient.ICE}
+          team={{
+            name: "Real Madrid",
+            imageSlug:
+              "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/1200px-Real_Madrid_CF.svg.png",
+          }}
+        />
+      </div>
+    </>
+  );
+};
+
 export default function Home() {
   return (
     <main class="mx-auto w-full">
-      <div class="hero min-h-screen bg-accent-focus">
-        <div class="hero-content text-start">
-          <div class="max-w-md">
-            <h1 class="text-5xl font-bold">Football results tracker</h1>
-            <p class="py-6">
-              Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
-              excepturi exercitationem quasi. In deleniti eaque aut repudiandae
-              et a id nisi.
-            </p>
-            <button class="btn-primary btn">Get Started</button>
-          </div>
-        </div>
-      </div>
-
       <div class="min-h-screen bg-primary-content">
-        <p class="p-4 text-center text-5xl font-bold">Highlighted teams</p>
-
-        <div class="mt-6 flex flex-col space-y-4">
-          <HighlightedTeam
-            side="right"
-            gradient={Gradient.RED}
-            team={{
-              name: "FC Bayern",
-              imageSlug:
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg/1200px-FC_Bayern_M%C3%BCnchen_logo_%282017%29.svg.png",
-            }}
-          />
-          <HighlightedTeam
-            side="left"
-            gradient={Gradient.SKY_BLUE}
-            team={{
-              name: "Manchaster City",
-              imageSlug:
-                "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/1200px-Manchester_City_FC_badge.svg.png",
-            }}
-          />
-          <HighlightedTeam
-            side="right"
-            gradient={Gradient.ICE}
-            team={{
-              name: "Real Madrid",
-              imageSlug:
-                "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/1200px-Real_Madrid_CF.svg.png",
-            }}
-          />
-        </div>
+        <Hero />
+        <HighlightedTeams />
       </div>
     </main>
   );
