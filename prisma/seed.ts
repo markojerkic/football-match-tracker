@@ -1,6 +1,6 @@
 import { Position, PrismaClient } from "@prisma/client";
 import { z } from "zod";
-import { readFileSync, } from "fs";
+import { readFileSync } from "fs";
 
 let prisma = new PrismaClient();
 
@@ -285,7 +285,7 @@ const playersSchema = z.object({
 });
 
 const seedCountries = async () => {
-  const countries = await prisma.country.createMany({
+  await prisma.country.createMany({
     data: [
       {
         name: "Croatia",
@@ -357,38 +357,42 @@ const seedPlayers = async () => {
   ) as any[];
 
   let counter = 0;
+  const players = [];
   for (let playerRaw of playersJson) {
     const playerValidated = playersSchema.parse(playerRaw);
 
     console.log(`Player ${counter++}: ${playerValidated.full_name}`);
 
-    playerValidated["Current Club"];
     const currentTeam = await getOrCreateTeam(
       playerValidated["Current Club"],
       "England"
     );
     const countryId = await getOrCreateCountry(playerValidated.nationality);
 
-    try {
-      await prisma.player.create({
-        data: {
-          firstName: playerValidated.full_name.split(" ")[1],
-          lastName: playerValidated.full_name.substring(
-            playerValidated.full_name.indexOf(" ") + 1
-          ),
-          teamId: currentTeam,
-          primaryShirtNumber:
-            playerValidated.shirt_number !== "N/A"
-              ? +playerValidated.shirt_number
-              : -1,
-          countryId: countryId,
-          primaryPosition: getPosition(playerValidated.position),
-          dateOfBirth: new Date(playerValidated.birthday_GMT),
-        },
-      });
-    } catch (e) {
-      console.error(e);
-    }
+    players.push({
+      firstName: playerValidated.full_name.split(" ")[0],
+      lastName: playerValidated.full_name.substring(
+        playerValidated.full_name.indexOf(" ") + 1,
+        playerValidated.full_name.length
+      ),
+      teamId: currentTeam,
+      ...(playerValidated.shirt_number !== "N/A"
+        ? {
+            primaryShirtNumber: +playerValidated.shirt_number,
+          }
+        : {}),
+      countryId: countryId,
+      primaryPosition: getPosition(playerValidated.position),
+      dateOfBirth: new Date(playerValidated.birthday_GMT),
+    });
+  }
+
+  try {
+    await prisma.player.createMany({
+      data: players,
+    });
+  } catch (e) {
+    console.error(e);
   }
 };
 

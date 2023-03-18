@@ -70,7 +70,7 @@ model Player {
   id                 String               @id @default(cuid())
   firstName          String
   lastName           String
-  primaryShirtNumber Int
+  primaryShirtNumber Int?
   primaryPosition    Position
   dateOfBirth        DateTime
   nationality        Country              @relation(fields: [countryId], references: [id])
@@ -178,7 +178,7 @@ model HighlightedTeam {
 model Country {
   id          String        @id @default(cuid())
   name        String        @unique
-  Player      Player[]
+  players     Player[]
   team        Team[]
   competition Competition[]
   imageSlug   String?
@@ -246,20 +246,20 @@ model Goal {
 }
 
 model GameStatistics {
-  id                       String @id @default(cuid())
-  homeTeamBallPossession   Float
-  game                     Game   @relation(fields: [gameId], references: [id])
-  gameId                   String @unique
-  homeTeamTotalShots       Int
-  homeTeamShotsOnTarget    Int
-  homeTeamCornerKicks      Int
-  homeTeamOffsides         Int
-  homeTeamFouls            Int
-  homeTeamBigChances       Int
-  homeTeamPasses           Int
-  homeTeamCrosses          Int
-  homeTeamTackles          Int
-  homeTeamDribbles         Int
+  id                        String @id @default(cuid())
+  homeTeamBallPossession    Float
+  game                      Game   @relation(fields: [gameId], references: [id])
+  gameId                    String @unique
+  homeTeamTotalShots        Int
+  homeTeamShotsOnTarget     Int
+  homeTeamCornerKicks       Int
+  homeTeamOffsides          Int
+  homeTeamFouls             Int
+  homeTeamBigChances        Int
+  homeTeamPasses            Int
+  homeTeamCrosses           Int
+  homeTeamTackles           Int
+  homeTeamDribbles          Int
   homeTeamDribblesSucessful Int
 
   // Away team repeats
