@@ -126,7 +126,7 @@ model CompetitionInSeason {
 
 model Season {
   id                  String                @id @default(cuid())
-  title               String
+  title               String                @unique
   competitionInSeason CompetitionInSeason[]
   games               Game[]
   groups              Group[]

@@ -1,4 +1,4 @@
-import { Position, PrismaClient } from "@prisma/client";
+import { CompetitionType, Position, PrismaClient } from "@prisma/client";
 import { z } from "zod";
 import { readFileSync } from "fs";
 
@@ -284,7 +284,7 @@ const playersSchema = z.object({
   annual_salary_usd: z.string(),
 });
 
-const seedCountries = async () => {
+const preSeedCountries = async () => {
   await prisma.country.createMany({
     data: [
       {
@@ -378,8 +378,8 @@ const seedPlayers = async () => {
       teamId: currentTeam,
       ...(playerValidated.shirt_number !== "N/A"
         ? {
-            primaryShirtNumber: +playerValidated.shirt_number,
-          }
+          primaryShirtNumber: +playerValidated.shirt_number,
+        }
         : {}),
       countryId: countryId,
       primaryPosition: getPosition(playerValidated.position),
@@ -396,14 +396,77 @@ const seedPlayers = async () => {
   }
 };
 
-const seed = async () => {
-  try {
-    await seedCountries();
-  } catch (e) {
-    console.error(e);
+const createOrGetCompetition = async (
+  competitionName: string,
+  countryName: string,
+  type: CompetitionType
+): Promise<string> => {
+  const countryId = await getOrCreateCountry(countryName);
+  const possibleCompetitionId = await prisma.competition
+    .findFirst({ where: { name: competitionName, countryId: countryId } })
+    .then((comp) => comp?.id);
+  if (!possibleCompetitionId) {
+    return await prisma.competition
+      .create({
+        data: {
+          countryId: countryId,
+          name: competitionName,
+          isHighlighted: false,
+          type,
+        },
+      })
+      .then((comp) => comp.id);
   }
+  return possibleCompetitionId;
+};
+
+const createOrGetSeason = async (seasonId: string): Promise<string> => {
+  const possibleSeasonId = await prisma.season
+    .findUnique({ where: { title: seasonId }, select: { id: true } })
+    .then((s) => s?.id);
+  if (!possibleSeasonId) {
+    return await prisma.season
+      .create({
+        data: {
+          title: seasonId,
+        },
+      })
+      .then((season) => season.id);
+  }
+  return possibleSeasonId;
+};
+
+const addSeasonToCompetition = async ({
+  seasonId,
+  competitionId,
+}: {
+  seasonId: string;
+  competitionId: string;
+}) => {
+  await prisma.competitionInSeason.create({
+    data: {
+      seasonId,
+      competitionId,
+    },
+  });
+};
+
+const createPL1819 = async () => {
+  const premierLeague = await createOrGetCompetition(
+    "Premier League",
+    "England",
+    CompetitionType.LEAGUE
+  );
+  const season1819 = await createOrGetSeason("2018/19");
+  addSeasonToCompetition({ competitionId: premierLeague, seasonId: season1819 });
+}
+
+const seed = async () => {
+  await preSeedCountries();
+
+  createPL1819();
+
   await seedPlayers();
-  console.log("seed");
 };
 
 seed()
