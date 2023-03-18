@@ -351,7 +351,41 @@ const getPosition = (postition: string): Position => {
   return Position.CENTER_FORWARD;
 };
 
-const seedPlayers = async () => {
+const addTeamToSeasonAncCompetition = async ({
+  team,
+  season,
+  competition,
+}: {
+  team: string;
+  competition: string;
+  season: string;
+}) => {
+  const exists = await prisma.teamInCompetition
+    .count({
+      where: {
+        competitionId: competition,
+        seasonId: season,
+        teamId: team,
+      },
+    })
+    .then((count) => count > 0);
+  if (exists) {
+    return;
+  }
+
+  await prisma.teamInCompetition.create({
+    data: {
+      competitionId: competition,
+      seasonId: season,
+      teamId: team,
+    },
+  });
+};
+
+const addPlPlayers1819 = async (pl1829: {
+  competition: string;
+  season: string;
+}) => {
   const playersJson = JSON.parse(
     readFileSync("./prisma/data/players.json").toString()
   ) as any[];
@@ -367,6 +401,9 @@ const seedPlayers = async () => {
       playerValidated["Current Club"],
       "England"
     );
+
+    addTeamToSeasonAncCompetition({ ...pl1829, team: currentTeam });
+
     const countryId = await getOrCreateCountry(playerValidated.nationality);
 
     players.push({
@@ -378,8 +415,8 @@ const seedPlayers = async () => {
       teamId: currentTeam,
       ...(playerValidated.shirt_number !== "N/A"
         ? {
-          primaryShirtNumber: +playerValidated.shirt_number,
-        }
+            primaryShirtNumber: +playerValidated.shirt_number,
+          }
         : {}),
       countryId: countryId,
       primaryPosition: getPosition(playerValidated.position),
@@ -458,15 +495,20 @@ const createPL1819 = async () => {
     CompetitionType.LEAGUE
   );
   const season1819 = await createOrGetSeason("2018/19");
-  addSeasonToCompetition({ competitionId: premierLeague, seasonId: season1819 });
-}
+  addSeasonToCompetition({
+    competitionId: premierLeague,
+    seasonId: season1819,
+  });
+
+  return { competition: premierLeague, season: season1819 };
+};
 
 const seed = async () => {
   await preSeedCountries();
 
-  createPL1819();
+  const pl1819 = await createPL1819();
 
-  await seedPlayers();
+  await addPlPlayers1819(pl1819);
 };
 
 seed()

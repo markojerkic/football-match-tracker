@@ -90,8 +90,10 @@ model TeamInCompetition {
   id            String      @id @default(cuid())
   team          Team        @relation(fields: [teamId], references: [id])
   compatition   Competition @relation(fields: [competitionId], references: [id])
+  season        Season      @relation(fields: [seasonId], references: [id])
   teamId        String
   competitionId String
+  seasonId      String
 }
 
 model Competition {
@@ -130,6 +132,7 @@ model Season {
   competitionInSeason CompetitionInSeason[]
   games               Game[]
   groups              Group[]
+  teamsInCompetitions TeamInCompetition[]
 }
 
 model Group {
