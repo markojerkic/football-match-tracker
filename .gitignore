@@ -25,3 +25,5 @@ Thumbs.db
 
 docker-compose.yml
 .env
+
+*.log

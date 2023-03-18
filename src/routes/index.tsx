@@ -103,7 +103,7 @@ const Hero = () => {
 
 const HighlightedCompetitions = () => {
   return (
-    <div class="bg-accent-focus min-h-screen py-8 text-white">
+    <div class="min-h-screen bg-accent-focus py-8 text-white">
       <p class="p-4 text-center text-5xl font-bold">Highlighted competitions</p>
 
       <div class="flex flex-col space-y-4 py-4">

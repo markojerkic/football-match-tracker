@@ -177,7 +177,6 @@ model HighlightedTeam {
 
 model Country {
   id          String        @id @default(cuid())
-  code        String        @unique
   name        String        @unique
   Player      Player[]
   team        Team[]

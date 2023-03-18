@@ -5,10 +5,14 @@
     "build": "solid-start build",
     "start": "solid-start start",
     "prettier": "prettier --write \"**/*.{ts,tsx,md,mjs}\"",
-    "seed": "npx ts-node --require esbuild-register prisma/seed.ts"
+    "seed": "tsc prisma/seed.ts && mv prisma/seed.js prisma/seed.cjs && node ./prisma/seed.cjs || rm prisma/cjs"
+  },
+  "prisma": {
+    "seed": "tsc prisma/seed.ts && mv prisma/seed.js prisma/seed.cjs && node ./prisma/seed.cjs || rm prisma/cjs"
   },
   "type": "module",
   "devDependencies": {
+    "@types/node": "^18.15.3",
     "autoprefixer": "^10.4.13",
     "esbuild-register": "^3.4.2",
     "postcss": "^8.4.21",
@@ -17,8 +21,10 @@
     "prisma": "^4.11.0",
     "solid-start-node": "^0.2.19",
     "tailwindcss": "^3.2.4",
+    "ts-node": "^10.9.1",
     "typescript": "^4.9.4",
-    "vite": "^4.1.4"
+    "vite": "^4.1.4",
+    "xlsx": "^0.18.5"
   },
   "dependencies": {
     "@prisma/client": "4.11.0",
@@ -28,7 +34,8 @@
     "solid-js": "^1.6.11",
     "solid-start": "^0.2.23",
     "tailwind-merge": "^1.10.0",
-    "undici": "^5.15.1"
+    "undici": "^5.15.1",
+    "zod": "^3.21.4"
   },
   "engines": {
     "node": ">=16"
