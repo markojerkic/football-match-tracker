@@ -1,8 +1,6 @@
 import { Position, PrismaClient } from "@prisma/client";
 import { z } from "zod";
-import { readFileSync, writeFileSync } from "fs";
-import { read, utils } from "xlsx";
-import { validateHeaderName } from "http";
+import { readFileSync, } from "fs";
 
 let prisma = new PrismaClient();
 
@@ -10,7 +8,7 @@ const playersSchema = z.object({
   full_name: z.string(),
   age: z.number(),
   birthday: z.number(),
-  birthday_GMT: z.number(),
+  birthday_GMT: z.string(),
   league: z.string(),
   season: z.string(),
   position: z.string(),
@@ -354,51 +352,52 @@ const getPosition = (postition: string): Position => {
 };
 
 const seedPlayers = async () => {
-  const playersCsv = readFileSync("./prisma/data/players.csv");
-  const rawData = read(playersCsv);
-  const cols = rawData.Sheets["Sheet1"]["!cols"];
+  const playersJson = JSON.parse(
+    readFileSync("./prisma/data/players.json").toString()
+  ) as any[];
 
   let counter = 0;
-  for (let [_, sheet] of Object.entries(rawData.Sheets)) {
-    const json = utils.sheet_to_json(sheet);
-    for (let playerRaw of json) {
-      const playerValidated = playersSchema.parse(playerRaw);
+  for (let playerRaw of playersJson) {
+    const playerValidated = playersSchema.parse(playerRaw);
 
-      console.log(`Player ${counter++}: ${playerValidated.full_name}`);
+    console.log(`Player ${counter++}: ${playerValidated.full_name}`);
 
-      playerValidated["Current Club"];
-      const currentTeam = await getOrCreateTeam(
-        playerValidated["Current Club"],
-        "England"
-      );
-      const countryId = await getOrCreateCountry(playerValidated.nationality);
+    playerValidated["Current Club"];
+    const currentTeam = await getOrCreateTeam(
+      playerValidated["Current Club"],
+      "England"
+    );
+    const countryId = await getOrCreateCountry(playerValidated.nationality);
 
-      try {
-        await prisma.player.create({
-          data: {
-            firstName: playerValidated.full_name.split(" ")[1],
-            lastName: playerValidated.full_name.substring(
-              playerValidated.full_name.indexOf(" ") + 1
-            ),
-            teamId: currentTeam,
-            primaryShirtNumber:
-              playerValidated.shirt_number !== "N/A"
-                ? +playerValidated.shirt_number
-                : -1,
-            countryId: countryId,
-            primaryPosition: getPosition(playerValidated.position),
-            dateOfBirth: new Date(playerValidated.birthday_GMT),
-          },
-        });
-      } catch (e) {
-        console.error(e);
-      }
+    try {
+      await prisma.player.create({
+        data: {
+          firstName: playerValidated.full_name.split(" ")[1],
+          lastName: playerValidated.full_name.substring(
+            playerValidated.full_name.indexOf(" ") + 1
+          ),
+          teamId: currentTeam,
+          primaryShirtNumber:
+            playerValidated.shirt_number !== "N/A"
+              ? +playerValidated.shirt_number
+              : -1,
+          countryId: countryId,
+          primaryPosition: getPosition(playerValidated.position),
+          dateOfBirth: new Date(playerValidated.birthday_GMT),
+        },
+      });
+    } catch (e) {
+      console.error(e);
     }
   }
 };
 
 const seed = async () => {
-  await seedCountries();
+  try {
+    await seedCountries();
+  } catch (e) {
+    console.error(e);
+  }
   await seedPlayers();
   console.log("seed");
 };
