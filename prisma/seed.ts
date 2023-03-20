@@ -614,11 +614,13 @@ const getOrCreateCountry = async (countryName: string) => {
   return countryId;
 };
 
-const getOrCreateTeam = async (teamName: string, countryName: string) => {
-  const countryId = await prisma.country.findUniqueOrThrow({
-    where: { name: countryName },
-    select: { id: true },
-  });
+const getOrCreateTeam = async ({
+  teamName,
+  countryId,
+}: {
+  teamName: string;
+  countryId: string;
+}) => {
   const possibleTeam = await prisma.team.findFirst({
     where: { name: teamName },
   });
@@ -626,7 +628,7 @@ const getOrCreateTeam = async (teamName: string, countryName: string) => {
     const team = await prisma.team.create({
       data: {
         name: teamName,
-        countryId: countryId.id,
+        countryId,
       },
     });
     return team.id;
@@ -678,68 +680,141 @@ const addTeamToSeasonAncCompetition = async ({
   });
 };
 
+const getOrCreatePlayer = async ({
+  firstName,
+  lastName,
+  dateOfBirth,
+  countryId,
+  primaryPosition,
+  primaryShirtNumber,
+  team: { seasonId, teamId, isCurrentSeasson },
+}: {
+  firstName: string;
+  lastName: string;
+  dateOfBirth: Date;
+  countryId: string;
+  primaryPosition: Position;
+  primaryShirtNumber: string | undefined;
+  team: {
+    seasonId: string;
+    teamId: string;
+    isCurrentSeasson: boolean;
+  };
+}) => {
+  const possiblePlayer = await prisma.player.findFirst({
+    where: {
+      firstName,
+      lastName,
+      dateOfBirth,
+      countryId,
+    },
+    select: {
+      id: true,
+      currentTeam: {
+        select: {
+          id: true,
+        },
+      },
+    },
+  });
+
+  if (possiblePlayer && isCurrentSeasson && !possiblePlayer.currentTeam?.id) {
+    await prisma.player.update({
+      where: {
+        id: possiblePlayer.id,
+      },
+      data: {
+        teamId,
+      },
+    });
+
+    return possiblePlayer.id;
+  }
+
+  try {
+    const player = await prisma.player.create({
+      data: {
+        firstName,
+        lastName,
+        ...(isCurrentSeasson ? { teamId } : {}),
+        ...(primaryShirtNumber && primaryShirtNumber !== "N/A"
+          ? {
+              primaryShirtNumber: +primaryShirtNumber,
+            }
+          : {}),
+        countryId: countryId,
+        primaryPosition,
+        dateOfBirth,
+      },
+    });
+
+    return player.id;
+  } catch (e) {
+    console.error("Error ingesting player", e);
+  }
+};
+
 const addPlPlayers1819 = async ({
   fileLocation,
   season,
   competition,
+  isCurrentSeasson,
+  countryId: teamCountryId,
 }: {
   competition: string;
   season: string;
   fileLocation: PathOrFileDescriptor;
+  isCurrentSeasson: boolean;
+  countryId: string;
 }) => {
   const playersJson = JSON.parse(
     readFileSync(fileLocation).toString()
   ) as any[];
 
   let counter = 0;
-  const players = [];
+
   for (let playerRaw of playersJson) {
     const playerValidated = playersSchema.parse(playerRaw);
 
     console.log(`Player ${counter++}: ${playerValidated.full_name}`);
 
-    const currentTeam = await getOrCreateTeam(
-      playerValidated["Current Club"],
-      "England"
-    );
+    const currentTeam = await getOrCreateTeam({
+      countryId: teamCountryId,
+      teamName: playerValidated["Current Club"],
+    });
 
     addTeamToSeasonAncCompetition({ competition, season, team: currentTeam });
 
     const countryId = await getOrCreateCountry(playerValidated.nationality);
 
-    players.push({
+    const player = await getOrCreatePlayer({
       firstName: playerValidated.full_name.split(" ")[0],
       lastName: playerValidated.full_name.substring(
         playerValidated.full_name.indexOf(" ") + 1,
         playerValidated.full_name.length
       ),
-      teamId: currentTeam,
-      ...(playerValidated.shirt_number !== "N/A"
-        ? {
-            primaryShirtNumber: +playerValidated.shirt_number,
-          }
-        : {}),
+      primaryShirtNumber: playerValidated.shirt_number,
       countryId: countryId,
       primaryPosition: getPosition(playerValidated.position),
       dateOfBirth: new Date(playerValidated.birthday_GMT),
+      team: {
+        seasonId: season,
+        teamId: currentTeam,
+        isCurrentSeasson,
+      },
     });
-  }
-
-  try {
-    await prisma.player.createMany({
-      data: players,
-    });
-  } catch (e) {
-    console.error(e);
   }
 };
 
-const createOrGetCompetition = async (
-  competitionName: string,
-  countryName: string,
-  type: CompetitionType
-): Promise<string> => {
-  const countryId = await getOrCreateCountry(countryName);
+const createOrGetCompetition = async ({
+  competitionName,
+  countryId,
+  type,
+}: {
+  competitionName: string;
+  countryId: string;
+  type: CompetitionType;
+}): Promise<string> => {
   const possibleCompetitionId = await prisma.competition
     .findFirst({ where: { name: competitionName, countryId: countryId } })
     .then((comp) => comp?.id);
@@ -747,7 +822,7 @@ const createOrGetCompetition = async (
     return await prisma.competition
       .create({
         data: {
-          countryId: countryId,
+          countryId,
           name: competitionName,
           isHighlighted: false,
           type,
@@ -789,12 +864,12 @@ const addSeasonToCompetition = async ({
   });
 };
 
-const createPL1819 = async () => {
-  const premierLeague = await createOrGetCompetition(
-    "Premier League",
-    "England",
-    CompetitionType.LEAGUE
-  );
+const createPL1819 = async (england: string) => {
+  const premierLeague = await createOrGetCompetition({
+    countryId: england,
+    competitionName: "Premier League",
+    type: CompetitionType.LEAGUE,
+  });
   const season1819 = await createOrGetSeason("2018/19");
   addSeasonToCompetition({
     competitionId: premierLeague,
@@ -807,11 +882,14 @@ const createPL1819 = async () => {
 const seed = async () => {
   await preSeedCountries();
 
-  const pl1819 = await createPL1819();
+  const england = await getOrCreateCountry("England");
+  const pl1819 = await createPL1819(england);
 
   await addPlPlayers1819({
     ...pl1819,
     fileLocation: "./prisma/data/players.json",
+    isCurrentSeasson: false,
+    countryId: england,
   });
 };
 
