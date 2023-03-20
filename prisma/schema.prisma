@@ -56,34 +56,35 @@ model PreviousManager {
   tenureEnd   DateTime?
 }
 
-model PreviousTeam {
-  id          String    @id @default(cuid())
-  team        Team      @relation(fields: [teamId], references: [id])
-  teamId      String
-  player      Player    @relation(fields: [playerId], references: [id])
-  playerId    String
-  tenureStart DateTime
-  tenureEnd   DateTime?
+model PlayersTeamInSeason {
+  id       String @id @default(cuid())
+  team     Team   @relation(fields: [teamId], references: [id])
+  teamId   String
+  player   Player @relation(fields: [playerId], references: [id])
+  playerId String
+  season   Season @relation(fields: [seasonId], references: [id])
+  seasonId String
+
+  @@unique([teamId, playerId, seasonId])
 }
 
 model Player {
-  id                 String               @id @default(cuid())
+  id                 String                @id @default(cuid())
   firstName          String
   lastName           String
   primaryShirtNumber Int?
   primaryPosition    Position
   dateOfBirth        DateTime
-  nationality        Country              @relation(fields: [countryId], references: [id])
+  nationality        Country               @relation(fields: [countryId], references: [id])
   imageSlug          String?
   countryId          String
-  currentTeam        Team?                @relation(fields: [teamId], references: [id])
   teamId             String?
-  goals              Goal[]               @relation("goals")
-  assists            Goal[]               @relation("assists")
+  goals              Goal[]                @relation("goals")
+  assists            Goal[]                @relation("assists")
   cardAwarded        CardAwarded[]
   lineup             PlayerInGameLineup[]
   favouritedByUser   FavouritePlayer[]
-  previousTeams      PreviousTeam[]
+  teams              PlayersTeamInSeason[]
 }
 
 model TeamInCompetition {
@@ -133,6 +134,8 @@ model Season {
   games               Game[]
   groups              Group[]
   teamsInCompetitions TeamInCompetition[]
+  playersTeamInSeason PlayersTeamInSeason[]
+  isCurrent           Boolean
 }
 
 model Group {
@@ -154,20 +157,19 @@ model TeamInGroup {
 }
 
 model Team {
-  id               String              @id @default(cuid())
+  id               String                @id @default(cuid())
   name             String
-  country          Country             @relation(fields: [countryId], references: [id])
-  Player           Player[]
+  country          Country               @relation(fields: [countryId], references: [id])
   countryId        String
-  homeGames        Game[]              @relation("homeGames")
-  awayGames        Game[]              @relation("awayGames")
+  homeGames        Game[]                @relation("homeGames")
+  awayGames        Game[]                @relation("awayGames")
   highlightedTeams HighlightedTeam[]
   favouritedByUser FavouriteTeam[]
   competitions     TeamInCompetition[]
   imageSlug        String?
   currentManager   Manager?
   previousManagers PreviousManager[]
-  previousPlayers  PreviousTeam[]
+  previousPlayers  PlayersTeamInSeason[]
   groupId          String?
   groups           TeamInGroup[]
 }

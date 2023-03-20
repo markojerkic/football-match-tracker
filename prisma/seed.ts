@@ -680,6 +680,27 @@ const addTeamToSeasonAncCompetition = async ({
   });
 };
 
+const addPlayerToTeamInSeason = async (playerInTeam: {
+  playerId: string;
+  teamId: string;
+  seasonId: string;
+}) => {
+  const previousClubInSeason = await prisma.playersTeamInSeason.findUnique({
+    where: {
+      teamId_playerId_seasonId: playerInTeam,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!previousClubInSeason) {
+    await prisma.playersTeamInSeason.createMany({
+      data: playerInTeam,
+    });
+  }
+};
+
 const getOrCreatePlayer = async ({
   firstName,
   lastName,
@@ -710,24 +731,11 @@ const getOrCreatePlayer = async ({
     },
     select: {
       id: true,
-      currentTeam: {
-        select: {
-          id: true,
-        },
-      },
     },
   });
 
-  if (possiblePlayer && isCurrentSeasson && !possiblePlayer.currentTeam?.id) {
-    await prisma.player.update({
-      where: {
-        id: possiblePlayer.id,
-      },
-      data: {
-        teamId,
-      },
-    });
-
+  if (possiblePlayer) {
+    addPlayerToTeamInSeason({ teamId, seasonId, playerId: possiblePlayer.id });
     return possiblePlayer.id;
   }
 
@@ -748,6 +756,7 @@ const getOrCreatePlayer = async ({
       },
     });
 
+    addPlayerToTeamInSeason({ teamId, seasonId, playerId: player.id });
     return player.id;
   } catch (e) {
     console.error("Error ingesting player", e);
@@ -833,7 +842,13 @@ const createOrGetCompetition = async ({
   return possibleCompetitionId;
 };
 
-const createOrGetSeason = async (seasonId: string): Promise<string> => {
+const createOrGetSeason = async ({
+  seasonId,
+  isCurrentSeasson,
+}: {
+  seasonId: string;
+  isCurrentSeasson: boolean;
+}): Promise<string> => {
   const possibleSeasonId = await prisma.season
     .findUnique({ where: { title: seasonId }, select: { id: true } })
     .then((s) => s?.id);
@@ -842,6 +857,7 @@ const createOrGetSeason = async (seasonId: string): Promise<string> => {
       .create({
         data: {
           title: seasonId,
+          isCurrent: isCurrentSeasson,
         },
       })
       .then((season) => season.id);
@@ -870,7 +886,10 @@ const createPL1819 = async (england: string) => {
     competitionName: "Premier League",
     type: CompetitionType.LEAGUE,
   });
-  const season1819 = await createOrGetSeason("2018/19");
+  const season1819 = await createOrGetSeason({
+    seasonId: "2018/19",
+    isCurrentSeasson: false,
+  });
   addSeasonToCompetition({
     competitionId: premierLeague,
     seasonId: season1819,
