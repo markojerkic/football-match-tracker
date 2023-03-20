@@ -1,6 +1,6 @@
 import { CompetitionType, Position, PrismaClient } from "@prisma/client";
 import { z } from "zod";
-import { readFileSync } from "fs";
+import { PathOrFileDescriptor, readFileSync } from "fs";
 
 let prisma = new PrismaClient();
 
@@ -678,12 +678,17 @@ const addTeamToSeasonAncCompetition = async ({
   });
 };
 
-const addPlPlayers1819 = async (pl1829: {
+const addPlPlayers1819 = async ({
+  fileLocation,
+  season,
+  competition,
+}: {
   competition: string;
   season: string;
+  fileLocation: PathOrFileDescriptor;
 }) => {
   const playersJson = JSON.parse(
-    readFileSync("./prisma/data/players.json").toString()
+    readFileSync(fileLocation).toString()
   ) as any[];
 
   let counter = 0;
@@ -698,7 +703,7 @@ const addPlPlayers1819 = async (pl1829: {
       "England"
     );
 
-    addTeamToSeasonAncCompetition({ ...pl1829, team: currentTeam });
+    addTeamToSeasonAncCompetition({ competition, season, team: currentTeam });
 
     const countryId = await getOrCreateCountry(playerValidated.nationality);
 
@@ -804,7 +809,10 @@ const seed = async () => {
 
   const pl1819 = await createPL1819();
 
-  await addPlPlayers1819(pl1819);
+  await addPlPlayers1819({
+    ...pl1819,
+    fileLocation: "./prisma/data/players.json",
+  });
 };
 
 seed()
