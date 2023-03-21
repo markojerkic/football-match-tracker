@@ -739,7 +739,7 @@ const seed = async () => {
   await addGames({
     countryId: england,
     competitionId: pl1819.competition,
-    filePath: "./data/games-pl-1819.json",
+    filePath: "./prisma/data/games-pl-1819.json",
     seasonId: pl1819.season,
   });
 };
