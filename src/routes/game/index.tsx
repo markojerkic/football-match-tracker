@@ -7,6 +7,10 @@ import { prisma } from "../../util/prisma";
 export const routeData = () => {
   const games = createServerData$(() => {
     const games = prisma.game.findMany({
+      take: 20,
+      orderBy: {
+        kickoffTime: 'desc',
+      },
       select: {
         id: true,
         homeTeam: {
@@ -22,14 +26,26 @@ export const routeData = () => {
         kickoffTime: true,
         goals: {
           select: {
-            goal: {
-              select: {
-                _count: true,
-              },
-            },
-          },
+            isHomeTeamGoal: true
+          }
         },
       },
+    }).then((games) => {
+
+      return games.map(game => {
+        let homeTeamGoalCount = 0;
+        let awayTeamGoalCount = 0;
+
+        for (let goal of game.goals) {
+          if (goal.isHomeTeamGoal) {
+            homeTeamGoalCount++;
+            continue;
+          }
+          awayTeamGoalCount++;
+        }
+        return {...game, homeTeamGoalCount, awayTeamGoalCount};
+      });
+
     });
     return games;
   });
@@ -54,11 +70,11 @@ const Game = (game: {
   kickoffTime: Date;
 }) => {
   const calendarDate = createMemo(() => dayjs(game.kickoffTime).format("DD.MM.YYYY."));
-  const kickoffTime = createMemo(() => dayjs(game.kickoffTime).format("hh:mm"));
+  const kickoffTime = createMemo(() => dayjs(game.kickoffTime).format("HH:mm"));
 
   return (
     <div class="flex flex-col w-full max-w-3xl rounded-md border border-base-content p-4">
-      <span class="text-sm">
+      <span class="text-sm flex space-x-4">
         <span>{calendarDate()}</span>
         <span>{kickoffTime()}</span>
       </span>
@@ -78,8 +94,8 @@ export default () => {
         <Game
           awayTeam={game.awayTeam.name}
           homeTeam={game.homeTeam.name}
-          homeTeamGoalCount={0}
-          awayTeamGoalCount={0}
+          homeTeamGoalCount={game.homeTeamGoalCount}
+          awayTeamGoalCount={game.awayTeamGoalCount}
           kickoffTime={game.kickoffTime}
         />
       )}

@@ -648,12 +648,14 @@ const generateRandomGoals = async ({
   gameId,
   goalCount,
   goalTimings,
+  isHomeTeamGoal
 }: {
   teamId: string;
   seasonId: string;
   gameId: string;
   goalCount: number;
   goalTimings: string;
+  isHomeTeamGoal: boolean;
 }) => {
   if (goalCount === 0) return;
 
@@ -702,6 +704,7 @@ const generateRandomGoals = async ({
           : {}),
         scoredInHalftime: halftime,
         gameId,
+        isHomeTeamGoal
       },
     });
     console.log("Created goal", createdGoal.id);
@@ -740,7 +743,7 @@ const addGames = async ({
         competitionId,
         homeTeamId,
         awayTeamId,
-        kickoffTime: new Date(game.timestamp),
+        kickoffTime: new Date(game.timestamp * 1000),
 
         // TODO: prema krajnjojo minuti gola zadnjeg odrediti ako ima dodatnog vremena?
         firstHalfEndedAferAdditionalTime: 0,
@@ -758,7 +761,8 @@ const addGames = async ({
         goalCount: game.home_team_goal_count,
         goalTimings: game.home_team_goal_timings,
         teamId: homeTeamId,
-        seasonId
+        seasonId,
+        isHomeTeamGoal: true
       }),
       generateRandomGoals({
         gameId: id,
@@ -766,6 +770,7 @@ const addGames = async ({
         goalTimings: game.away_team_goal_timings,
         teamId: awayTeamId,
         seasonId,
+        isHomeTeamGoal: false
       }),
     ]);
   }
