@@ -217,7 +217,7 @@ model Game {
   firstHalfEndedAferAdditionalTime          Int
   secondHalfEndedAferAdditionalTime         Int
   isOver                                    Boolean
-  goals                                     GoalInGame[]
+  goals                                     Goal[]
   hasExtraTime                              Boolean
   firstExtendedHalfEndedAferAdditionalTime  Int?
   secondExtendedHalfEndedAferAdditionalTime Int?
@@ -228,26 +228,20 @@ model Game {
   seasonId                                  String?
 }
 
-model GoalInGame {
-  id     String @id @default(cuid())
-  inGame Game   @relation(fields: [gameId], references: [id])
-  goal   Goal   @relation(fields: [goalId], references: [id])
-  gameId String
-  goalId String
-}
-
 model Goal {
-  id                  String       @id @default(cuid())
-  scoredBy            Player       @relation("goals", fields: [scorerId], references: [id])
+  id                  String   @id @default(cuid())
+  scoredBy            Player   @relation("goals", fields: [scorerId], references: [id])
   scorerId            String
   isOwnGoal           Boolean
   isPenalty           Boolean
   isPenaltyInShootout Boolean
   scoredInMinute      Int
+  scoredInExtraMinute Int?
   scoredInHalftime    Halftime
-  assistedBy          Player?      @relation("assists", fields: [assistentId], references: [id])
+  assistedBy          Player?  @relation("assists", fields: [assistentId], references: [id])
   assistentId         String?
-  inGame              GoalInGame[]
+  inGame              Game     @relation(fields: [gameId], references: [id])
+  gameId              String
 }
 
 model GameStatistics {

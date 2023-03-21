@@ -5,10 +5,10 @@
     "build": "solid-start build",
     "start": "solid-start start",
     "prettier": "prettier --write \"**/*.{ts,tsx,md,mjs}\"",
-    "seed": "tsc prisma/seed.ts && mv prisma/seed.js prisma/seed.cjs && node ./prisma/seed.cjs || rm prisma/cjs"
+    "seed": "tsc prisma/seed.ts && mv prisma/seed.js prisma/seed.cjs && node ./prisma/seed.cjs || rm prisma/seed.cjs"
   },
   "prisma": {
-    "seed": "tsc prisma/seed.ts && mv prisma/seed.js prisma/seed.cjs && node ./prisma/seed.cjs || rm prisma/cjs"
+    "seed": "tsc prisma/seed.ts && mv prisma/seed.js prisma/seed.cjs && node ./prisma/seed.cjs || rm prisma/seed.cjs"
   },
   "type": "module",
   "devDependencies": {

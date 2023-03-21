@@ -1,4 +1,9 @@
-import { CompetitionType, Position, PrismaClient } from "@prisma/client";
+import {
+  CompetitionType,
+  Halftime,
+  Position,
+  PrismaClient,
+} from "@prisma/client";
 import { z } from "zod";
 import { PathOrFileDescriptor, readFileSync } from "fs";
 
@@ -528,8 +533,8 @@ const getOrCreatePlayer = async ({
         ...(isCurrentSeasson ? { teamId } : {}),
         ...(primaryShirtNumber && primaryShirtNumber !== "N/A"
           ? {
-              primaryShirtNumber: +primaryShirtNumber,
-            }
+            primaryShirtNumber: +primaryShirtNumber,
+          }
           : {}),
         countryId: countryId,
         primaryPosition,
@@ -623,6 +628,86 @@ const createOrGetCompetition = async ({
   return possibleCompetitionId;
 };
 
+const getRandomSubarray = <T>(arr: T[], size: number) => {
+  var shuffled = arr.slice(0),
+    i = arr.length,
+    temp,
+    index;
+  while (i--) {
+    index = Math.floor((i + 1) * Math.random());
+    temp = shuffled[index];
+    shuffled[index] = shuffled[i];
+    shuffled[i] = temp;
+  }
+  return shuffled.slice(0, size);
+};
+
+const generateRandomGoals = async ({
+  seasonId,
+  teamId,
+  gameId,
+  goalCount,
+  goalTimings,
+}: {
+  teamId: string;
+  seasonId: string;
+  gameId: string;
+  goalCount: number;
+  goalTimings: string;
+}) => {
+  if (goalCount === 0) return;
+
+  const itemCount = await prisma.playersTeamInSeason.count({
+    where: { seasonId, teamId },
+  });
+  const skip = Math.max(0, Math.floor(Math.random() * itemCount) - goalCount);
+  const orderBy = getRandomSubarray(['id', 'seasonId', 'teamId'], 1)[0];
+  const orderDir = getRandomSubarray(['asc', 'desc'], 1)[0];
+
+  const players = await prisma.playersTeamInSeason.findMany({
+    take: goalCount,
+    skip,
+    where: { seasonId, teamId },
+    orderBy: { [orderBy]: orderDir },
+    select: { playerId: true },
+  });
+
+  const timings = goalTimings.split(",");
+  for (let player of players) {
+    const timing = timings.pop();
+
+    if (!timing) {
+      break;
+    }
+
+    const isInExtratime = timing.includes("'");
+
+    const minute = +timing.split("'")[0];
+    let extraMinute = undefined;
+    if (isInExtratime) {
+      extraMinute = +timing.split("'")[1];
+    }
+
+    const halftime = minute <= 45 ? Halftime.FIRST_HALF : Halftime.SECOND_HALF;
+
+    const createdGoal = await prisma.goal.create({
+      data: {
+        isOwnGoal: false,
+        scorerId: player.playerId,
+        isPenalty: Math.floor(Math.random() * 2) === 1,
+        isPenaltyInShootout: false,
+        scoredInMinute: minute,
+        ...(isInExtratime && extraMinute
+          ? { scoredInExtraMinute: extraMinute }
+          : {}),
+        scoredInHalftime: halftime,
+        gameId,
+      },
+    });
+    console.log("Created goal", createdGoal.id);
+  }
+};
+
 const addGames = async ({
   competitionId,
   seasonId,
@@ -638,16 +723,18 @@ const addGames = async ({
     .array()
     .parse(JSON.parse(readFileSync(filePath).toString()));
 
-    let counter = 0;
+  let counter = 0;
   for (let game of games) {
-    console.log(`Game ${counter++}: ${game.home_team_name} vs ${game.away_team_name}`);
+    console.log(
+      `Game ${counter++}: ${game.home_team_name} vs ${game.away_team_name}`
+    );
 
     const [homeTeamId, awayTeamId] = await Promise.all([
       getOrCreateTeam({ teamName: game.home_team_name, countryId }),
       getOrCreateTeam({ teamName: game.away_team_name, countryId }),
     ]);
 
-    await prisma.game.create({
+    const { id } = await prisma.game.create({
       data: {
         seasonId,
         competitionId,
@@ -664,6 +751,23 @@ const addGames = async ({
         hasPenaltyShootout: false,
       },
     });
+
+    await Promise.all([
+      generateRandomGoals({
+        gameId: id,
+        goalCount: game.home_team_goal_count,
+        goalTimings: game.home_team_goal_timings,
+        teamId: homeTeamId,
+        seasonId
+      }),
+      generateRandomGoals({
+        gameId: id,
+        goalCount: game.away_team_goal_count,
+        goalTimings: game.away_team_goal_timings,
+        teamId: awayTeamId,
+        seasonId,
+      }),
+    ]);
   }
 };
 
