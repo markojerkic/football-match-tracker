@@ -57,7 +57,7 @@ const getGames = server$(async (id: string | undefined) => {
       });
     });
 
-    console.log("req gotov");
+  console.log("req gotov");
 
   return games;
 });
@@ -174,23 +174,21 @@ export default () => {
     <div
       class="flex flex-col place-items-center space-y-4"
     >
-      <Suspense fallback={<div>test...</div>}>
-        <Show when={mergedLists()} keyed>
-          {(data) => (
-            <For each={data}>
-              {(game) => (
-                <Game
-                  awayTeam={game.awayTeam.name}
-                  homeTeam={game.homeTeam.name}
-                  homeTeamGoalCount={game.homeTeamGoalCount}
-                  awayTeamGoalCount={game.awayTeamGoalCount}
-                  kickoffTime={game.kickoffTime}
-                />
-              )}
-            </For>
-          )}
-        </Show>
-      </Suspense>
+      <Show when={mergedLists()} keyed>
+        {(data) => (
+          <For each={data}>
+            {(game) => (
+              <Game
+                awayTeam={game.awayTeam.name}
+                homeTeam={game.homeTeam.name}
+                homeTeamGoalCount={game.homeTeamGoalCount}
+                awayTeamGoalCount={game.awayTeamGoalCount}
+                kickoffTime={game.kickoffTime}
+              />
+            )}
+          </For>
+        )}
+      </Show>
     </div>
   );
 };

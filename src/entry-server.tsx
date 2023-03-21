@@ -1,5 +1,6 @@
 import {
   createHandler,
+  renderAsync,
   renderStream,
   renderSync,
   StartServer,
