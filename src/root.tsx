@@ -19,7 +19,8 @@ const Navbar = () => {
   return (
     <div class="navbar mx-auto w-[98%] rounded-lg bg-secondary px-2 text-white">
       <div class="flex-1">
-        <a class="btn-ghost btn rounded-lg text-xl normal-case">footyTracker</a>
+        <A href="/" class="btn-ghost btn rounded-lg text-xl normal-case">footyTracker</A>
+        <A href="/game" class="btn-ghost btn rounded-lg text-xl normal-case">Games list</A>
       </div>
       <div class="flex-none">
         <div class="dropdown-end dropdown">
