@@ -14,6 +14,7 @@ import {
   Title,
 } from "solid-start";
 import "./root.css";
+import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
 
 const Navbar = () => {
   return (
@@ -87,6 +88,14 @@ const Navbar = () => {
 };
 
 export default function Root() {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: 0,
+      },
+    },
+  });
+
   return (
     <Html lang="en" data-theme="corporate">
       <Head>
@@ -95,14 +104,16 @@ export default function Root() {
         <Meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <Body class="flex flex-col space-y-4 py-4">
-        <Suspense>
+        <QueryClientProvider client={queryClient}>
           <ErrorBoundary>
-            <Navbar />
-            <Routes>
-              <FileRoutes />
-            </Routes>
+            <Suspense>
+              <Navbar />
+              <Routes>
+                <FileRoutes />
+              </Routes>
+            </Suspense>
           </ErrorBoundary>
-        </Suspense>
+        </QueryClientProvider>
         <Scripts />
       </Body>
     </Html>

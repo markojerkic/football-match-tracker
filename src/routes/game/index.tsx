@@ -1,10 +1,95 @@
 import dayjs from "dayjs";
-import { createMemo, For } from "solid-js";
+import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
 import { useRouteData } from "solid-start";
-import { createServerData$ } from "solid-start/server";
+import server$, { createServerData$ } from "solid-start/server";
 import { prisma } from "../../util/prisma";
+import { createInfiniteQuery } from "@tanstack/solid-query";
+
+const getGames = server$(async (cursor: { id: string } | undefined) => {
+  const games = await prisma.game
+    .findMany({
+      take: 20,
+      ...(cursor !== undefined && cursor !== null
+        ? {
+          cursor,
+        }
+        : {}),
+      orderBy: {
+        // kickoffTime: "desc",
+        id: "desc"
+      },
+      select: {
+        id: true,
+        homeTeam: {
+          select: {
+            name: true,
+          },
+        },
+        awayTeam: {
+          select: {
+            name: true,
+          },
+        },
+        kickoffTime: true,
+        goals: {
+          select: {
+            isHomeTeamGoal: true,
+          },
+        },
+      },
+    })
+    .then((games) => {
+      return games.map((game) => {
+        let homeTeamGoalCount = 0;
+        let awayTeamGoalCount = 0;
+
+        for (let goal of game.goals) {
+          if (goal.isHomeTeamGoal) {
+            homeTeamGoalCount++;
+            continue;
+          }
+          awayTeamGoalCount++;
+        }
+        return { ...game, homeTeamGoalCount, awayTeamGoalCount };
+      });
+    });
+
+  return games;
+});
+
+type Games = Awaited<ReturnType<typeof getGames>>;
 
 export const routeData = () => {
+  const gamesPage = createInfiniteQuery(
+    () => ["games-list"],
+    async ({ pageParam = undefined }) => {
+      return getGames(pageParam);
+    },
+    {
+      getNextPageParam: (lastGamesPage) => {
+        let lastGameId = undefined;
+        let kickoffTime = undefined;
+        if (lastGamesPage.length > 0) {
+          lastGameId = lastGamesPage[lastGamesPage.length - 1].id;
+          kickoffTime = lastGamesPage[lastGamesPage.length - 1].kickoffTime;
+        }
+        return { id: lastGameId, };
+      },
+    }
+  );
+
+  const [games, setGames] = createSignal<Games>([]);
+
+  //createEffect(() => {
+  //  if (gamesPage.status === "success" && gamesPage.data) {
+  //    console.log(gamesPage.data.pages.length);
+  //    setGames((prevGames) => {
+  //      return prevGames;
+  //    });
+  //  }
+  //});
+
+  /*
   const games = createServerData$(() => {
     const games = prisma.game
       .findMany({
@@ -49,8 +134,9 @@ export const routeData = () => {
       });
     return games;
   });
+  */
 
-  return games;
+  return gamesPage;
 };
 
 const Team = (team: { teamName: string; goalCount: number }) => {
@@ -99,8 +185,11 @@ export default () => {
   const games = useRouteData<typeof routeData>();
 
   return (
-    <div class="flex flex-col space-y-4 place-items-center">
-      <For each={games()}>
+    <div class="flex flex-col place-items-center space-y-4">
+    <Show when={games.data} keyed>
+
+    {(data) =>
+      <For each={data.pages[0]}>
         {(game) => (
           <Game
             awayTeam={game.awayTeam.name}
@@ -111,6 +200,8 @@ export default () => {
           />
         )}
       </For>
+    }
+    </Show>
     </div>
   );
 };
