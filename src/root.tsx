@@ -106,7 +106,7 @@ export default function Root() {
       <Body class="flex flex-col space-y-4 py-4">
         <QueryClientProvider client={queryClient}>
           <ErrorBoundary>
-            <Suspense>
+            <Suspense fallback={<div>Loading...</div>}>
               <Navbar />
               <Routes>
                 <FileRoutes />

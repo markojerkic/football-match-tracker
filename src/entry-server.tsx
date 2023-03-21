@@ -1,9 +1,10 @@
 import {
   createHandler,
   renderStream,
+  renderSync,
   StartServer,
 } from "solid-start/entry-server";
 
 export default createHandler(
-  renderStream((event) => <StartServer event={event} />)
+  renderSync((event) => <StartServer event={event} />)
 );

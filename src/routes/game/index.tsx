@@ -1,11 +1,12 @@
 import dayjs from "dayjs";
-import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
+import { createEffect, createMemo, createSignal, For, Show, Suspense } from "solid-js";
 import { A, useRouteData } from "solid-start";
 import server$ from "solid-start/server";
 import { prisma } from "../../util/prisma";
 import { createInfiniteQuery, isServer } from "@tanstack/solid-query";
 
 const getGames = server$(async (id: string | undefined) => {
+  console.log("request");
   const games = await prisma.game
     .findMany({
       take: 20,
@@ -56,10 +57,10 @@ const getGames = server$(async (id: string | undefined) => {
       });
     });
 
+    console.log("req gotov");
+
   return games;
 });
-
-type Games = Awaited<ReturnType<typeof getGames>>;
 
 export const routeData = () => {
 
@@ -109,7 +110,7 @@ const Game = (game: {
   const kickoffTime = createMemo(() => dayjs(game.kickoffTime).format("HH:mm"));
 
   return (
-    <A href="" class="group relative block w-full max-w-md">
+    <A href="/" class="group relative block w-full max-w-md">
       <span class="absolute inset-0 border-2 border-dashed border-black"></span>
 
       <div class="relative h-full w-full transform border-2 border-black bg-white transition-transform group-hover:-translate-x-2 group-hover:-translate-y-2">
@@ -173,21 +174,23 @@ export default () => {
     <div
       class="flex flex-col place-items-center space-y-4"
     >
-      <Show when={mergedLists()} keyed>
-        {(data) => (
-          <For each={data}>
-            {(game) => (
-              <Game
-                awayTeam={game.awayTeam.name}
-                homeTeam={game.homeTeam.name}
-                homeTeamGoalCount={game.homeTeamGoalCount}
-                awayTeamGoalCount={game.awayTeamGoalCount}
-                kickoffTime={game.kickoffTime}
-              />
-            )}
-          </For>
-        )}
-      </Show>
+      <Suspense fallback={<div>test...</div>}>
+        <Show when={mergedLists()} keyed>
+          {(data) => (
+            <For each={data}>
+              {(game) => (
+                <Game
+                  awayTeam={game.awayTeam.name}
+                  homeTeam={game.homeTeam.name}
+                  homeTeamGoalCount={game.homeTeamGoalCount}
+                  awayTeamGoalCount={game.awayTeamGoalCount}
+                  kickoffTime={game.kickoffTime}
+                />
+              )}
+            </For>
+          )}
+        </Show>
+      </Suspense>
     </div>
   );
 };
