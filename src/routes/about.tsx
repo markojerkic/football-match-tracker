@@ -1,5 +1,4 @@
 import { A } from "solid-start";
-import Counter from "~/components/Counter";
 
 export default function About() {
   return (
@@ -7,7 +6,6 @@ export default function About() {
       <h1 class="max-6-xs my-16 text-6xl font-thin uppercase text-sky-700">
         About Page
       </h1>
-      <Counter />
       <p class="mt-8">
         Visit{" "}
         <a
