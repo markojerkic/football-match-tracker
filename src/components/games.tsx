@@ -53,6 +53,7 @@ const Game = (game: {
 const getGames$ = server$(async (pageParam?: string) => getGames(pageParam));
 
 export default function GamesList(props: { games: Game[] }) {
+  /*
   const gamesPage = createInfiniteQuery(
     () => ["games-page"],
     async ({ pageParam = undefined as string | undefined }) => {
@@ -77,6 +78,7 @@ export default function GamesList(props: { games: Game[] }) {
     gamesPage.isFetchingNextPage,
     gamesPage.fetchNextPage
   );
+  */
 
   return (
     <div class="flex flex-col space-y-4">
