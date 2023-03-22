@@ -22,6 +22,7 @@ const Game = (game: {
   homeTeamGoalCount: number;
   awayTeamGoalCount: number;
   kickoffTime: Date;
+  id: string;
 }) => {
   const calendarDate = createMemo(() =>
     dayjs(game.kickoffTime).format("DD.MM.YYYY.")
@@ -29,7 +30,7 @@ const Game = (game: {
   const kickoffTime = createMemo(() => dayjs(game.kickoffTime).format("HH:mm"));
 
   return (
-    <A href="/" class="group relative block">
+    <A href={`/game/${game.id}`} class="group relative block">
       <span class="absolute inset-0 border-2 border-dashed border-black"></span>
 
       <div class="relative h-full w-full transform border-2 border-black bg-white transition-transform group-hover:-translate-x-2 group-hover:-translate-y-2">
@@ -78,20 +79,23 @@ export default function GamesList(props: { games: Game[] }) {
   );
 
   return (
-    <Show when={props.games} keyed>
-      {(data) => (
-        <For each={data}>
-          {(game) => (
-            <Game
-              awayTeam={game.awayTeam.name}
-              homeTeam={game.homeTeam.name}
-              homeTeamGoalCount={game.homeTeamGoalCount}
-              awayTeamGoalCount={game.awayTeamGoalCount}
-              kickoffTime={game.kickoffTime}
-            />
-          )}
-        </For>
-      )}
-    </Show>
+    <div class="flex flex-col space-y-4">
+      <Show when={props.games} keyed>
+        {(data) => (
+          <For each={data}>
+            {(game) => (
+              <Game
+                awayTeam={game.awayTeam.name}
+                homeTeam={game.homeTeam.name}
+                homeTeamGoalCount={game.homeTeamGoalCount}
+                awayTeamGoalCount={game.awayTeamGoalCount}
+                kickoffTime={game.kickoffTime}
+                id={game.id}
+              />
+            )}
+          </For>
+        )}
+      </Show>
+    </div>
   );
 }
