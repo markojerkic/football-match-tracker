@@ -1,7 +1,7 @@
 import { prisma } from "~/util/prisma";
 
 export const getGames = async (id?: string | undefined) => {
-  console.log("request");
+
   const games = await prisma.game
     .findMany({
       take: 20,
@@ -52,8 +52,6 @@ export const getGames = async (id?: string | undefined) => {
       });
     });
 
-  console.log("req gotov");
-
   return games;
 };
 
@@ -62,7 +60,6 @@ type ArrayElement<ArrayType extends readonly unknown[]> =
 export type Game = ArrayElement<Awaited<ReturnType<typeof getGames>>>;
 
 export const getLastId = (lastGamesPage: Game[]) => {
-  console.log(lastGamesPage);
   let lastGameId = undefined;
   let kickoffTime = undefined;
   if (lastGamesPage?.length ?? 0 > 0) {
@@ -71,3 +68,65 @@ export const getLastId = (lastGamesPage: Game[]) => {
   }
   return lastGameId;
 };
+
+export const getGameDataById = async (id: string) => {
+  return await prisma.game.findUniqueOrThrow({
+    where: { id },
+    select: {
+      id: true,
+      kickoffTime: true,
+      homeTeam: {
+        select: {
+          name: true,
+        },
+      },
+      awayTeam: {
+        select: {
+          name: true,
+        },
+      },
+      goals: {
+        orderBy: {
+          scoredInMinute: "asc",
+        },
+        select: {
+          isHomeTeamGoal: true,
+        },
+      },
+    },
+  });
+};
+
+export type GameDataById = Awaited<ReturnType<typeof getGameDataById>>;
+
+export const getGameGoalsById = async (gameId: string) => {
+  return await prisma.goal.findMany({
+    where: {
+      gameId
+    },
+    orderBy: {
+      scoredInMinute: 'asc'
+    },
+    select: {
+      scoredInMinute: true,
+      scoredInExtraMinute: true,
+      isHomeTeamGoal: true,
+      isOwnGoal: true,
+      isPenalty: true,
+      scoredBy: {
+        select: {
+          firstName: true,
+          lastName: true
+        }
+      },
+      assistedBy: {
+        select: {
+          firstName: true,
+          lastName: true
+        }
+      }
+    }
+  })
+}
+
+export type GoalsInGame = Awaited<ReturnType<typeof getGameGoalsById>>;

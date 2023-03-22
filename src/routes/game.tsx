@@ -1,7 +1,8 @@
-import { Show } from "solid-js";
-import { Outlet, unstable_island, useRouteData } from "solid-start";
+import { ErrorBoundary, Show, Suspense } from "solid-js";
+import { Outlet, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import { getGames } from "~/server/games";
+import GamesPage from "~/components/games";
 
 export const routeData = () => {
   const gamesFirstPage = createServerData$(
@@ -13,8 +14,6 @@ export const routeData = () => {
 
   return gamesFirstPage;
 };
-
-const GamesPage = unstable_island(() => import("../components/games"));
 
 export default () => {
   const games = useRouteData<typeof routeData>();
@@ -31,7 +30,11 @@ export default () => {
         </Show>
       </div>
       <div class="w-[50%]">
-        <Outlet />
+        <ErrorBoundary fallback={<div class="w-full h-52 bg-red-200">Error loading data</div>}>
+          <Suspense fallback={<p>Loading...</p>}>
+            <Outlet />
+          </Suspense>
+        </ErrorBoundary>
       </div>
     </div>
   );

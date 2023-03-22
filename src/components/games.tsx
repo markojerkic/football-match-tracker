@@ -1,11 +1,9 @@
-import { createInfiniteQuery } from "@tanstack/solid-query";
 import dayjs from "dayjs";
 import { createMemo } from "solid-js";
-import { For, Show, isServer } from "solid-js/web";
+import { For, Show, } from "solid-js/web";
 import { A } from "solid-start";
 import server$ from "solid-start/server";
-import { createScrollToBottom } from "~/hooks/infinite-scroll";
-import { getGames, getLastId, type Game } from "~/server/games";
+import { getGames, type Game } from "~/server/games";
 
 const Team = (team: { teamName: string; goalCount: number }) => {
   return (
@@ -50,7 +48,6 @@ const Game = (game: {
   );
 };
 
-const getGames$ = server$(async (pageParam?: string) => getGames(pageParam));
 
 export default function GamesList(props: { games: Game[] }) {
   /*

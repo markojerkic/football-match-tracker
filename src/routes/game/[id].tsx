@@ -1,56 +1,11 @@
 import dayjs from "dayjs";
-import { Show, createMemo } from "solid-js";
+import { ErrorBoundary, Show, Suspense, createMemo } from "solid-js";
 import { A, RouteDataArgs, useMatch, useRouteData, Outlet } from "solid-start";
 import { createServerData$ } from "solid-start/server";
-import { prisma } from "~/util/prisma";
+import { GameDataById, getGameDataById } from "~/server/games";
 
-const getGameData = async (id: string) => {
-  return await prisma.game.findUniqueOrThrow({
-    where: { id },
-    select: {
-      id: true,
-      kickoffTime: true,
-      homeTeam: {
-        select: {
-          name: true,
-        },
-      },
-      awayTeam: {
-        select: {
-          name: true,
-        },
-      },
-      goals: {
-        orderBy: {
-          scoredInMinute: "asc",
-        },
-        select: {
-          isOwnGoal: true,
-          isPenalty: true,
-          isHomeTeamGoal: true,
-          scoredBy: {
-            select: {
-              firstName: true,
-              lastName: true,
-            },
-          },
-          assistedBy: {
-            select: {
-              firstName: true,
-              lastName: true,
-            },
-          },
-          scoredInMinute: true,
-          scoredInExtraMinute: true,
-        },
-      },
-    },
-  });
-};
-
-export type SingleGameInfo = Awaited<ReturnType<typeof getGameData>>;
 export const routeData = ({ params }: RouteDataArgs<{ id: string }>) => {
-  return createServerData$(([, id]) => getGameData(id), {
+  return createServerData$(([, id]) => getGameDataById(id), {
     key: () => ["game-data", params.id],
   });
 };
@@ -59,7 +14,7 @@ const inactiveStyle = "block p-4 text-sm font-medium text-black";
 const activeStyle =
   "relative block border-t border-l border-r border-gray-400 bg-white p-4 text-sm font-medium";
 
-const GameInfo = (gameData: SingleGameInfo) => {
+const GameInfo = (gameData: GameDataById) => {
   const calendarDate = createMemo(() =>
     dayjs(gameData.kickoffTime).format("DD.MM.YYYY.")
   );
@@ -81,9 +36,6 @@ const GameInfo = (gameData: SingleGameInfo) => {
 
     return `${homeTeamGoalCount} - ${awayTeamGoalCount}`;
   };
-
-  let homeTeamGoalCount = 0;
-  let awayTeamGoalCount = 0;
 
   const isLineup = useMatch(() => `/game/${gameData.id}/lineup`);
   const isStatistics = useMatch(() => `/game/${gameData.id}/statistics`);
@@ -141,11 +93,15 @@ const GameInfo = (gameData: SingleGameInfo) => {
         </div>
       </div>
 
-      <div class="relative h-full w-full transform border-2 border-black bg-white">
-        <div class="flex flex-col space-y-6 p-4">
-          <Outlet />
-        </div>
-      </div>
+      <ErrorBoundary fallback={<div class="w-full h-52 bg-red-200">Error loading data</div>}>
+        <Suspense fallback={<p>Loading...</p>}>
+          <div class="relative h-full w-full transform border-2 border-black bg-white">
+            <div class="flex flex-col space-y-6 p-4">
+              <Outlet />
+            </div>
+          </div>
+        </Suspense>
+      </ErrorBoundary>
     </>
   );
 };
