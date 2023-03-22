@@ -8,8 +8,6 @@ export const createScrollToBottom = (
 ) => {
 
     createEffect(() => {
-      console.log('server')
-      console.log('client')
       alert('scroll')
       const listener = () => {
         const { scrollTop, scrollHeight, clientHeight } =
