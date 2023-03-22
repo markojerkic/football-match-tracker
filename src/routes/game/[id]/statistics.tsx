@@ -1,5 +1,5 @@
 export default () => {
   return (
-    <p>Goals</p>
+    <p>statistika</p>
   )
 }
