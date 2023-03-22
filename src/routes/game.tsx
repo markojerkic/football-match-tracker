@@ -21,7 +21,7 @@ export default () => {
 
   return (
     <div class="flex justify-between space-y-4 px-4">
-      <div class="flex grow justify-center w-[50%]">
+      <div class="flex w-[50%] grow justify-center">
         <Show when={games()} keyed>
           {(games) => (
             <div class="w-full max-w-md">
@@ -31,7 +31,7 @@ export default () => {
         </Show>
       </div>
       <div class="w-[50%]">
-      <Outlet />
+        <Outlet />
       </div>
     </div>
   );

@@ -533,8 +533,8 @@ const getOrCreatePlayer = async ({
         ...(isCurrentSeasson ? { teamId } : {}),
         ...(primaryShirtNumber && primaryShirtNumber !== "N/A"
           ? {
-            primaryShirtNumber: +primaryShirtNumber,
-          }
+              primaryShirtNumber: +primaryShirtNumber,
+            }
           : {}),
         countryId: countryId,
         primaryPosition,
@@ -648,7 +648,7 @@ const generateRandomGoals = async ({
   gameId,
   goalCount,
   goalTimings,
-  isHomeTeamGoal
+  isHomeTeamGoal,
 }: {
   teamId: string;
   seasonId: string;
@@ -663,8 +663,8 @@ const generateRandomGoals = async ({
     where: { seasonId, teamId },
   });
   const skip = Math.max(0, Math.floor(Math.random() * itemCount) - goalCount);
-  const orderBy = getRandomSubarray(['id', 'seasonId', 'teamId'], 1)[0];
-  const orderDir = getRandomSubarray(['asc', 'desc'], 1)[0];
+  const orderBy = getRandomSubarray(["id", "seasonId", "teamId"], 1)[0];
+  const orderDir = getRandomSubarray(["asc", "desc"], 1)[0];
 
   const players = await prisma.playersTeamInSeason.findMany({
     take: goalCount,
@@ -704,7 +704,7 @@ const generateRandomGoals = async ({
           : {}),
         scoredInHalftime: halftime,
         gameId,
-        isHomeTeamGoal
+        isHomeTeamGoal,
       },
     });
     console.log("Created goal", createdGoal.id);
@@ -762,7 +762,7 @@ const addGames = async ({
         goalTimings: game.home_team_goal_timings,
         teamId: homeTeamId,
         seasonId,
-        isHomeTeamGoal: true
+        isHomeTeamGoal: true,
       }),
       generateRandomGoals({
         gameId: id,
@@ -770,7 +770,7 @@ const addGames = async ({
         goalTimings: game.away_team_goal_timings,
         teamId: awayTeamId,
         seasonId,
-        isHomeTeamGoal: false
+        isHomeTeamGoal: false,
       }),
     ]);
   }

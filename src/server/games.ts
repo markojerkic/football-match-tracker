@@ -1,6 +1,5 @@
 import { prisma } from "~/util/prisma";
 
-
 export const getGames = async (id?: string | undefined) => {
   console.log("request");
   const games = await prisma.game
@@ -8,10 +7,10 @@ export const getGames = async (id?: string | undefined) => {
       take: 20,
       ...(id !== undefined && id !== null
         ? {
-          cursor: {
-            id
-          },
-        }
+            cursor: {
+              id,
+            },
+          }
         : {}),
       orderBy: {
         // kickoffTime: "desc",
@@ -58,13 +57,12 @@ export const getGames = async (id?: string | undefined) => {
   return games;
 };
 
-
 type ArrayElement<ArrayType extends readonly unknown[]> =
   ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 export type Game = ArrayElement<Awaited<ReturnType<typeof getGames>>>;
 
 export const getLastId = (lastGamesPage: Game[]) => {
-  console.log(lastGamesPage)
+  console.log(lastGamesPage);
   let lastGameId = undefined;
   let kickoffTime = undefined;
   if (lastGamesPage?.length ?? 0 > 0) {
@@ -72,5 +70,4 @@ export const getLastId = (lastGamesPage: Game[]) => {
     kickoffTime = lastGamesPage[lastGamesPage.length - 1].kickoffTime;
   }
   return lastGameId;
-}
-
+};
