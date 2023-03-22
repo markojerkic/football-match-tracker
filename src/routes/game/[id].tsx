@@ -1,9 +1,6 @@
-import { Tab, TabGroup, TabList } from "solid-headless";
-import dayjs from "dayjs";
-import { For, Show, createMemo } from "solid-js";
+import { Show } from "solid-js";
 import { RouteDataArgs, unstable_island, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
-import { twMerge } from "tailwind-merge";
 import { prisma } from "~/util/prisma";
 
 const getGameData = async (id: string) => {
@@ -49,7 +46,7 @@ const getGameData = async (id: string) => {
   });
 };
 
-export type SingleGameInfo = ReturnType<Awaited<typeof getGameData>>;
+export type SingleGameInfo = Awaited<ReturnType<typeof getGameData>>;
 export const routeData = ({ params }: RouteDataArgs<{ id: string }>) => {
   return createServerData$(([, id]) => getGameData(id), {
     key: () => ["game-data", params.id],

@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
-import { Tab, TabGroup, TabList } from "solid-headless";
-import { For, Show, createMemo } from "solid-js";
+import { Tab, TabGroup, TabList, TabPanel } from "solid-headless";
+import { For, Match, Show, Switch, createMemo } from "solid-js";
 import { twMerge } from "tailwind-merge";
 import { SingleGameInfo } from "~/routes/game/[id]";
 
@@ -9,32 +9,6 @@ const tabs = [
   { value: 1, label: "Lineups" },
   { value: 2, label: "Statistics" },
 ];
-
-const TabSelector = () => {
-  const inactiveStyle = "block p-4 text-sm font-medium text-gray-500";
-  const activeStyle =
-    "relative block border-t border-l border-r border-gray-200 bg-white p-4 text-sm font-medium";
-  return (
-    <TabGroup defaultValue={0} horizontal={false}>
-      {({ isSelected, isActive }) => (
-        <TabList class="flex border-b border-gray-200 text-center">
-          <For each={tabs}>
-            {(tab) => (
-              <Tab class="flex-1" value={tab.value}>
-                <span class={isActive(tab.value) ? activeStyle : inactiveStyle}>
-                  <Show when={isActive(tab.value)}>
-                    <span class="absolute inset-x-0 -bottom-px h-px w-full bg-white"></span>
-                  </Show>
-                  {tab.label}
-                </span>
-              </Tab>
-            )}
-          </For>
-        </TabList>
-      )}
-    </TabGroup>
-  );
-};
 
 const GoalInTimeline = (goal: {
   scorer: { firstName: string; lastName: string };
@@ -51,9 +25,8 @@ const GoalInTimeline = (goal: {
   };
   return (
     <div
-      class={`flex ${
-        goal.isHomeTeamGoal ? "self-start" : "flex-row-reverse self-end"
-      }`}
+      class={`flex ${goal.isHomeTeamGoal ? "self-start" : "flex-row-reverse self-end"
+        }`}
     >
       <span
         class={twMerge(
@@ -78,6 +51,10 @@ const GoalInTimeline = (goal: {
     </div>
   );
 };
+
+const inactiveStyle = "block p-4 text-sm font-medium text-black";
+const activeStyle =
+  "relative block border-t border-l border-r border-gray-400 bg-white p-4 text-sm font-medium";
 
 export default (gameData: SingleGameInfo) => {
   const calendarDate = createMemo(() =>
@@ -108,7 +85,7 @@ export default (gameData: SingleGameInfo) => {
   return (
     <>
       <div class="relative h-full w-full transform border-2 border-black bg-white">
-        <div class="flex flex-col p-4">
+        <div class="flex flex-col p-4 space-y-6">
           {/* Content */}
           <span class="flex space-x-4 text-sm">
             <span>{calendarDate()}</span>
@@ -123,28 +100,57 @@ export default (gameData: SingleGameInfo) => {
           </span>
         </div>
       </div>
-      <TabSelector />
-      <div class="relative h-full w-full transform border-2 border-black bg-white p-4">
-        <div class="flex flex-col-reverse">
-          <For each={gameData.goals}>
-            {(goal) => (
-              <GoalInTimeline
-                scoredInExtraMinute={goal.scoredInExtraMinute}
-                scoredInMinute={goal.scoredInMinute}
-                scorer={goal.scoredBy}
-                assistent={goal.assistedBy}
-                isHomeTeamGoal={goal.isHomeTeamGoal}
-                homeTeamCurrentGoalCount={
-                  goal.isHomeTeamGoal ? ++homeTeamGoalCount : homeTeamGoalCount
-                }
-                awayTeamCurrentGoalCount={
-                  goal.isHomeTeamGoal ? awayTeamGoalCount : ++awayTeamGoalCount
-                }
-              />
-            )}
-          </For>
-        </div>
-      </div>
+      <TabGroup class="my-4" defaultValue={1} horizontal={false}>
+        {({ isSelected, isActive }) => (
+          <div class="flex flex-col space-y-4">
+
+            <TabList class="flex border-b border-gray-400 text-center">
+              <For each={tabs}>
+                {(tab) => (
+                  <Tab class="flex-1" value={tab.value} >
+                    <span class={isSelected(tab.value) ? activeStyle : inactiveStyle} >
+                      <Show when={isSelected(tab.value)}>
+                        <span class="absolute inset-x-0 -bottom-px h-px w-full bg-white"></span>
+                      </Show>
+                      {tab.label}
+                    </span>
+                  </Tab>
+                )}
+              </For>
+            </TabList>
+            <div>
+              <For each={tabs}>
+                {(tab) => (
+                  <TabPanel value={tab.value}>
+
+                    <div class="relative h-full w-full transform border-2 border-black bg-white p-4">
+                      <div class="flex flex-col-reverse">
+                        <For each={gameData.goals}>
+                          {(goal) => (
+                            <GoalInTimeline
+                              scoredInExtraMinute={goal.scoredInExtraMinute}
+                              scoredInMinute={goal.scoredInMinute}
+                              scorer={goal.scoredBy}
+                              assistent={goal.assistedBy}
+                              isHomeTeamGoal={goal.isHomeTeamGoal}
+                              homeTeamCurrentGoalCount={
+                                goal.isHomeTeamGoal ? ++homeTeamGoalCount : homeTeamGoalCount
+                              }
+                              awayTeamCurrentGoalCount={
+                                goal.isHomeTeamGoal ? awayTeamGoalCount : ++awayTeamGoalCount
+                              }
+                            />
+                          )}
+                        </For>
+                      </div>
+                    </div>
+                  </TabPanel>
+                )}
+              </For>
+            </div>
+          </div>
+        )}
+      </TabGroup>
     </>
   );
 };
