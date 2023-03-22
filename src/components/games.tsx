@@ -1,7 +1,7 @@
 import { createInfiniteQuery } from "@tanstack/solid-query";
 import dayjs from "dayjs";
 import { createMemo } from "solid-js";
-import { For, Show, isServer } from "solid-js/web"
+import { For, Show, isServer } from "solid-js/web";
 import { A } from "solid-start";
 import server$ from "solid-start/server";
 import { createScrollToBottom } from "~/hooks/infinite-scroll";
@@ -29,7 +29,7 @@ const Game = (game: {
   const kickoffTime = createMemo(() => dayjs(game.kickoffTime).format("HH:mm"));
 
   return (
-    <A href="/" class="group relative block w-full max-w-md">
+    <A href="/" class="group relative block">
       <span class="absolute inset-0 border-2 border-dashed border-black"></span>
 
       <div class="relative h-full w-full transform border-2 border-black bg-white transition-transform group-hover:-translate-x-2 group-hover:-translate-y-2">
@@ -51,9 +51,9 @@ const Game = (game: {
 
 const getGames$ = server$(async (pageParam?: string) => getGames(pageParam));
 
-export default function GamesList (props: { games: Game[] }) {
-
-  const gamesPage = createInfiniteQuery(() => ["games-page"],
+export default function GamesList(props: { games: Game[] }) {
+  const gamesPage = createInfiniteQuery(
+    () => ["games-page"],
     async ({ pageParam = undefined as string | undefined }) => {
       return getGames$(pageParam);
     },
@@ -65,9 +65,9 @@ export default function GamesList (props: { games: Game[] }) {
       initialData: () => {
         return {
           pages: [],
-          pageParams: []
-        }
-      }
+          pageParams: [],
+        };
+      },
     }
   );
 
@@ -78,9 +78,9 @@ export default function GamesList (props: { games: Game[] }) {
   );
 
   return (
-    <Show when={props.games} keyed >
+    <Show when={props.games} keyed>
       {(data) => (
-        <For each={data} >
+        <For each={data}>
           {(game) => (
             <Game
               awayTeam={game.awayTeam.name}
@@ -93,5 +93,5 @@ export default function GamesList (props: { games: Game[] }) {
         </For>
       )}
     </Show>
-  )
+  );
 }

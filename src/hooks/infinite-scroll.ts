@@ -6,28 +6,28 @@ export const createScrollToBottom = (
   isFetchingNextPage: boolean,
   fetchNextPage: () => void
 ) => {
-  if (isServer) {
-    return;
-  }
-  createEffect(() => {
-    alert('scroll')
-    const listener = () => {
-      const { scrollTop, scrollHeight, clientHeight } =
-        document.documentElement;
 
-      if (
-        scrollTop + clientHeight >= scrollHeight - (scrollHeight / 4) &&
-        hasNextPage &&
-        !isFetchingNextPage
-      ) {
-        fetchNextPage();
-      }
-    };
-    addEventListener("scroll", listener);
+    createEffect(() => {
+      console.log('server')
+      console.log('client')
+      alert('scroll')
+      const listener = () => {
+        const { scrollTop, scrollHeight, clientHeight } =
+          document.documentElement;
 
-    return () => {
-      removeEventListener("scroll", listener);
-    };
-  });
+        if (
+          scrollTop + clientHeight >= scrollHeight - (scrollHeight / 4) &&
+          hasNextPage &&
+          !isFetchingNextPage
+        ) {
+          fetchNextPage();
+        }
+      };
+      addEventListener("scroll", listener);
+
+      return () => {
+        removeEventListener("scroll", listener);
+      };
+    });
 };
 

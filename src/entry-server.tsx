@@ -1,8 +1,6 @@
 import {
   createHandler,
-  renderAsync,
   renderStream,
-  renderSync,
   StartServer,
 } from "solid-start/entry-server";
 
