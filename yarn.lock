@@ -2756,6 +2756,13 @@ sirv@^2.0.2:
     mrmime "^1.0.0"
     totalist "^3.0.0"
 
+solid-headless@^0.13.1:
+  version "0.13.1"
+  resolved "https://registry.yarnpkg.com/solid-headless/-/solid-headless-0.13.1.tgz#eed2d79043891eaebccc8aa1449f7aaa8ba24e2e"
+  integrity sha512-FZJai49YmdBu6oEo8aJGPMQ1Qn8xiW0cnD6vNFDIQWMKJdXEUtDEwz0hTR9aZ7Epq3IkrZs+98E0vNiv1+pZpA==
+  dependencies:
+    solid-use "^0.6.2"
+
 solid-js@^1.6.15:
   version "1.6.15"
   resolved "https://registry.yarnpkg.com/solid-js/-/solid-js-1.6.15.tgz#01420bdfe19855551baf0a5eab06ea394d9a6b0b"
@@ -2822,6 +2829,11 @@ solid-start@^0.2.23:
     vite-plugin-inspect "^0.7.14"
     vite-plugin-solid "^2.6.1"
     wait-on "^6.0.1"
+
+solid-use@^0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/solid-use/-/solid-use-0.6.2.tgz#c9d997d5db3658693bf7436741439924f487d5c8"
+  integrity sha512-0ShJ5s+4PIN0pJB/BtsQucsZB+xnUeeTGaxErQDu6USn5jygZWXicAtOEvFbI8gv40xE751uY1Tz7Aib9lxL/Q==
 
 source-map-js@^1.0.2:
   version "1.0.2"

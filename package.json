@@ -33,6 +33,7 @@
     "@tanstack/solid-query": "^4.27.0",
     "daisyui": "^2.51.4",
     "dayjs": "^1.11.7",
+    "solid-headless": "^0.13.1",
     "solid-js": "^1.6.15",
     "solid-start": "^0.2.23",
     "tailwind-merge": "^1.10.0",
