@@ -1,5 +1,5 @@
 import { For } from "solid-js";
-import { useParams } from "solid-start";
+import { A, useParams } from "solid-start";
 import { twMerge } from "tailwind-merge";
 import { GameDetailWrapper } from "~/components/games";
 
@@ -7,37 +7,56 @@ const Divider = () => {
   return <span class="w-full border-t border-black" />;
 };
 
-const Shirt = () => (
+const Shirt = (shirt: { shirtColor: string }) => (
   <svg
     fill="#000000"
-    class="h-10 fill-base-100 stroke-black"
+    class={twMerge("h-10 stroke-black", `fill-${shirt.shirtColor}`)}
     version="1.1"
     xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 230.057 230.057"
+    viewBox="0 0 295.526 295.526"
   >
     <g>
       <path
-        d="M228.579,83.315l-32.147-41.258c-7.817-10.032-19.594-15.785-32.312-15.785h-21.204c-2.939,0-5.565,1.836-6.574,4.597
-		c-3.257,8.909-11.822,14.895-21.313,14.895s-18.055-5.986-21.313-14.895c-1.009-2.761-3.635-4.597-6.574-4.597H65.937
-		c-12.717,0-24.495,5.753-32.312,15.786L1.479,83.315c-1.397,1.793-1.837,4.152-1.179,6.328c0.658,2.176,2.331,3.897,4.488,4.615
-		l44.558,14.845v87.682c0,3.866,3.134,7,7,7h117.366c3.866,0,7-3.134,7-7v-87.682l44.558-14.845c2.157-0.718,3.83-2.439,4.488-4.615
-		C230.416,87.467,229.976,85.108,228.579,83.315z M180.712,94.347V84.057c0-3.866-3.134-7-7-7s-7,3.134-7,7v105.728H63.345V84.057
-		c0-3.866-3.134-7-7-7s-7,3.134-7,7v10.29l-30.736-10.24l26.059-33.444c5.146-6.604,12.897-10.391,21.269-10.391h16.681
-		c6.295,11.832,18.761,19.491,32.41,19.491c13.649,0,26.115-7.66,32.411-19.491h16.681c8.371,0,16.123,3.787,21.269,10.39
-		l26.06,33.445L180.712,94.347z"
+        d="M147.763,44.074c12.801,0,23.858-8.162,27.83-20.169c-7.578,2.086-17.237,3.345-27.83,3.345
+		c-10.592,0-20.251-1.259-27.828-3.345C123.905,35.911,134.961,44.074,147.763,44.074z"
+      />
+      <path
+        d="M295.158,58.839c-0.608-1.706-1.873-3.109-3.521-3.873l-56.343-26.01c-11.985-4.06-24.195-7.267-36.524-9.611
+		c-0.434-0.085-0.866-0.126-1.292-0.126c-3.052,0-5.785,2.107-6.465,5.197c-4.502,19.82-22.047,34.659-43.251,34.659
+		c-21.203,0-38.749-14.838-43.25-34.659c-0.688-3.09-3.416-5.197-6.466-5.197c-0.426,0-0.858,0.041-1.292,0.126
+		c-12.328,2.344-24.538,5.551-36.542,9.611L3.889,54.965c-1.658,0.764-2.932,2.167-3.511,3.873
+		c-0.599,1.726-0.491,3.589,0.353,5.217l24.46,48.272c1.145,2.291,3.474,3.666,5.938,3.666c0.636,0,1.281-0.092,1.917-0.283
+		l27.167-8.052v161.97c0,3.678,3.001,6.678,6.689,6.678h161.723c3.678,0,6.67-3.001,6.67-6.678V107.66l27.186,8.052
+		c0.636,0.191,1.28,0.283,1.915,0.283c2.459,0,4.779-1.375,5.94-3.666l24.469-48.272C295.629,62.428,295.747,60.565,295.158,58.839z
+		"
       />
     </g>
   </svg>
 );
 
-const PlayerRepresentation = () => {
-  return <Shirt />;
+const PlayerRepresentation = (player: PlayerRepresentation) => {
+  return (
+    <A
+      href="/player/gigs"
+      class="hover:z-1 flex flex-col justify-center p-2 hover:scale-125 hover:rounded-md hover:bg-green-700"
+    >
+      <Shirt shirtColor={player.shirtColor} />
+      <span class="text-white">{player.lastName}</span>
+    </A>
+  );
 };
 
-const PlayerRow = (props: { players: string[] }) => {
+type PlayerRepresentation = {
+  lastName: string;
+  shirtNumber: number;
+  shirtColor: string;
+};
+const PlayerRow = (props: { players: PlayerRepresentation[] }) => {
   return (
     <div class="flex justify-around">
-      <For each={props.players}>{() => <PlayerRepresentation />}</For>
+      <For each={props.players}>
+        {(player) => <PlayerRepresentation {...player} />}
+      </For>
     </div>
   );
 };
@@ -50,10 +69,29 @@ const Side = (sideInfo: { isHomeTeam: boolean }) => {
         !sideInfo.isHomeTeam && "flex-col-reverse"
       )}
     >
-      <PlayerRow players={["golman"]} />
-      <PlayerRow players={["bek", "stoper", "stoper", "bek"]} />
-      <PlayerRow players={["vezni", "vezni", "vezni", "vezni"]} />
-      <PlayerRow players={["napadac", "napadac"]} />
+      <PlayerRow players={[{ lastName: "Schmeichel", shirtNumber: 1, shirtColor: "black" }]} />
+      <PlayerRow
+        players={[
+          { lastName: "Neville", shirtNumber: 2, shirtColor: "red-500" },
+          { lastName: "Vidić", shirtNumber: 6, shirtColor: "red-500" },
+          { lastName: "Ferdinand", shirtNumber: 6, shirtColor: "red-500" },
+          { lastName: "Evra", shirtNumber: 3, shirtColor: "red-500" },
+        ]}
+      />
+      <PlayerRow
+        players={[
+          { lastName: "Ronaldo", shirtNumber: 7, shirtColor: "red-500" },
+          { lastName: "Scholes", shirtNumber: 18, shirtColor: "red-500" },
+          { lastName: "Keane", shirtNumber: 4, shirtColor: "red-500" },
+          { lastName: "Gigs", shirtNumber: 11, shirtColor: "red-500" },
+        ]}
+      />
+      <PlayerRow
+        players={[
+          { lastName: "Rooney", shirtNumber: 10, shirtColor: "red-500" },
+          { lastName: "van Nistelrooy", shirtNumber: 9, shirtColor: "red-500" },
+        ]}
+      />
     </div>
   );
 };
@@ -69,17 +107,21 @@ const FieldGrassLine = (props: { isEvenRow: boolean }) => {
   );
 };
 
+const HalfFieldGrassPattern = (props: { isHomeTeam: boolean }) => (
+  <div class="flex h-full flex-col">
+    <FieldGrassLine isEvenRow={props.isHomeTeam} />
+    <FieldGrassLine isEvenRow={!props.isHomeTeam} />
+    <FieldGrassLine isEvenRow={props.isHomeTeam} />
+    <FieldGrassLine isEvenRow={!props.isHomeTeam} />
+    <FieldGrassLine isEvenRow={props.isHomeTeam} />
+  </div>
+);
+
 const FieldWrapper = () => {
   return (
     <div class="mx-auto flex aspect-[10/20] h-fit w-fit min-w-[50%] flex-col justify-around border border-black bg-green-400">
       <div class="h-[50%]">
-        <div class="h-full">
-          <FieldGrassLine isEvenRow={false} />
-          <FieldGrassLine isEvenRow />
-          <FieldGrassLine isEvenRow={false} />
-          <FieldGrassLine isEvenRow />
-          <FieldGrassLine isEvenRow={false} />
-        </div>
+        <HalfFieldGrassPattern isHomeTeam />
 
         <div class="mt-[-100%] h-full py-2">
           <Side isHomeTeam />
@@ -89,13 +131,7 @@ const FieldWrapper = () => {
       <Divider />
 
       <div class="h-[50%]">
-        <div class="h-full">
-          <FieldGrassLine isEvenRow />
-          <FieldGrassLine isEvenRow={false} />
-          <FieldGrassLine isEvenRow />
-          <FieldGrassLine isEvenRow={false} />
-          <FieldGrassLine isEvenRow />
-        </div>
+        <HalfFieldGrassPattern isHomeTeam={false} />
 
         <div class="mt-[-100%] h-full py-2">
           <Side isHomeTeam={false} />
