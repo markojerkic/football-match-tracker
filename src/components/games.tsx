@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
-import { createMemo } from "solid-js";
-import { For, Show, } from "solid-js/web";
-import { A } from "solid-start";
+import { Component, ParentComponent, createMemo } from "solid-js";
+import { For, Show } from "solid-js/web";
+import { A, useMatch } from "solid-start";
 import server$ from "solid-start/server";
 import { getGames, type Game } from "~/server/games";
 
@@ -28,7 +28,7 @@ const Game = (game: {
   const kickoffTime = createMemo(() => dayjs(game.kickoffTime).format("HH:mm"));
 
   return (
-    <A href={`/game/${game.id}`} class="group relative block">
+    <A href={`/game/${game.id}/goals`} class="group relative block">
       <span class="absolute inset-0 border-2 border-dashed border-black"></span>
 
       <div class="relative h-full w-full transform border-2 border-black bg-white transition-transform group-hover:-translate-x-2 group-hover:-translate-y-2">
@@ -48,6 +48,62 @@ const Game = (game: {
   );
 };
 
+const inactiveStyle = "block p-4 text-sm font-medium text-black";
+const activeStyle =
+  "relative block border-t border-l border-r border-gray-400 bg-white p-4 text-sm font-medium";
+
+export const GameDetailWrapper: ParentComponent<{
+  tab: "timeline" | "statistics" | "lineups";
+  gameId: string;
+}> = (props) => {
+  return (
+    <>
+      <div class="flex flex-col space-y-4">
+        <div class="flex border-b border-gray-400 text-center">
+          <span class="flex-1">
+            <A
+              end={true}
+              href={`/game/${props.gameId}/goals`}
+              activeClass={activeStyle}
+              inactiveClass={inactiveStyle}
+            >
+              <span class="absolute inset-x-0 -bottom-px h-px w-full bg-white"></span>
+              Goals
+            </A>
+          </span>
+
+          <span class="flex-1">
+            <A
+              end={true}
+              href={`/game/${props.gameId}/lineup`}
+              activeClass={activeStyle}
+              inactiveClass={inactiveStyle}
+            >
+              <span class="absolute inset-x-0 -bottom-px h-px w-full bg-white"></span>
+              Lineups
+            </A>
+          </span>
+
+          <span class="flex-1">
+            <A
+              end={true}
+              href={`/game/${props.gameId}/statistics`}
+              activeClass={activeStyle}
+              inactiveClass={inactiveStyle}
+            >
+              <span class="absolute inset-x-0 -bottom-px h-px w-full bg-white"></span>
+              Statistics
+            </A>
+          </span>
+        </div>
+      </div>
+
+      <div class="relative mt-4 h-full w-full transform border-2 border-black bg-white">
+        <div class="flex flex-col space-y-6 p-4">{props.children}</div>
+      </div>
+    </>
+  );
+};
 
 export default function GamesList(props: { games: Game[] }) {
   /*

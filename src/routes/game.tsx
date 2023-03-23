@@ -30,7 +30,11 @@ export default () => {
         </Show>
       </div>
       <div class="w-[50%]">
-        <ErrorBoundary fallback={<div class="w-full h-52 bg-red-200">Error loading data</div>}>
+        <ErrorBoundary
+          fallback={
+            <div class="h-52 w-full bg-red-200">Error loading data</div>
+          }
+        >
           <Suspense fallback={<p>Loading...</p>}>
             <Outlet />
           </Suspense>

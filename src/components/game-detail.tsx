@@ -19,8 +19,9 @@ const GoalInTimeline = (goal: {
   };
   return (
     <div
-      class={`flex ${goal.isHomeTeamGoal ? "self-start" : "flex-row-reverse self-end"
-        }`}
+      class={`flex ${
+        goal.isHomeTeamGoal ? "self-start" : "flex-row-reverse self-end"
+      }`}
     >
       <span
         class={twMerge(
@@ -46,8 +47,7 @@ const GoalInTimeline = (goal: {
   );
 };
 
-export default (gameData: { goals: GoalsInGame }) => {
-
+export default (gameData: { goals?: GoalsInGame }) => {
   let homeTeamGoalCount = 0;
   let awayTeamGoalCount = 0;
 

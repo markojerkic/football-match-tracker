@@ -1,7 +1,6 @@
 import { prisma } from "~/util/prisma";
 
 export const getGames = async (id?: string | undefined) => {
-
   const games = await prisma.game
     .findMany({
       take: 20,
@@ -102,10 +101,10 @@ export type GameDataById = Awaited<ReturnType<typeof getGameDataById>>;
 export const getGameGoalsById = async (gameId: string) => {
   return await prisma.goal.findMany({
     where: {
-      gameId
+      gameId,
     },
     orderBy: {
-      scoredInMinute: 'asc'
+      scoredInMinute: "asc",
     },
     select: {
       scoredInMinute: true,
@@ -116,17 +115,17 @@ export const getGameGoalsById = async (gameId: string) => {
       scoredBy: {
         select: {
           firstName: true,
-          lastName: true
-        }
+          lastName: true,
+        },
       },
       assistedBy: {
         select: {
           firstName: true,
-          lastName: true
-        }
-      }
-    }
-  })
-}
+          lastName: true,
+        },
+      },
+    },
+  });
+};
 
 export type GoalsInGame = Awaited<ReturnType<typeof getGameGoalsById>>;

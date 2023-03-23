@@ -9,6 +9,7 @@ export default defineConfig({
     }),
     */
     solid({
+      islandsRouter: true,
       islands: true,
     }),
   ],

@@ -1,5 +1,11 @@
+import { useParams } from "solid-start";
+import { GameDetailWrapper } from "~/components/games";
+
 export default () => {
+  const id = useParams().id;
   return (
-    <p>statistika</p>
-  )
-}
+    <GameDetailWrapper tab="timeline" gameId={id}>
+      <p>statistika</p>
+    </GameDetailWrapper>
+  );
+};
