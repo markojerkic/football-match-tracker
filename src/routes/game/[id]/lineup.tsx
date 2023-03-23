@@ -42,7 +42,19 @@ const PlayerRepresentation = (player: PlayerRepresentation) => {
       href="/player/gigs"
       class="hover:z-1 flex flex-col justify-center p-2 hover:scale-125 hover:rounded-md hover:bg-green-700"
     >
-      <Shirt shirtColor={player.shirtColor} />
+      <span class="relative mx-auto flex flex-col justify-center">
+        <Shirt shirtColor={player.shirtColor} />
+        <span
+          class={twMerge(
+            "absolute top-[50%] translate-y-[-50%] translate-x-[-50%] text-center text-white",
+            player.shirtNumber.toString().length > 1
+              ? "left-[47%]"
+              : "left-[50%]"
+          )}
+        >
+          {player.shirtNumber}
+        </span>
+      </span>
       <span class="text-white">{player.lastName}</span>
     </A>
   );
