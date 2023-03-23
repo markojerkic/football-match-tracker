@@ -20,10 +20,10 @@ export default () => {
 
   return (
     <div class="flex justify-between space-y-4 px-4">
-      <div class="flex max-h-[90vh] w-[50%] grow justify-center">
+      <div class="flex max-h-[150vh] w-[50%] grow justify-center">
         <Show when={games()} keyed>
           {(games) => (
-            <div class="w-full max-w-md overflow-y-scroll px-4">
+            <div class="w-full max-h-full max-w-md overflow-y-scroll px-4">
               <GamesPage games={games} />
             </div>
           )}

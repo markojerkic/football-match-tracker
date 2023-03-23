@@ -1,9 +1,8 @@
 import dayjs from "dayjs";
-import { Component, ParentComponent, createMemo } from "solid-js";
+import { ParentComponent, createMemo } from "solid-js";
 import { For, Show } from "solid-js/web";
-import { A, useMatch } from "solid-start";
-import server$ from "solid-start/server";
-import { getGames, type Game } from "~/server/games";
+import { A, } from "solid-start";
+import { type Game } from "~/server/games";
 
 const Team = (team: { teamName: string; goalCount: number }) => {
   return (
