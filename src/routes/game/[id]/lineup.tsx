@@ -118,7 +118,7 @@ const FieldGrassLine = (props: { isEvenRow: boolean }) => {
   return (
     <div
       class={twMerge(
-        "h-[20%] w-full",
+        "h-[12.5%] w-full",
         props.isEvenRow ? "bg-green-400" : "bg-green-500"
       )}
     />
@@ -127,11 +127,14 @@ const FieldGrassLine = (props: { isEvenRow: boolean }) => {
 
 const HalfFieldGrassPattern = (props: { isHomeTeam: boolean }) => (
   <div class="flex h-full flex-col">
-    <FieldGrassLine isEvenRow={props.isHomeTeam} />
-    <FieldGrassLine isEvenRow={!props.isHomeTeam} />
-    <FieldGrassLine isEvenRow={props.isHomeTeam} />
-    <FieldGrassLine isEvenRow={!props.isHomeTeam} />
-    <FieldGrassLine isEvenRow={props.isHomeTeam} />
+    <FieldGrassLine isEvenRow={true} />
+    <FieldGrassLine isEvenRow={false} />
+    <FieldGrassLine isEvenRow={true} />
+    <FieldGrassLine isEvenRow={false} />
+    <FieldGrassLine isEvenRow={true} />
+    <FieldGrassLine isEvenRow={false} />
+    <FieldGrassLine isEvenRow={true} />
+    <FieldGrassLine isEvenRow={false} />
   </div>
 );
 
