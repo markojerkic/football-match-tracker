@@ -5,11 +5,14 @@ import { GameDetailWrapper } from "~/components/games";
 import { getGameGoalsById } from "~/server/games";
 
 export const routeData = ({ params }: RouteDataArgs<{ id: string }>) => {
-  return createServerData$(([, gameId]) => {
-    return getGameGoalsById(gameId);
-  }, {
-    key: () => ["goals-in-game", params.id],
-  });
+  return createServerData$(
+    ([, gameId]) => {
+      return getGameGoalsById(gameId);
+    },
+    {
+      key: () => ["goals-in-game", params.id],
+    }
+  );
 };
 
 export default () => {

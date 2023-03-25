@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { ParentComponent, createMemo } from "solid-js";
 import { For, Show } from "solid-js/web";
-import { A, } from "solid-start";
+import { A } from "solid-start";
 import { type Game } from "~/server/games";
 
 const Team = (team: { teamName: string; goalCount: number }) => {

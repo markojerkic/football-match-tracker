@@ -1,7 +1,9 @@
 import {
   CompetitionType,
   Halftime,
+  PlayerInGameLineup,
   Position,
+  Prisma,
   PrismaClient,
 } from "@prisma/client";
 import { z } from "zod";
@@ -400,6 +402,35 @@ const getOrCreateCountry = async (countryName: string) => {
   return countryId;
 };
 
+const randomShirtColor = () => {
+  let keys = Array.from(TEAM_TO_SHIRT_COLOR.keys());
+  return TEAM_TO_SHIRT_COLOR.get(
+    keys[Math.floor(Math.random() * keys.length)]
+  )!;
+};
+
+const TEAM_TO_SHIRT_COLOR = new Map<string, string>([
+  ["Arsenal", "#d80919"],
+  ["Aston Villa", "#95bfe5"],
+  ["AFC Bournemouth", "#d41e2a"],
+  ["Brighton & Hove Albion", "#0a56a3"],
+  ["Burnley", "#80234c"],
+  ["Chelsea", "#034694"],
+  ["Crystal Palace", "#1b458f"],
+  ["Everton", "#063a99"],
+  ["Leicester City", "#1358a1"],
+  ["Liverpool", "#e0202c"],
+  ["Manchester City", "#99c5e7"],
+  ["Manchester United", "#dc1f29"],
+  ["Newcastle United", "#000"],
+  ["Norwhich City", "#fff200"],
+  ["Southampton", "#d41e29"],
+  ["Tottenham Hotspur", "#11214b"],
+  ["Watford FC", "#feeb00"],
+  ["West Ham United", "#7a263a"],
+  ["Wolverhampton Wanderers", "#231f20"],
+]);
+
 const getOrCreateTeam = async ({
   teamName,
   countryId,
@@ -410,16 +441,31 @@ const getOrCreateTeam = async ({
   const possibleTeam = await prisma.team.findFirst({
     where: { name: teamName },
   });
+
+  let shirtColor = TEAM_TO_SHIRT_COLOR.get(teamName);
+  if (!shirtColor) {
+    shirtColor = randomShirtColor();
+  }
+
   if (!possibleTeam) {
     const team = await prisma.team.create({
       data: {
         name: teamName,
         countryId,
+        primaryShirtColor: shirtColor,
       },
     });
-    return team.id;
+    return {
+      id: team.id,
+      primaryShirtColor: team.primaryShirtColor,
+      goalKeeperShirt: "#0000",
+    };
   }
-  return possibleTeam.id;
+  return {
+    id: possibleTeam.id,
+    primaryShirtColor: possibleTeam.primaryShirtColor,
+    goalKeeperShirt: "#0000",
+  };
 };
 
 const getPosition = (postition: string): Position => {
@@ -431,6 +477,9 @@ const getPosition = (postition: string): Position => {
   }
   if (postition === "Forward") {
     return Position.CENTER_FORWARD;
+  }
+  if (postition === "Goalkeeper") {
+    return Position.GOAL_KEEPER;
   }
   return Position.CENTER_FORWARD;
 };
@@ -578,7 +627,11 @@ const addPlPlayers1819 = async ({
       teamName: playerValidated["Current Club"],
     });
 
-    addTeamToSeasonAncCompetition({ competition, season, team: currentTeam });
+    addTeamToSeasonAncCompetition({
+      competition,
+      season,
+      team: currentTeam.id,
+    });
 
     const countryId = await getOrCreateCountry(playerValidated.nationality);
 
@@ -594,7 +647,7 @@ const addPlPlayers1819 = async ({
       dateOfBirth: new Date(playerValidated.birthday_GMT),
       team: {
         seasonId: season,
-        teamId: currentTeam,
+        teamId: currentTeam.id,
         isCurrentSeasson,
       },
     });
@@ -628,7 +681,7 @@ const createOrGetCompetition = async ({
   return possibleCompetitionId;
 };
 
-const getRandomSubarray = <T>(arr: T[], size: number) => {
+export const getRandomSubarray = <T>(arr: T[], size: number) => {
   var shuffled = arr.slice(0),
     i = arr.length,
     temp,
@@ -711,6 +764,276 @@ const generateRandomGoals = async ({
   }
 };
 
+const LINEUPS = {
+  "442": "442",
+  "4231": "4231",
+  "433": "433",
+  "352": "352",
+  "343": "343",
+  "532": "532",
+} as const;
+type LINEUPS = (typeof LINEUPS)[keyof typeof LINEUPS];
+
+const randomLineup = () => {
+  const keys = Object.keys(LINEUPS) as LINEUPS[];
+  return LINEUPS[keys[(keys.length * Math.random()) << 0]];
+};
+
+const randomFronArray = <T>(a: T[]): T => {
+  const len = a.length;
+  return a[Math.floor(Math.random() * len)];
+};
+
+type TPlayerInGameLineup = {
+  playerId: string;
+  lineupRow: number;
+  lineupColumn: number;
+  shirtNumber: number;
+};
+
+const lineupForTeamId = new Map<string, TPlayerInGameLineup[]>();
+
+const generateRandomLineup = async ({
+  teamId,
+  seasonId,
+}: {
+  teamId: string;
+  seasonId: string;
+}) => {
+  if (lineupForTeamId.has(teamId)) {
+    console.log("Found lineup for team in game", teamId);
+    return lineupForTeamId.get(teamId);
+    /*
+    await prisma.playerInGameLineup.createMany({
+      data:
+        lineupForTeamId.get(teamId)!.map(player => {
+          return (
+            {
+              ...player,
+              gameId
+            }
+          );
+        })
+    })
+    */
+  }
+  console.log("Generating lineups for game");
+
+  const lineup = randomLineup();
+
+  const goalKeeper = prisma.playersTeamInSeason.findMany({
+    where: {
+      teamId,
+      seasonId,
+      player: {
+        primaryPosition: Position.GOAL_KEEPER,
+      },
+    },
+    select: { player: { select: { id: true } } },
+  });
+
+  const defensive = prisma.playersTeamInSeason.findMany({
+    where: {
+      teamId,
+      seasonId,
+      player: {
+        primaryPosition: {
+          in: [Position.LEFT_BACK, Position.RIGHT_BACK, Position.CENTRE_BACK],
+        },
+      },
+    },
+    select: { player: { select: { id: true } } },
+  });
+
+  const midfield = prisma.playersTeamInSeason.findMany({
+    where: {
+      teamId,
+      seasonId,
+      player: {
+        primaryPosition: {
+          in: [
+            Position.LEFT_MIDFIELDER,
+            Position.RIGHT_MIDFIELDER,
+            Position.CENTER_ATTACKING_MIDFIELDER,
+            Position.CENTER_DEFNSIVE_MIDFIELDER,
+            Position.CENTER_MIDFIELDER,
+          ],
+        },
+      },
+    },
+    select: { player: { select: { id: true } } },
+  });
+
+  const attack = prisma.playersTeamInSeason.findMany({
+    where: {
+      teamId,
+      seasonId,
+      player: {
+        primaryPosition: {
+          in: [
+            Position.CENTER_FORWARD,
+            Position.RIGHT_WINGER,
+            Position.RIGHT_WINGER,
+          ],
+        },
+      },
+    },
+    select: { player: { select: { id: true } } },
+  });
+
+  const [goalKeepers, defensives, midfielders, attackers] = await Promise.all([
+    goalKeeper,
+    defensive,
+    midfield,
+    attack,
+  ]);
+
+  const goalie = randomFronArray(goalKeepers);
+  const playersInLineup: TPlayerInGameLineup[] = [];
+
+  playersInLineup.push({
+    playerId: goalie.player.id,
+    shirtNumber: 1,
+    lineupRow: 0,
+    lineupColumn: 0,
+  });
+
+  const randomDefansivePlayers = getRandomSubarray(
+    defensives,
+    lineup.startsWith("4") ? 4 : lineup.startsWith("3") ? 3 : 5
+  );
+  playersInLineup.push(
+    ...randomDefansivePlayers.map((player, index) => ({
+      playerId: player.player.id,
+      shirtNumber: 4,
+      lineupRow: 1,
+      lineupColumn: index,
+    }))
+  );
+
+  if (lineup === "442") {
+    const randomMidPlayersPlayers = getRandomSubarray(midfielders, 4);
+
+    playersInLineup.push(
+      ...randomMidPlayersPlayers.map((player, index) => ({
+        playerId: player.player.id,
+        shirtNumber: 8,
+        lineupRow: 2,
+        lineupColumn: index,
+      }))
+    );
+
+    const randomAttackingPlayersPlayers = getRandomSubarray(attackers, 4);
+
+    playersInLineup.push(
+      ...randomAttackingPlayersPlayers.map((player, index) => ({
+        playerId: player.player.id,
+        shirtNumber: 7,
+        lineupRow: 3,
+        lineupColumn: index,
+      }))
+    );
+  }
+
+  if (lineup === "433") {
+    const randomMidPlayersPlayers = getRandomSubarray(midfielders, 3);
+
+    playersInLineup.push(
+      ...randomMidPlayersPlayers.map((player, index) => ({
+        playerId: player.player.id,
+        shirtNumber: 8,
+        lineupRow: 2,
+        lineupColumn: index,
+      }))
+    );
+
+    const randomAttackingPlayersPlayers = getRandomSubarray(attackers, 3);
+
+    playersInLineup.push(
+      ...randomAttackingPlayersPlayers.map((player, index) => ({
+        playerId: player.player.id,
+        shirtNumber: 7,
+        lineupRow: 3,
+        lineupColumn: index,
+      }))
+    );
+  }
+
+  if (lineup === "4231") {
+    const randomMidPlayersPlayers = getRandomSubarray(midfielders, 2);
+
+    playersInLineup.push(
+      ...randomMidPlayersPlayers.map((player, index) => ({
+        playerId: player.player.id,
+        shirtNumber: 8,
+        lineupRow: 2,
+        lineupColumn: index,
+      }))
+    );
+
+    const randomAttackingPlayersPlayers = getRandomSubarray(attackers, 3);
+
+    playersInLineup.push(
+      ...randomAttackingPlayersPlayers.map((player, index) => ({
+        playerId: player.player.id,
+        shirtNumber: 7,
+        lineupRow: 3,
+        lineupColumn: index,
+      }))
+    );
+
+    let randomStriker = randomFronArray(attackers);
+
+    while (
+      randomAttackingPlayersPlayers
+        .map((player) => player.player.id)
+        .some((id) => randomStriker.player.id === id)
+    ) {
+      randomStriker = randomFronArray(attackers);
+    }
+
+    playersInLineup.push({
+      playerId: randomStriker.player.id,
+      shirtNumber: 9,
+      lineupRow: 3,
+      lineupColumn: 4,
+    });
+  }
+
+  if (lineup === "352" || lineup === "343") {
+    const randomMidPlayersPlayers = getRandomSubarray(
+      midfielders,
+      +lineup.charAt(1)
+    );
+
+    playersInLineup.push(
+      ...randomMidPlayersPlayers.map((player, index) => ({
+        playerId: player.player.id,
+        shirtNumber: 8,
+        lineupRow: 2,
+        lineupColumn: index,
+      }))
+    );
+
+    const randomAttackingPlayersPlayers = getRandomSubarray(
+      attackers,
+      +lineup.charAt(2)
+    );
+
+    playersInLineup.push(
+      ...randomAttackingPlayersPlayers.map((player, index) => ({
+        playerId: player.player.id,
+        shirtNumber: 7,
+        lineupRow: 3,
+        lineupColumn: index,
+      }))
+    );
+  }
+
+  lineupForTeamId.set(teamId, playersInLineup);
+  return playersInLineup;
+};
+
 const addGames = async ({
   competitionId,
   seasonId,
@@ -732,17 +1055,22 @@ const addGames = async ({
       `Game ${counter++}: ${game.home_team_name} vs ${game.away_team_name}`
     );
 
-    const [homeTeamId, awayTeamId] = await Promise.all([
+    const [homeTeam, awayTeam] = await Promise.all([
       getOrCreateTeam({ teamName: game.home_team_name, countryId }),
       getOrCreateTeam({ teamName: game.away_team_name, countryId }),
+    ]);
+
+    const [awayTeamLineups, homeTeamLineups] = await Promise.all([
+      generateRandomLineup({ seasonId, teamId: awayTeam.id }),
+      generateRandomLineup({ seasonId, teamId: homeTeam.id }),
     ]);
 
     const { id } = await prisma.game.create({
       data: {
         seasonId,
         competitionId,
-        homeTeamId,
-        awayTeamId,
+        homeTeamId: homeTeam.id,
+        awayTeamId: awayTeam.id,
         kickoffTime: new Date(game.timestamp * 1000),
 
         // TODO: prema krajnjojo minuti gola zadnjeg odrediti ako ima dodatnog vremena?
@@ -752,15 +1080,25 @@ const addGames = async ({
 
         isOver: game.status === "complete",
         hasPenaltyShootout: false,
+
+        homeTeamShirtColor: homeTeam.primaryShirtColor,
+        awayTeamShirtColor: awayTeam.primaryShirtColor,
+        homeTeamGoalkeeperShirtColor: homeTeam.goalKeeperShirt,
+        awayTeamGoalkeeperShirtColor: awayTeam.goalKeeperShirt,
+
+        homeTeamLineup: homeTeamLineups,
+        awayTeamLineup: awayTeamLineups,
       },
     });
+
+    console.log("Game", id);
 
     await Promise.all([
       generateRandomGoals({
         gameId: id,
         goalCount: game.home_team_goal_count,
         goalTimings: game.home_team_goal_timings,
-        teamId: homeTeamId,
+        teamId: homeTeam.id,
         seasonId,
         isHomeTeamGoal: true,
       }),
@@ -768,7 +1106,7 @@ const addGames = async ({
         gameId: id,
         goalCount: game.away_team_goal_count,
         goalTimings: game.away_team_goal_timings,
-        teamId: awayTeamId,
+        teamId: awayTeam.id,
         seasonId,
         isHomeTeamGoal: false,
       }),

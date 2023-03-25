@@ -157,21 +157,22 @@ model TeamInGroup {
 }
 
 model Team {
-  id               String                @id @default(cuid())
-  name             String
-  country          Country               @relation(fields: [countryId], references: [id])
-  countryId        String
-  homeGames        Game[]                @relation("homeGames")
-  awayGames        Game[]                @relation("awayGames")
-  highlightedTeams HighlightedTeam[]
-  favouritedByUser FavouriteTeam[]
-  competitions     TeamInCompetition[]
-  imageSlug        String?
-  currentManager   Manager?
-  previousManagers PreviousManager[]
-  previousPlayers  PlayersTeamInSeason[]
-  groupId          String?
-  groups           TeamInGroup[]
+  id                String                @id @default(cuid())
+  name              String
+  country           Country               @relation(fields: [countryId], references: [id])
+  countryId         String
+  homeGames         Game[]                @relation("homeGames")
+  awayGames         Game[]                @relation("awayGames")
+  highlightedTeams  HighlightedTeam[]
+  favouritedByUser  FavouriteTeam[]
+  competitions      TeamInCompetition[]
+  imageSlug         String?
+  currentManager    Manager?
+  previousManagers  PreviousManager[]
+  previousPlayers   PlayersTeamInSeason[]
+  groupId           String?
+  groups            TeamInGroup[]
+  primaryShirtColor String
 }
 
 model HighlightedTeam {
@@ -193,23 +194,26 @@ model PlayerInGameLineup {
   id                String    @id @default(cuid())
   player            Player    @relation(fields: [playerId], references: [id])
   playerId          String
-  gamePosition      Position?
+  game              Game      @relation(fields: [gameId], references: [id])
+  lineupRow         Int
+  lineupColumn      Int
   shirtNumber       Int?
-  subbedInMinute    Decimal
-  subbedInHalftime  Halftime
-  subbedOutMinute   Decimal?
+  subbedInMinute    Int
+  subbedInHalftime  Halftime?
+  subbedOutMinute   Int?
   subbedOutHalftime Halftime?
   startedGame       Boolean
+  gameId            String
 }
 
 model Game {
-  id                                        String          @id @default(cuid())
-  competition                               Competition     @relation(fields: [competitionId], references: [id])
+  id                                        String               @id @default(cuid())
+  competition                               Competition          @relation(fields: [competitionId], references: [id])
   competitionId                             String
-  homeTeam                                  Team            @relation("homeGames", fields: [homeTeamId], references: [id])
-  homeTeamId                                String          @map("homeTeamId")
-  awayTeam                                  Team            @relation("awayGames", fields: [awayTeamId], references: [id])
-  awayTeamId                                String          @map("awayTeamId")
+  homeTeam                                  Team                 @relation("homeGames", fields: [homeTeamId], references: [id])
+  homeTeamId                                String               @map("homeTeamId")
+  awayTeam                                  Team                 @relation("awayGames", fields: [awayTeamId], references: [id])
+  awayTeamId                                String               @map("awayTeamId")
   statistics                                GameStatistics?
   gameStatisticsId                          String?
   cardsAwarded                              CardAwarded[]
@@ -222,10 +226,17 @@ model Game {
   firstExtendedHalfEndedAferAdditionalTime  Int?
   secondExtendedHalfEndedAferAdditionalTime Int?
   hasPenaltyShootout                        Boolean
-  knockoutGame                              KnockoutGame?   @relation("knockoutGame")
-  knockoutReturnGame                        KnockoutGame?   @relation("knockoutReturnGame")
-  season                                    Season?         @relation(fields: [seasonId], references: [id])
+  knockoutGame                              KnockoutGame?        @relation("knockoutGame")
+  knockoutReturnGame                        KnockoutGame?        @relation("knockoutReturnGame")
+  season                                    Season?              @relation(fields: [seasonId], references: [id])
   seasonId                                  String?
+  homeTeamShirtColor                        String
+  homeTeamGoalkeeperShirtColor              String
+  awayTeamShirtColor                        String
+  awayTeamGoalkeeperShirtColor              String
+  players                                   PlayerInGameLineup[]
+  homeTeamLineup                            Json
+  awayTeamLineup                            Json
 }
 
 model Goal {
