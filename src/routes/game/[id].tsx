@@ -52,7 +52,11 @@ const GameInfo = (gameData: GameDataById) => {
       </div>
 
       <ErrorBoundary
-        fallback={(error) => <div class="h-52 w-full bg-red-200">Error loading data: {JSON.stringify(error)}</div>}
+        fallback={(error) => (
+          <div class="h-52 w-full bg-red-200">
+            Error loading data: {JSON.stringify(error)}
+          </div>
+        )}
       >
         <Suspense fallback={<p>Loading...</p>}>
           <Outlet />
@@ -66,7 +70,7 @@ export default () => {
   const gameData = useRouteData<typeof routeData>();
 
   return (
-    <div class="flex flex-col space-y-4">
+    <div class="flex max-h-screen flex-col space-y-4">
       <Show when={gameData()} keyed>
         {(gameData) => <GameInfo {...gameData} />}
       </Show>

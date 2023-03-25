@@ -9,8 +9,6 @@ export default defineConfig({
     }),
     */
     solid({
-      islandsRouter: true,
-      islands: true,
     }),
   ],
   ssr: { external: ["@prisma/client"] },
