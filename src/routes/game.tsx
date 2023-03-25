@@ -58,7 +58,7 @@ export default () => {
         </Show>
       </div>
 
-      <div class="col-start-2 row-start-2 h-full w-10 place-self-center overflow-auto md:min-w-full md:max-w-3xl lg:min-w-[50rem]">
+      <div class="col-start-2 row-start-2 h-full place-self-center w-full overflow-auto md:min-w-full md:max-w-3xl lg:min-w-[50rem]">
         <ErrorBoundary
           fallback={
             <div class="h-52 w-full bg-red-200">Error loading data</div>
