@@ -422,7 +422,7 @@ const TEAM_TO_SHIRT_COLOR = new Map<string, string>([
   ["Liverpool", "#e0202c"],
   ["Manchester City", "#99c5e7"],
   ["Manchester United", "#dc1f29"],
-  ["Newcastle United", "#000"],
+  ["Newcastle United", "#0000"],
   ["Norwhich City", "#fff200"],
   ["Southampton", "#d41e29"],
   ["Tottenham Hotspur", "#11214b"],
@@ -458,13 +458,13 @@ const getOrCreateTeam = async ({
     return {
       id: team.id,
       primaryShirtColor: team.primaryShirtColor,
-      goalKeeperShirt: "#0000",
+      goalKeeperShirt: "#F68712",
     };
   }
   return {
     id: possibleTeam.id,
     primaryShirtColor: possibleTeam.primaryShirtColor,
-    goalKeeperShirt: "#0000",
+    goalKeeperShirt: "#512888",
   };
 };
 
@@ -582,8 +582,8 @@ const getOrCreatePlayer = async ({
         ...(isCurrentSeasson ? { teamId } : {}),
         ...(primaryShirtNumber && primaryShirtNumber !== "N/A"
           ? {
-              primaryShirtNumber: +primaryShirtNumber,
-            }
+            primaryShirtNumber: +primaryShirtNumber,
+          }
           : {}),
         countryId: countryId,
         primaryPosition,
@@ -802,21 +802,9 @@ const generateRandomLineup = async ({
 }) => {
   if (lineupForTeamId.has(teamId)) {
     console.log("Found lineup for team in game", teamId);
-    return lineupForTeamId.get(teamId);
-    /*
-    await prisma.playerInGameLineup.createMany({
-      data:
-        lineupForTeamId.get(teamId)!.map(player => {
-          return (
-            {
-              ...player,
-              gameId
-            }
-          );
-        })
-    })
-    */
+    return lineupForTeamId.get(teamId)!;
   }
+
   console.log("Generating lineups for game");
 
   const lineup = randomLineup();
@@ -923,7 +911,7 @@ const generateRandomLineup = async ({
       }))
     );
 
-    const randomAttackingPlayersPlayers = getRandomSubarray(attackers, 4);
+    const randomAttackingPlayersPlayers = getRandomSubarray(attackers, 2);
 
     playersInLineup.push(
       ...randomAttackingPlayersPlayers.map((player, index) => ({

@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { ErrorBoundary, Show, Suspense, createMemo } from "solid-js";
-import { A, RouteDataArgs, useMatch, useRouteData, Outlet } from "solid-start";
+import { A, RouteDataArgs, useRouteData, Outlet } from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import { GameDataById, getGameDataById } from "~/server/games";
 
@@ -52,7 +52,7 @@ const GameInfo = (gameData: GameDataById) => {
       </div>
 
       <ErrorBoundary
-        fallback={<div class="h-52 w-full bg-red-200">Error loading data</div>}
+        fallback={(error) => <div class="h-52 w-full bg-red-200">Error loading data: {JSON.stringify(error)}</div>}
       >
         <Suspense fallback={<p>Loading...</p>}>
           <Outlet />

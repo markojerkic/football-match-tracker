@@ -30,6 +30,7 @@
     "@prisma/client": "4.11.0",
     "@solidjs/meta": "^0.28.2",
     "@solidjs/router": "^0.8.1",
+    "@tailwindcss/line-clamp": "^0.4.2",
     "@tanstack/solid-query": "^4.27.0",
     "daisyui": "^2.51.4",
     "dayjs": "^1.11.7",

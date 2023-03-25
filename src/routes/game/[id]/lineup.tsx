@@ -1,7 +1,15 @@
-import { For } from "solid-js";
-import { A, useParams } from "solid-start";
+import { For, Show } from "solid-js";
+import { A, RouteDataArgs, useParams, useRouteData } from "solid-start";
+import { createServerData$ } from "solid-start/server";
 import { twMerge } from "tailwind-merge";
 import { GameDetailWrapper } from "~/components/games";
+import { Lineups, PlayerInLineup, getLineups } from "~/server/lineups";
+
+export const routeData = ({ params }: RouteDataArgs) => {
+  return createServerData$(([, id]) => getLineups({ gameId: id }), {
+    key: () => ["lineups", params.id],
+  });
+};
 
 const Divider = () => {
   return <span class="w-full border-t border-black" />;
@@ -10,8 +18,8 @@ const Divider = () => {
 const Shirt = (shirt: { shirtColor: string }) => (
   <>
     <svg
-      fill="#000000"
-      class={twMerge("h-10 stroke-black", `fill-${shirt.shirtColor}`)}
+      fill={shirt.shirtColor}
+      class={twMerge("h-10 stroke-black", `fill-[${shirt.shirtColor}]`)}
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 295.526 295.526"
@@ -40,7 +48,7 @@ const PlayerRepresentation = (player: PlayerRepresentation) => {
   return (
     <A
       href="/player/gigs"
-      class="hover:z-1 flex flex-col justify-center p-2 hover:scale-125 hover:rounded-md hover:bg-green-700"
+      class="hover:z-1 flex flex-col justify-start items-center md:max-w-md p-2 hover:scale-125 hover:rounded-md hover:bg-green-700"
     >
       <span class="relative mx-auto flex flex-col justify-center">
         <Shirt shirtColor={player.shirtColor} />
@@ -55,7 +63,7 @@ const PlayerRepresentation = (player: PlayerRepresentation) => {
           {player.shirtNumber}
         </span>
       </span>
-      <span class="text-white">{player.lastName}</span>
+        <span class="absolute translate-y-[175%] text-center text-sm text-white">{player.lastName}</span>
     </A>
   );
 };
@@ -75,7 +83,12 @@ const PlayerRow = (props: { players: PlayerRepresentation[] }) => {
   );
 };
 
-const Side = (sideInfo: { isHomeTeam: boolean }) => {
+const Side = (sideInfo: {
+  isHomeTeam: boolean;
+  lineups: PlayerInLineup[][];
+  shirtColor: string;
+  goalkeeperShirtColor: string;
+}) => {
   return (
     <div
       class={twMerge(
@@ -83,33 +96,20 @@ const Side = (sideInfo: { isHomeTeam: boolean }) => {
         !sideInfo.isHomeTeam && "flex-col-reverse"
       )}
     >
-      <PlayerRow
-        players={[
-          { lastName: "Schmeichel", shirtNumber: 1, shirtColor: "black" },
-        ]}
-      />
-      <PlayerRow
-        players={[
-          { lastName: "Neville", shirtNumber: 2, shirtColor: "red-500" },
-          { lastName: "Vidić", shirtNumber: 6, shirtColor: "red-500" },
-          { lastName: "Ferdinand", shirtNumber: 6, shirtColor: "red-500" },
-          { lastName: "Evra", shirtNumber: 3, shirtColor: "red-500" },
-        ]}
-      />
-      <PlayerRow
-        players={[
-          { lastName: "Ronaldo", shirtNumber: 7, shirtColor: "red-500" },
-          { lastName: "Scholes", shirtNumber: 18, shirtColor: "red-500" },
-          { lastName: "Keane", shirtNumber: 4, shirtColor: "red-500" },
-          { lastName: "Gigs", shirtNumber: 11, shirtColor: "red-500" },
-        ]}
-      />
-      <PlayerRow
-        players={[
-          { lastName: "Rooney", shirtNumber: 10, shirtColor: "red-500" },
-          { lastName: "van Nistelrooy", shirtNumber: 9, shirtColor: "red-500" },
-        ]}
-      />
+      <For each={sideInfo.lineups}>
+        {(row, index) => (
+          <PlayerRow
+            players={row.map((player) => ({
+              shirtColor:
+                index() === 0
+                  ? sideInfo.goalkeeperShirtColor
+                  : sideInfo.shirtColor,
+              lastName: player.lastName,
+              shirtNumber: player.shirtNumber,
+            }))}
+          />
+        )}
+      </For>
     </div>
   );
 };
@@ -138,14 +138,19 @@ const HalfFieldGrassPattern = (props: { isHomeTeam: boolean }) => (
   </div>
 );
 
-const FieldWrapper = () => {
+const FieldWrapper = (props: { lineups: Lineups }) => {
   return (
     <div class="mx-auto flex aspect-[10/20] h-fit w-full min-w-[50%] flex-col justify-around border border-black bg-green-400 lg:w-fit">
       <div class="h-[50%]">
         <HalfFieldGrassPattern isHomeTeam />
 
         <div class="mt-[-100%] h-full py-2">
-          <Side isHomeTeam />
+          <Side
+            lineups={props.lineups.homeTeamLineup}
+            shirtColor={props.lineups.homeTeamShirtColor}
+            goalkeeperShirtColor={props.lineups.homeTeamGoalkeeperShirtColor}
+            isHomeTeam
+          />
         </div>
       </div>
 
@@ -155,7 +160,12 @@ const FieldWrapper = () => {
         <HalfFieldGrassPattern isHomeTeam={false} />
 
         <div class="mt-[-100%] h-full py-2">
-          <Side isHomeTeam={false} />
+          <Side
+            lineups={props.lineups.awayTeamLineup}
+            shirtColor={props.lineups.awayTeamShirtColor}
+            goalkeeperShirtColor={props.lineups.awayTeamGoalkeeperShirtColor}
+            isHomeTeam={false}
+          />
         </div>
       </div>
     </div>
@@ -163,10 +173,16 @@ const FieldWrapper = () => {
 };
 
 export default () => {
-  const id = useParams().id;
+  const lineups = useRouteData<typeof routeData>();
+  const gameId = useParams().id;
+
   return (
-    <GameDetailWrapper tab="timeline" gameId={id}>
-      <FieldWrapper />
-    </GameDetailWrapper>
+    <Show when={lineups()} keyed>
+      {(lineups) => (
+        <GameDetailWrapper tab="timeline" gameId={gameId}>
+          <FieldWrapper lineups={lineups} />
+        </GameDetailWrapper>
+      )}
+    </Show>
   );
 };
