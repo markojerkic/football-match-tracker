@@ -48,7 +48,7 @@ const PlayerRepresentation = (player: PlayerRepresentation) => {
   return (
     <A
       href="/player/gigs"
-      class="hover:z-1 flex flex-col justify-start items-center md:max-w-md p-2 hover:scale-125 hover:rounded-md hover:bg-green-700"
+      class="hover:z-1 group flex flex-col items-center justify-start p-2 hover:scale-125 hover:rounded-md hover:bg-green-700 md:max-w-md"
     >
       <span class="relative mx-auto flex flex-col justify-center">
         <Shirt shirtColor={player.shirtColor} />
@@ -63,7 +63,9 @@ const PlayerRepresentation = (player: PlayerRepresentation) => {
           {player.shirtNumber}
         </span>
       </span>
-        <span class="absolute translate-y-[175%] text-center text-sm text-white">{player.lastName}</span>
+      <span class="absolute translate-y-[175%] text-center text-sm text-white group-hover:relative group-hover:translate-y-0">
+        {player.lastName}
+      </span>
     </A>
   );
 };
