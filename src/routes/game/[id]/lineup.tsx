@@ -140,7 +140,7 @@ const HalfFieldGrassPattern = (props: { isHomeTeam: boolean }) => (
 
 const FieldWrapper = () => {
   return (
-    <div class="mx-auto flex aspect-[10/20] h-fit w-fit min-w-[50%] flex-col justify-around border border-black bg-green-400">
+    <div class="mx-auto flex aspect-[10/20] h-fit w-full lg:w-fit min-w-[50%] flex-col justify-around border border-black bg-green-400">
       <div class="h-[50%]">
         <HalfFieldGrassPattern isHomeTeam />
 

@@ -1,5 +1,5 @@
 import { ErrorBoundary, Show, Suspense } from "solid-js";
-import { Outlet, useRouteData } from "solid-start";
+import { Outlet, useParams, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import { getGames } from "~/server/games";
 import GamesPage from "~/components/games";
@@ -18,12 +18,19 @@ export const routeData = () => {
 export default () => {
   const games = useRouteData<typeof routeData>();
 
+  const paramId = useParams().id !== undefined;
+
   return (
-    <div class="flex justify-between space-y-4 overflow-x-clip px-4">
-      <input type="checkbox" id="games-toggle" class="peer absolute hidden" />
+    <div class="grid grid-cols-[auto,1fr,auto] grid-rows-[auto,1fr] space-y-4 overflow-x-clip px-4">
+      <input
+        type="checkbox"
+        id="games-toggle"
+        class="peer absolute hidden"
+        checked={!paramId}
+      />
       <label
         for="games-toggle"
-        class="absolute top-0 z-10 rotate-180 self-start transition-all duration-500 peer-checked:rotate-0"
+        class="absolute top-0 z-10 rotate-0 self-start transition-all duration-500 peer-checked:rotate-180 md:hidden"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -41,17 +48,17 @@ export default () => {
         </svg>
       </label>
 
-      <div class="mr-4 max-h-[150vh] w-full min-w-fit justify-center duration-500 ease-in-out peer-checked:hidden peer-checked:-translate-x-full md:mr-0 md:w-[50%]">
-        <Show when={games()} keyed>
-          {(games) => (
-            <div class="mx-auto max-h-full w-full max-w-md overflow-y-scroll px-4">
-              <GamesPage games={games} />
-            </div>
-          )}
-        </Show>
+      <div class="fixed left-0 z-20 col-start-1 row-start-2 h-[120vh] w-full min-w-[300px] -translate-x-full space-y-4 overflow-auto bg-base-100 px-8 pt-8 pb-20 duration-300 ease-in-out peer-checked:translate-x-0 md:relative md:left-auto md:top-auto md:translate-x-0 md:pb-8">
+          <Show when={games()} keyed>
+            {(games) => (
+              <div class="mx-auto max-h-full w-full max-w-md overflow-y-scroll px-4">
+                <GamesPage games={games} />
+              </div>
+            )}
+          </Show>
       </div>
 
-      <div class="mx-auto w-[90%] max-w-3xl grow md:w-[50%]">
+      <div class="col-start-2 row-start-2 h-full w-10 place-self-center overflow-auto md:min-w-full lg:min-w-[50rem] md:max-w-3xl">
         <ErrorBoundary
           fallback={
             <div class="h-52 w-full bg-red-200">Error loading data</div>
