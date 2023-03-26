@@ -8,8 +8,7 @@ export default defineConfig({
       ssr: true,
     }),
     */
-    solid({
-    }),
+    solid({}),
   ],
   ssr: { external: ["@prisma/client"] },
 });

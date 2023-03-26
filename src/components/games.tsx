@@ -6,8 +6,8 @@ import { type Game } from "~/server/games";
 
 const Team = (team: { teamName: string; goalCount: number }) => {
   return (
-    <span class="flex w-full justify-between items-center">
-      <span class="text-lg font-bold max-w-[80%]">{team.teamName}</span>
+    <span class="flex w-full items-center justify-between">
+      <span class="max-w-[80%] text-lg font-bold">{team.teamName}</span>
       <span class="font-semibold">{team.goalCount}</span>
     </span>
   );
@@ -28,7 +28,10 @@ const Game = (game: {
   const kickoffTime = createMemo(() => dayjs(game.kickoffTime).format("HH:mm"));
 
   return (
-    <A href={`/game/${game.id}/goals${query.date? '?date=' + query.date: ''}`} class="group relative block">
+    <A
+      href={`/game/${game.id}/goals${query.date ? "?date=" + query.date : ""}`}
+      class="group relative block"
+    >
       <span class="absolute inset-0 border-2 border-dashed border-black"></span>
 
       <div class="relative h-full w-full transform border-2 border-black bg-white transition-transform group-hover:-translate-x-2 group-hover:-translate-y-2">
@@ -65,7 +68,9 @@ export const GameDetailWrapper: ParentComponent<{
           <span class="flex-1">
             <A
               end={true}
-              href={`/game/${props.gameId}/goals${query.date? '?date=' + query.date: ''}`}
+              href={`/game/${props.gameId}/goals${
+                query.date ? "?date=" + query.date : ""
+              }`}
               activeClass={activeStyle}
               inactiveClass={inactiveStyle}
             >
@@ -77,7 +82,9 @@ export const GameDetailWrapper: ParentComponent<{
           <span class="flex-1">
             <A
               end={true}
-              href={`/game/${props.gameId}/lineup${query.date? '?date=' + query.date: ''}`}
+              href={`/game/${props.gameId}/lineup${
+                query.date ? "?date=" + query.date : ""
+              }`}
               activeClass={activeStyle}
               inactiveClass={inactiveStyle}
             >
@@ -89,7 +96,9 @@ export const GameDetailWrapper: ParentComponent<{
           <span class="flex-1">
             <A
               end={true}
-              href={`/game/${props.gameId}/statistics${query.date? '?date=' + query.date: ''}`}
+              href={`/game/${props.gameId}/statistics${
+                query.date ? "?date=" + query.date : ""
+              }`}
               activeClass={activeStyle}
               inactiveClass={inactiveStyle}
             >
@@ -108,7 +117,6 @@ export const GameDetailWrapper: ParentComponent<{
 };
 
 export default function GamesList(props: { games: Game[] }) {
-
   return (
     <div class="flex flex-col space-y-4">
       <Show when={props.games} keyed>

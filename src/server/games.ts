@@ -3,8 +3,8 @@ import { prisma } from "~/util/prisma";
 export const getGames = async (selectedDate: string | undefined) => {
   const date = selectedDate !== undefined ? new Date(selectedDate) : undefined;
   const dayDate = date?.getDate();
-  let gte = date? new Date(date.getTime()) : undefined;
-  let lte = date? new Date(date.getTime()): undefined;
+  let gte = date ? new Date(date.getTime()) : undefined;
+  let lte = date ? new Date(date.getTime()) : undefined;
   if (dayDate && lte && gte) {
     gte.setDate(dayDate - 1);
     lte.setDate(dayDate + 1);
@@ -17,15 +17,14 @@ export const getGames = async (selectedDate: string | undefined) => {
         kickoffTime: "desc",
       },
       where: {
-        ...(
-          lte !== undefined && gte !== undefined ?
-            {
+        ...(lte !== undefined && gte !== undefined
+          ? {
               kickoffTime: {
                 gte,
-                lte
-              }
-            } : {}
-        )
+                lte,
+              },
+            }
+          : {}),
       },
       select: {
         id: true,
