@@ -70,7 +70,7 @@ export default () => {
   const gameData = useRouteData<typeof routeData>();
 
   return (
-    <div class="flex max-h-screen flex-col space-y-4">
+    <div class="flex flex-col space-y-4">
       <Show when={gameData()} keyed>
         {(gameData) => <GameInfo {...gameData} />}
       </Show>

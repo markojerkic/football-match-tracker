@@ -1,9 +1,7 @@
 import {
   CompetitionType,
   Halftime,
-  PlayerInGameLineup,
   Position,
-  Prisma,
   PrismaClient,
 } from "@prisma/client";
 import { z } from "zod";
@@ -422,7 +420,7 @@ const TEAM_TO_SHIRT_COLOR = new Map<string, string>([
   ["Liverpool", "#e0202c"],
   ["Manchester City", "#99c5e7"],
   ["Manchester United", "#dc1f29"],
-  ["Newcastle United", "#0000"],
+  ["Newcastle United", "#00000"],
   ["Norwhich City", "#fff200"],
   ["Southampton", "#d41e29"],
   ["Tottenham Hotspur", "#11214b"],
@@ -430,6 +428,8 @@ const TEAM_TO_SHIRT_COLOR = new Map<string, string>([
   ["West Ham United", "#7a263a"],
   ["Wolverhampton Wanderers", "#231f20"],
 ]);
+
+const GOAL_KEEPER_SHIRTS = ["#F68712", "#512888"];
 
 const getOrCreateTeam = async ({
   teamName,
@@ -447,6 +447,8 @@ const getOrCreateTeam = async ({
     shirtColor = randomShirtColor();
   }
 
+  const goalKeeperShirt = randomFronArray(GOAL_KEEPER_SHIRTS);
+
   if (!possibleTeam) {
     const team = await prisma.team.create({
       data: {
@@ -458,13 +460,13 @@ const getOrCreateTeam = async ({
     return {
       id: team.id,
       primaryShirtColor: team.primaryShirtColor,
-      goalKeeperShirt: "#F68712",
+      goalKeeperShirt: goalKeeperShirt,
     };
   }
   return {
     id: possibleTeam.id,
     primaryShirtColor: possibleTeam.primaryShirtColor,
-    goalKeeperShirt: "#512888",
+    goalKeeperShirt: goalKeeperShirt,
   };
 };
 
@@ -582,8 +584,8 @@ const getOrCreatePlayer = async ({
         ...(isCurrentSeasson ? { teamId } : {}),
         ...(primaryShirtNumber && primaryShirtNumber !== "N/A"
           ? {
-            primaryShirtNumber: +primaryShirtNumber,
-          }
+              primaryShirtNumber: +primaryShirtNumber,
+            }
           : {}),
         countryId: countryId,
         primaryPosition,
@@ -597,6 +599,8 @@ const getOrCreatePlayer = async ({
     console.error("Error ingesting player", e);
   }
 };
+
+const teamSeasonPositionToPlayerId = new Map<string, string[]>();
 
 const addPlPlayers1819 = async ({
   fileLocation,
@@ -635,6 +639,7 @@ const addPlPlayers1819 = async ({
 
     const countryId = await getOrCreateCountry(playerValidated.nationality);
 
+    const position = getPosition(playerValidated.position);
     const player = await getOrCreatePlayer({
       firstName: playerValidated.full_name.split(" ")[0],
       lastName: playerValidated.full_name.substring(
@@ -643,7 +648,7 @@ const addPlPlayers1819 = async ({
       ),
       primaryShirtNumber: playerValidated.shirt_number,
       countryId: countryId,
-      primaryPosition: getPosition(playerValidated.position),
+      primaryPosition: position,
       dateOfBirth: new Date(playerValidated.birthday_GMT),
       team: {
         seasonId: season,
@@ -651,6 +656,28 @@ const addPlPlayers1819 = async ({
         isCurrentSeasson,
       },
     });
+    let players = teamSeasonPositionToPlayerId.get(
+      JSON.stringify({
+        teamId: currentTeam.id,
+        seassonId: season,
+        position: position,
+      })
+    );
+    if (!players) {
+      players = [];
+      //teamSeasonPositionToPlayerId.set({ teamId: currentTeam.id, seassonId: season, position: position }, []);
+    }
+    if (player) {
+      players.push(player);
+    }
+    teamSeasonPositionToPlayerId.set(
+      JSON.stringify({
+        teamId: currentTeam.id,
+        seassonId: season,
+        position: position,
+      }),
+      players
+    );
   }
 };
 
@@ -682,17 +709,8 @@ const createOrGetCompetition = async ({
 };
 
 export const getRandomSubarray = <T>(arr: T[], size: number) => {
-  var shuffled = arr.slice(0),
-    i = arr.length,
-    temp,
-    index;
-  while (i--) {
-    index = Math.floor((i + 1) * Math.random());
-    temp = shuffled[index];
-    shuffled[index] = shuffled[i];
-    shuffled[i] = temp;
-  }
-  return shuffled.slice(0, size);
+  const shuffeled = arr.sort(() => 0.5 - Math.random());
+  return shuffeled.slice(0, size);
 };
 
 const generateRandomGoals = async ({
@@ -802,85 +820,58 @@ const generateRandomLineup = async ({
 }) => {
   if (lineupForTeamId.has(teamId)) {
     console.log("Found lineup for team in game", teamId);
-    return lineupForTeamId.get(teamId)!;
+    const lineup = lineupForTeamId.get(teamId);
+    if (lineup !== undefined) {
+      return lineup;
+    }
   }
 
   console.log("Generating lineups for game");
 
   const lineup = randomLineup();
 
-  const goalKeeper = prisma.playersTeamInSeason.findMany({
-    where: {
+  const goalKeepers = teamSeasonPositionToPlayerId.get(
+    JSON.stringify({
       teamId,
-      seasonId,
-      player: {
-        primaryPosition: Position.GOAL_KEEPER,
-      },
-    },
-    select: { player: { select: { id: true } } },
-  });
-
-  const defensive = prisma.playersTeamInSeason.findMany({
-    where: {
+      seassonId: seasonId,
+      position: Position.GOAL_KEEPER,
+    })
+  );
+  const defensives = teamSeasonPositionToPlayerId.get(
+    JSON.stringify({
       teamId,
-      seasonId,
-      player: {
-        primaryPosition: {
-          in: [Position.LEFT_BACK, Position.RIGHT_BACK, Position.CENTRE_BACK],
-        },
-      },
-    },
-    select: { player: { select: { id: true } } },
-  });
-
-  const midfield = prisma.playersTeamInSeason.findMany({
-    where: {
+      seassonId: seasonId,
+      position: Position.CENTRE_BACK,
+    })
+  );
+  const midfielders = teamSeasonPositionToPlayerId.get(
+    JSON.stringify({
       teamId,
-      seasonId,
-      player: {
-        primaryPosition: {
-          in: [
-            Position.LEFT_MIDFIELDER,
-            Position.RIGHT_MIDFIELDER,
-            Position.CENTER_ATTACKING_MIDFIELDER,
-            Position.CENTER_DEFNSIVE_MIDFIELDER,
-            Position.CENTER_MIDFIELDER,
-          ],
-        },
-      },
-    },
-    select: { player: { select: { id: true } } },
-  });
-
-  const attack = prisma.playersTeamInSeason.findMany({
-    where: {
+      seassonId: seasonId,
+      position: Position.CENTER_MIDFIELDER,
+    })
+  );
+  const attackers = teamSeasonPositionToPlayerId.get(
+    JSON.stringify({
       teamId,
-      seasonId,
-      player: {
-        primaryPosition: {
-          in: [
-            Position.CENTER_FORWARD,
-            Position.RIGHT_WINGER,
-            Position.RIGHT_WINGER,
-          ],
-        },
-      },
-    },
-    select: { player: { select: { id: true } } },
-  });
+      seassonId: seasonId,
+      position: Position.CENTER_FORWARD,
+    })
+  );
 
-  const [goalKeepers, defensives, midfielders, attackers] = await Promise.all([
-    goalKeeper,
-    defensive,
-    midfield,
-    attack,
-  ]);
+  if (!goalKeepers || !defensives || !midfielders || !attackers) {
+    console.error(goalKeepers);
+    console.error(defensives);
+    console.error(midfielders);
+    console.error(attackers);
+    throw Error("Players not found");
+  }
 
   const goalie = randomFronArray(goalKeepers);
   const playersInLineup: TPlayerInGameLineup[] = [];
 
   playersInLineup.push({
-    playerId: goalie.player.id,
+    playerId: goalie,
     shirtNumber: 1,
     lineupRow: 0,
     lineupColumn: 0,
@@ -888,11 +879,11 @@ const generateRandomLineup = async ({
 
   const randomDefansivePlayers = getRandomSubarray(
     defensives,
-    lineup.startsWith("4") ? 4 : lineup.startsWith("3") ? 3 : 5
+    lineup.charAt(0) === "4" ? 4 : lineup.charAt(0) === "3" ? 3 : 5
   );
   playersInLineup.push(
     ...randomDefansivePlayers.map((player, index) => ({
-      playerId: player.player.id,
+      playerId: player,
       shirtNumber: 4,
       lineupRow: 1,
       lineupColumn: index,
@@ -904,7 +895,7 @@ const generateRandomLineup = async ({
 
     playersInLineup.push(
       ...randomMidPlayersPlayers.map((player, index) => ({
-        playerId: player.player.id,
+        playerId: player,
         shirtNumber: 8,
         lineupRow: 2,
         lineupColumn: index,
@@ -915,7 +906,7 @@ const generateRandomLineup = async ({
 
     playersInLineup.push(
       ...randomAttackingPlayersPlayers.map((player, index) => ({
-        playerId: player.player.id,
+        playerId: player,
         shirtNumber: 7,
         lineupRow: 3,
         lineupColumn: index,
@@ -928,7 +919,7 @@ const generateRandomLineup = async ({
 
     playersInLineup.push(
       ...randomMidPlayersPlayers.map((player, index) => ({
-        playerId: player.player.id,
+        playerId: player,
         shirtNumber: 8,
         lineupRow: 2,
         lineupColumn: index,
@@ -939,7 +930,7 @@ const generateRandomLineup = async ({
 
     playersInLineup.push(
       ...randomAttackingPlayersPlayers.map((player, index) => ({
-        playerId: player.player.id,
+        playerId: player,
         shirtNumber: 7,
         lineupRow: 3,
         lineupColumn: index,
@@ -952,7 +943,7 @@ const generateRandomLineup = async ({
 
     playersInLineup.push(
       ...randomMidPlayersPlayers.map((player, index) => ({
-        playerId: player.player.id,
+        playerId: player,
         shirtNumber: 8,
         lineupRow: 2,
         lineupColumn: index,
@@ -963,7 +954,7 @@ const generateRandomLineup = async ({
 
     playersInLineup.push(
       ...randomAttackingPlayersPlayers.map((player, index) => ({
-        playerId: player.player.id,
+        playerId: player,
         shirtNumber: 7,
         lineupRow: 3,
         lineupColumn: index,
@@ -972,23 +963,19 @@ const generateRandomLineup = async ({
 
     let randomStriker = randomFronArray(attackers);
 
-    while (
-      randomAttackingPlayersPlayers
-        .map((player) => player.player.id)
-        .some((id) => randomStriker.player.id === id)
-    ) {
+    while (randomAttackingPlayersPlayers.includes(randomStriker)) {
       randomStriker = randomFronArray(attackers);
     }
 
     playersInLineup.push({
-      playerId: randomStriker.player.id,
+      playerId: randomStriker,
       shirtNumber: 9,
       lineupRow: 3,
       lineupColumn: 4,
     });
   }
 
-  if (lineup === "352" || lineup === "343") {
+  if (lineup === "352" || lineup === "343" || lineup === "532") {
     const randomMidPlayersPlayers = getRandomSubarray(
       midfielders,
       +lineup.charAt(1)
@@ -996,7 +983,7 @@ const generateRandomLineup = async ({
 
     playersInLineup.push(
       ...randomMidPlayersPlayers.map((player, index) => ({
-        playerId: player.player.id,
+        playerId: player,
         shirtNumber: 8,
         lineupRow: 2,
         lineupColumn: index,
@@ -1010,7 +997,7 @@ const generateRandomLineup = async ({
 
     playersInLineup.push(
       ...randomAttackingPlayersPlayers.map((player, index) => ({
-        playerId: player.player.id,
+        playerId: player,
         shirtNumber: 7,
         lineupRow: 3,
         lineupColumn: index,

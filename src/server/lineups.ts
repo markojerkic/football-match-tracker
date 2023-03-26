@@ -1,3 +1,4 @@
+// @refresh reload
 import { z } from "zod";
 import { prisma } from "~/util/prisma";
 
@@ -102,7 +103,7 @@ export const getLineups = async ({ gameId }: { gameId: string }) => {
     playersRaw: awayTeamLineupRaw,
   });
 
-  return {
+  const result = {
     homeTeamShirtColor: lineup.homeTeamShirtColor,
     homeTeamGoalkeeperShirtColor: lineup.homeTeamGoalkeeperShirtColor,
     awayTeamShirtColor: lineup.awayTeamShirtColor,
@@ -110,6 +111,7 @@ export const getLineups = async ({ gameId }: { gameId: string }) => {
     homeTeamLineup,
     awayTeamLineup,
   };
+  return result;
 };
 
 export type Lineups = Awaited<ReturnType<typeof getLineups>>;
