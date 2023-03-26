@@ -1,15 +1,17 @@
 import { ErrorBoundary, Show, Suspense } from "solid-js";
-import { Outlet, useParams, useRouteData } from "solid-start";
+import { Outlet, useParams, useRouteData, useSearchParams } from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import { getGames } from "~/server/games";
 import GamesPage from "~/components/games";
+import { Calendar } from "~/components/calendar";
 
 export const routeData = () => {
+  const [searchParams] = useSearchParams();
   const gamesFirstPage = createServerData$(
-    () => {
-      return getGames();
+    ([, selectedDate]) => {
+      return getGames(selectedDate ?? new Date().toISOString().split("T")[0]);
     },
-    { key: () => ["games-first-page"] }
+    { key: () => ["games-first-page", searchParams.date] }
   );
 
   return gamesFirstPage;
@@ -18,7 +20,8 @@ export const routeData = () => {
 export default () => {
   const games = useRouteData<typeof routeData>();
 
-  const paramId = useParams().id !== undefined;
+  const paramId = useParams().id;
+  const hasParamId = () => paramId !== undefined;
 
   return (
     <div class="grid grid-cols-[auto,1fr,auto] grid-rows-[auto,1fr] space-y-4 overflow-x-clip px-4">
@@ -26,7 +29,7 @@ export default () => {
         type="checkbox"
         id="games-toggle"
         class="peer absolute hidden"
-        checked={!paramId}
+        checked={hasParamId()}
       />
       <label
         for="games-toggle"
@@ -52,6 +55,7 @@ export default () => {
         <Show when={games()} keyed>
           {(games) => (
             <div class="mx-auto max-h-full w-full max-w-md overflow-y-scroll px-4">
+              <Calendar />
               <GamesPage games={games} />
             </div>
           )}

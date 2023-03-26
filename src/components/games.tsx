@@ -1,13 +1,13 @@
 import dayjs from "dayjs";
 import { ParentComponent, createMemo } from "solid-js";
 import { For, Show } from "solid-js/web";
-import { A } from "solid-start";
+import { A, useParams, useSearchParams } from "solid-start";
 import { type Game } from "~/server/games";
 
 const Team = (team: { teamName: string; goalCount: number }) => {
   return (
-    <span class="flex w-full justify-between">
-      <span class="text-lg font-bold">{team.teamName}</span>
+    <span class="flex w-full justify-between items-center">
+      <span class="text-lg font-bold max-w-[80%]">{team.teamName}</span>
       <span class="font-semibold">{team.goalCount}</span>
     </span>
   );
@@ -21,13 +21,14 @@ const Game = (game: {
   kickoffTime: Date;
   id: string;
 }) => {
+  const [query] = useSearchParams();
   const calendarDate = createMemo(() =>
     dayjs(game.kickoffTime).format("DD.MM.YYYY.")
   );
   const kickoffTime = createMemo(() => dayjs(game.kickoffTime).format("HH:mm"));
 
   return (
-    <A href={`/game/${game.id}/goals`} class="group relative block">
+    <A href={`/game/${game.id}/goals${query.date? '?date=' + query.date: ''}`} class="group relative block">
       <span class="absolute inset-0 border-2 border-dashed border-black"></span>
 
       <div class="relative h-full w-full transform border-2 border-black bg-white transition-transform group-hover:-translate-x-2 group-hover:-translate-y-2">
@@ -37,7 +38,7 @@ const Game = (game: {
             <span>{calendarDate()}</span>
             <span>{kickoffTime()}</span>
           </span>
-          <span class="flex w-full flex-col">
+          <span class="flex w-full flex-col space-y-1">
             <Team goalCount={game.homeTeamGoalCount} teamName={game.homeTeam} />
             <Team goalCount={game.awayTeamGoalCount} teamName={game.awayTeam} />
           </span>
@@ -55,6 +56,8 @@ export const GameDetailWrapper: ParentComponent<{
   tab: "timeline" | "statistics" | "lineups";
   gameId: string;
 }> = (props) => {
+  const [query] = useSearchParams();
+
   return (
     <>
       <div class="flex flex-col space-y-4">
@@ -62,7 +65,7 @@ export const GameDetailWrapper: ParentComponent<{
           <span class="flex-1">
             <A
               end={true}
-              href={`/game/${props.gameId}/goals`}
+              href={`/game/${props.gameId}/goals${query.date? '?date=' + query.date: ''}`}
               activeClass={activeStyle}
               inactiveClass={inactiveStyle}
             >
@@ -74,7 +77,7 @@ export const GameDetailWrapper: ParentComponent<{
           <span class="flex-1">
             <A
               end={true}
-              href={`/game/${props.gameId}/lineup`}
+              href={`/game/${props.gameId}/lineup${query.date? '?date=' + query.date: ''}`}
               activeClass={activeStyle}
               inactiveClass={inactiveStyle}
             >
@@ -86,7 +89,7 @@ export const GameDetailWrapper: ParentComponent<{
           <span class="flex-1">
             <A
               end={true}
-              href={`/game/${props.gameId}/statistics`}
+              href={`/game/${props.gameId}/statistics${query.date? '?date=' + query.date: ''}`}
               activeClass={activeStyle}
               inactiveClass={inactiveStyle}
             >
@@ -105,32 +108,6 @@ export const GameDetailWrapper: ParentComponent<{
 };
 
 export default function GamesList(props: { games: Game[] }) {
-  /*
-  const gamesPage = createInfiniteQuery(
-    () => ["games-page"],
-    async ({ pageParam = undefined as string | undefined }) => {
-      return getGames$(pageParam);
-    },
-    {
-      getNextPageParam: (lastGamesPage: Game[]) => getLastId(lastGamesPage),
-      suspense: true,
-      keepPreviousData: true,
-      enabled: !isServer,
-      initialData: () => {
-        return {
-          pages: [],
-          pageParams: [],
-        };
-      },
-    }
-  );
-
-  createScrollToBottom(
-    gamesPage.hasNextPage ?? true,
-    gamesPage.isFetchingNextPage,
-    gamesPage.fetchNextPage
-  );
-  */
 
   return (
     <div class="flex flex-col space-y-4">

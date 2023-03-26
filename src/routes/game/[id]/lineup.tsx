@@ -176,12 +176,13 @@ const FieldWrapper = (props: { lineups: Lineups }) => {
 
 export default () => {
   const lineups = useRouteData<typeof routeData>();
-  const gameId = useParams().id;
+  const params = useParams();
+  const id = () => params.id;
 
   return (
     <Show when={lineups()} keyed>
       {(lineups) => (
-        <GameDetailWrapper tab="timeline" gameId={gameId}>
+        <GameDetailWrapper tab="timeline" gameId={id()}>
           <FieldWrapper lineups={lineups} />
         </GameDetailWrapper>
       )}

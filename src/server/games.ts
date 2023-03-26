@@ -1,19 +1,31 @@
 import { prisma } from "~/util/prisma";
 
-export const getGames = async (id?: string | undefined) => {
+export const getGames = async (selectedDate: string | undefined) => {
+  const date = selectedDate !== undefined ? new Date(selectedDate) : undefined;
+  const dayDate = date?.getDate();
+  let gte = date? new Date(date.getTime()) : undefined;
+  let lte = date? new Date(date.getTime()): undefined;
+  if (dayDate && lte && gte) {
+    gte.setDate(dayDate - 1);
+    lte.setDate(dayDate + 1);
+  }
+
   const games = await prisma.game
     .findMany({
       take: 20,
-      ...(id !== undefined && id !== null
-        ? {
-            cursor: {
-              id,
-            },
-          }
-        : {}),
       orderBy: {
-        // kickoffTime: "desc",
-        id: "asc",
+        kickoffTime: "desc",
+      },
+      where: {
+        ...(
+          lte !== undefined && gte !== undefined ?
+            {
+              kickoffTime: {
+                gte,
+                lte
+              }
+            } : {}
+        )
       },
       select: {
         id: true,
