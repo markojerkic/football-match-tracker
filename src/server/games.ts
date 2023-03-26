@@ -6,7 +6,7 @@ export const getGames = async (selectedDate: string | undefined) => {
   let gte = date ? new Date(date.getTime()) : undefined;
   let lte = date ? new Date(date.getTime()) : undefined;
   if (dayDate && lte && gte) {
-    gte.setDate(dayDate - 1);
+    gte.setDate(dayDate);
     lte.setDate(dayDate + 1);
   }
 

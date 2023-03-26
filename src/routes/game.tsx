@@ -60,6 +60,14 @@ export default () => {
             </div>
           )}
         </Show>
+        <Show when={games()?.length === 0}>
+          <p class="my-1 flex px-4 text-sm font-medium text-gray-700">
+            No games were found for that date.
+          </p>
+          <p class="my-1 flex px-4 text-sm font-medium text-gray-700">
+            Try another date.
+          </p>
+        </Show>
       </div>
 
       <div class="col-start-2 row-start-2 h-full w-full place-self-center overflow-auto md:min-w-full md:max-w-3xl lg:min-w-[50rem]">

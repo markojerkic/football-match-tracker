@@ -16,14 +16,23 @@ export default () => {
 
       <ul class="flex items-center gap-2 text-sm font-medium text-gray-500">
         <li class="hidden lg:block">
-          <A class="rounded-lg px-3 py-2" href="/">
+          <A
+            class="rounded-lg px-3 py-2"
+            end
+            activeClass="underline underline-offset-2"
+            href="/"
+          >
             {" "}
             Home{" "}
           </A>
         </li>
 
         <li>
-          <A class="rounded-lg px-3 py-2" href="/game">
+          <A
+            class="rounded-lg px-3 py-2"
+            activeClass="underline underline-offset-2"
+            href="/game"
+          >
             {" "}
             Games{" "}
           </A>

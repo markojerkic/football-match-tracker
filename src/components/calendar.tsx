@@ -14,7 +14,7 @@ export const Calendar = () => {
       <input
         type="date"
         class="block w-full rounded-l-md border-gray-300 px-2 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-        onChange={(e) =>
+        onInput={(e) =>
           setSearchParams({ date: (e.target as HTMLInputElement).value })
         }
         value={searchParams.date ?? new Date().toISOString().split("T")[0]}
