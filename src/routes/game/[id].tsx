@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import { ErrorBoundary, Show, Suspense, createMemo } from "solid-js";
 import { A, RouteDataArgs, useRouteData, Outlet } from "solid-start";
 import { createServerData$ } from "solid-start/server";
+import { GameDetailWrapper } from "~/components/games";
 import { GameDataById, getGameDataById } from "~/server/games";
 
 export const routeData = ({ params }: RouteDataArgs<{ id: string }>) => {
@@ -53,9 +54,11 @@ const GameInfo = (gameData: GameDataById) => {
 
       <ErrorBoundary
         fallback={(error) => (
-          <div class="h-52 w-full bg-red-200">
-            Error loading data: {JSON.stringify(error)}
-          </div>
+          <GameDetailWrapper gameId={gameData.id} >
+            <div class="bg-error p-4 text-white rounded-md">
+              <span>Error loading data for this tab. Try another tab or another game.</span>
+            </div>
+          </GameDetailWrapper>
         )}
       >
         <Suspense fallback={<p>Loading...</p>}>

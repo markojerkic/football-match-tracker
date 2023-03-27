@@ -66,7 +66,7 @@ export default () => {
   const gameId = () => params.id;
 
   return (
-    <GameDetailWrapper tab="timeline" gameId={gameId()}>
+    <GameDetailWrapper gameId={gameId()}>
       <Suspense>
         <Show when={statistics()} keyed>
           {(statistics) => (

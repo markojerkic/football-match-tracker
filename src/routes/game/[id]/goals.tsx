@@ -20,7 +20,7 @@ export default () => {
   const id = useParams().id;
 
   return (
-    <GameDetailWrapper tab="timeline" gameId={id}>
+    <GameDetailWrapper gameId={id}>
       <GameDetail goals={goals()} />
     </GameDetailWrapper>
   );

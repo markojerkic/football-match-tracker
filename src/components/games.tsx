@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
-import { ParentComponent, createMemo } from "solid-js";
+import { ParentComponent, createMemo, } from "solid-js";
 import { For, Show } from "solid-js/web";
-import { A, useParams, useSearchParams } from "solid-start";
+import { A, useSearchParams } from "solid-start";
 import { type Game } from "~/server/games";
 
 const Team = (team: { teamName: string; goalCount: number }) => {
@@ -56,7 +56,6 @@ const activeStyle =
   "relative block border-t border-l border-r border-gray-400 bg-white p-4 text-sm font-medium";
 
 export const GameDetailWrapper: ParentComponent<{
-  tab: "timeline" | "statistics" | "lineups";
   gameId: string;
 }> = (props) => {
   const [query] = useSearchParams();
@@ -68,9 +67,8 @@ export const GameDetailWrapper: ParentComponent<{
           <span class="flex-1">
             <A
               end={true}
-              href={`/game/${props.gameId}/goals${
-                query.date ? "?date=" + query.date : ""
-              }`}
+              href={`/game/${props.gameId}/goals${query.date ? "?date=" + query.date : ""
+                }`}
               activeClass={activeStyle}
               inactiveClass={inactiveStyle}
             >
@@ -82,9 +80,8 @@ export const GameDetailWrapper: ParentComponent<{
           <span class="flex-1">
             <A
               end={true}
-              href={`/game/${props.gameId}/lineup${
-                query.date ? "?date=" + query.date : ""
-              }`}
+              href={`/game/${props.gameId}/lineup${query.date ? "?date=" + query.date : ""
+                }`}
               activeClass={activeStyle}
               inactiveClass={inactiveStyle}
             >
@@ -96,9 +93,8 @@ export const GameDetailWrapper: ParentComponent<{
           <span class="flex-1">
             <A
               end={true}
-              href={`/game/${props.gameId}/statistics${
-                query.date ? "?date=" + query.date : ""
-              }`}
+              href={`/game/${props.gameId}/statistics${query.date ? "?date=" + query.date : ""
+                }`}
               activeClass={activeStyle}
               inactiveClass={inactiveStyle}
             >
@@ -118,7 +114,7 @@ export const GameDetailWrapper: ParentComponent<{
 
 export default function GamesList(props: { games: Game[] }) {
   return (
-    <div class="flex flex-col space-y-4">
+    <div class="flex max-h-[75vh] md:max-h-max flex-col space-y-4">
       <Show when={props.games} keyed>
         {(data) => (
           <For each={data}>

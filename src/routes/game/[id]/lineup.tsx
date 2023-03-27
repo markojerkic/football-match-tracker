@@ -182,7 +182,7 @@ export default () => {
   return (
     <Show when={lineups()} keyed>
       {(lineups) => (
-        <GameDetailWrapper tab="timeline" gameId={id()}>
+        <GameDetailWrapper gameId={id()}>
           <FieldWrapper lineups={lineups} />
         </GameDetailWrapper>
       )}

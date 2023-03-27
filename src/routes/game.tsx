@@ -1,4 +1,4 @@
-import { ErrorBoundary, Show, Suspense } from "solid-js";
+import { ErrorBoundary, Show, Suspense, createEffect, createSignal } from "solid-js";
 import { Outlet, useParams, useRouteData, useSearchParams } from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import { getGames } from "~/server/games";
@@ -20,16 +20,28 @@ export const routeData = () => {
 export default () => {
   const games = useRouteData<typeof routeData>();
 
-  const paramId = useParams().id;
-  const hasParamId = () => paramId !== undefined;
+  const params = useParams();
+  const hasNoParamId = () => params.id === undefined;
+
+  const [isNavbarOpened, setIsNavbarOpened] = createSignal(hasNoParamId());
+
+  let checkbox: HTMLInputElement | undefined = undefined;
+  createEffect(() => {
+    setIsNavbarOpened(false);
+    if (checkbox) {
+      checkbox.checked = false;
+    }
+    console.log(params.id);
+  });
 
   return (
     <div class="grid grid-cols-[auto,1fr,auto] grid-rows-[auto,1fr] space-y-4 overflow-x-clip px-4">
       <input
+        ref={checkbox}
         type="checkbox"
         id="games-toggle"
         class="peer absolute hidden"
-        checked={hasParamId()}
+        checked={isNavbarOpened()}
       />
       <label
         for="games-toggle"
@@ -51,7 +63,7 @@ export default () => {
         </svg>
       </label>
 
-      <div class="fixed left-0 z-20 col-start-1 row-start-2 h-full min-h-[120vh] w-full min-w-[300px] -translate-x-full space-y-4 overflow-auto bg-base-100 px-8 pt-8 pb-20 duration-300 ease-in-out peer-checked:translate-x-0 md:relative md:left-auto md:top-auto md:translate-x-0 md:pb-8">
+      <div class="fixed top-4 left-0 z-20 col-start-1 row-start-2 h-full min-h-[120vh] w-full min-w-[300px] -translate-x-full space-y-4 overflow-auto bg-base-100 px-8 pt-8 pb-20 duration-300 ease-in-out peer-checked:translate-x-0 md:relative md:left-auto md:top-auto md:translate-x-0 md:pb-8">
         <Show when={games()} keyed>
           {(games) => (
             <div class="mx-auto max-h-full w-full max-w-md overflow-y-scroll px-4">
@@ -73,7 +85,9 @@ export default () => {
       <div class="col-start-2 row-start-2 h-full w-full place-self-center overflow-auto md:min-w-full md:max-w-3xl lg:min-w-[50rem]">
         <ErrorBoundary
           fallback={
-            <div class="h-52 w-full bg-red-200">Error loading data</div>
+            <div class="h-52 w-full bg-error p-4 text-white">
+              Error loading data
+            </div>
           }
         >
           <Suspense fallback={<p>Loading...</p>}>
