@@ -10,7 +10,11 @@ export default defineConfig({
     }),
     */
     solid({
-      adapter: vercel({})
+      adapter: vercel({
+        prerender: {
+          expiration: 60
+        }
+      })
     }),
   ],
   ssr: { external: ["@prisma/client"] },
