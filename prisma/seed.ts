@@ -1008,6 +1008,9 @@ const generateRandomLineup = async ({
   if (playersInLineup.length !== 11) {
     throw Error(`Lineup size not 11, but ${playersInLineup.length} for team ${teamId}`);
   }
+  if (new Set(playersInLineup).size !== playersInLineup.length) {
+    throw Error(`Players in lineup are not distinct: ${JSON.stringify(playersInLineup)}`);
+  }
 
   lineupForTeamId.set(teamId, playersInLineup);
   return playersInLineup;
