@@ -1005,6 +1005,10 @@ const generateRandomLineup = async ({
     );
   }
 
+  if (playersInLineup.length !== 11) {
+    throw Error(`Lineup size not 11, but ${playersInLineup.length} for team ${teamId}`);
+  }
+
   lineupForTeamId.set(teamId, playersInLineup);
   return playersInLineup;
 };
