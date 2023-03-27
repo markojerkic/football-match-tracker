@@ -4,7 +4,7 @@
     "dev": "solid-start dev",
     "build": "solid-start build",
     "start": "solid-start start",
-    "preinstall": "prisma generate",
+    "postinstall": "prisma generate",
     "prettier": "prettier --write \"**/*.{ts,tsx,md,mjs}\"",
     "seed": "tsc prisma/seed.ts && mv prisma/seed.js prisma/seed.cjs && node ./prisma/seed.cjs || rm prisma/seed.cjs"
   },
