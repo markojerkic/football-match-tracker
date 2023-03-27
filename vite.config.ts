@@ -2,13 +2,8 @@ import solid from "solid-start/vite";
 import { defineConfig } from "vite";
 import vercel from "solid-start-vercel";
 
-export default defineConfig(({ mode, command }) => ({
+export default defineConfig(({ command }) => ({
   plugins: [
-    /*
-    solid({
-      ssr: true,
-    }),
-    */
     solid({
       ...(command === "serve"
         ? {}

@@ -1,6 +1,13 @@
 import dayjs from "dayjs";
 import { ErrorBoundary, Show, Suspense, createMemo } from "solid-js";
-import { A, RouteDataArgs, useRouteData, Outlet } from "solid-start";
+import {
+  A,
+  RouteDataArgs,
+  useRouteData,
+  Outlet,
+  Title,
+  Meta,
+} from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import { GameDetailWrapper } from "~/components/games";
 import { GameDataById, getGameDataById } from "~/server/games";
@@ -53,10 +60,13 @@ const GameInfo = (gameData: GameDataById) => {
       </div>
 
       <ErrorBoundary
-        fallback={(error) => (
-          <GameDetailWrapper gameId={gameData.id} >
-            <div class="bg-error p-4 text-white rounded-md">
-              <span>Error loading data for this tab. Try another tab or another game.</span>
+        fallback={() => (
+          <GameDetailWrapper gameId={gameData.id}>
+            <div class="rounded-md bg-error p-4 text-white">
+              <span>
+                Error loading data for this tab. Try another tab or another
+                game.
+              </span>
             </div>
           </GameDetailWrapper>
         )}
@@ -73,10 +83,21 @@ export default () => {
   const gameData = useRouteData<typeof routeData>();
 
   return (
-    <div class="flex flex-col space-y-4">
-      <Show when={gameData()} keyed>
-        {(gameData) => <GameInfo {...gameData} />}
-      </Show>
-    </div>
+    <>
+      <Title>Game details</Title>
+      <div class="flex flex-col space-y-4">
+        <Show when={gameData()} keyed>
+          {(gameData) => (
+            <>
+              <Title>
+                {gameData.homeTeam.name} vs {gameData.awayTeam.name}
+              </Title>
+              <Meta name="description" content={`On ${gameData.kickoffTime.toLocaleString()}, ${gameData.homeTeam.name} and ${gameData.homeTeam.name} took each other on in a football game.`} />
+              <GameInfo {...gameData} />
+            </>
+          )}
+        </Show>
+      </div>
+    </>
   );
 };
