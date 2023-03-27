@@ -4,6 +4,7 @@
     "dev": "solid-start dev",
     "build": "solid-start build",
     "start": "solid-start start",
+    "preinstall": "prisma generate",
     "prettier": "prettier --write \"**/*.{ts,tsx,md,mjs}\"",
     "seed": "tsc prisma/seed.ts && mv prisma/seed.js prisma/seed.cjs && node ./prisma/seed.cjs || rm prisma/seed.cjs"
   },
@@ -37,6 +38,7 @@
     "solid-headless": "^0.13.1",
     "solid-js": "^1.6.15",
     "solid-start": "^0.2.23",
+    "solid-start-vercel": "^0.2.24",
     "tailwind-merge": "^1.10.0",
     "undici": "^5.21.0",
     "zod": "^3.21.4"
