@@ -11,9 +11,6 @@ export default defineConfig({
     */
     solid({
       adapter: vercel({
-        prerender: {
-          expiration: 60
-        }
       })
     }),
   ],
