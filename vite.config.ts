@@ -2,7 +2,7 @@ import solid from "solid-start/vite";
 import { defineConfig } from "vite";
 import vercel from "solid-start-vercel";
 
-export default defineConfig({
+export default defineConfig(({ mode, command }) => ({
   plugins: [
     /*
     solid({
@@ -10,9 +10,12 @@ export default defineConfig({
     }),
     */
     solid({
-      adapter: vercel({
-      })
+      ...(command === "serve"
+        ? {}
+        : {
+            adapter: vercel({}),
+          }),
     }),
   ],
   ssr: { external: ["@prisma/client"] },
-});
+}));
