@@ -257,33 +257,34 @@ model Goal {
 }
 
 model GameStatistics {
-  id                        String @id @default(cuid())
-  homeTeamBallPossession    Float
-  game                      Game   @relation(fields: [gameId], references: [id])
-  gameId                    String @unique
-  homeTeamTotalShots        Int
-  homeTeamShotsOnTarget     Int
-  homeTeamCornerKicks       Int
-  homeTeamOffsides          Int
-  homeTeamFouls             Int
-  homeTeamBigChances        Int
-  homeTeamPasses            Int
-  homeTeamCrosses           Int
-  homeTeamTackles           Int
-  homeTeamDribbles          Int
-  homeTeamDribblesSucessful Int
+  id                       String @id @default(cuid())
+  homeTeamBallPossession   Int
+  game                     Game   @relation(fields: [gameId], references: [id])
+  gameId                   String @unique
+  homeTeamTotalShots       Int
+  homeTeamShotsOnTarget    Int
+  homeTeamCornerKicks      Int
+  homeTeamOffsides         Int
+  homeTeamFouls            Int
+  homeTeamBigChances       Int
+  homeTeamPasses           Int
+  homeTeamCrosses          Int
+  homeTeamTackles          Int
+  homeTeamDribles          Int
+  homeTeamDriblesSucessful Int
 
   // Away team repeats
+  awayTeamBallPossession   Int
   awayTeamTotalShots       Int
   awayTeamShotsOnTarget    Int
   awayTeamCornerKicks      Int
   awayTeamOffsides         Int
   awayTeamFouls            Int
   awayTeamBigChances       Int
-  awayTeampasses           Int
+  awayTeamPasses           Int
   awayTeamCrosses          Int
   awayTeamTackles          Int
-  awayTeamDribbles         Int
+  awayTeamDribles          Int
   awayTeamDriblesSucessful Int
 }
 

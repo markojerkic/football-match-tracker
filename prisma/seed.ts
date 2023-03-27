@@ -1009,6 +1009,45 @@ const generateRandomLineup = async ({
   return playersInLineup;
 };
 
+const generateGameStatistics = async ({
+  game,
+  id,
+}: {
+  game: z.infer<typeof gameSchema>;
+  id: string;
+}) => {
+  await prisma.gameStatistics.create({
+    data: {
+      gameId: id,
+      homeTeamFouls: game.home_team_fouls,
+      homeTeamCrosses: -1,
+      homeTeamPasses: -1,
+      homeTeamTackles: -1,
+      homeTeamDribles: -1,
+      homeTeamDriblesSucessful: -1,
+      homeTeamOffsides: -1,
+      homeTeamBigChances: game.home_team_shots,
+      homeTeamTotalShots: game.home_team_shots,
+      homeTeamShotsOnTarget: game.home_team_shots_on_target,
+      homeTeamCornerKicks: game.home_team_corner_count,
+      homeTeamBallPossession: game.home_team_possession,
+
+      awayTeamFouls: game.away_team_fouls,
+      awayTeamCrosses: -1,
+      awayTeamPasses: -1,
+      awayTeamTackles: -1,
+      awayTeamDribles: -1,
+      awayTeamDriblesSucessful: -1,
+      awayTeamOffsides: -1,
+      awayTeamBigChances: game.away_team_shots,
+      awayTeamTotalShots: game.away_team_shots,
+      awayTeamShotsOnTarget: game.away_team_shots_on_target,
+      awayTeamCornerKicks: game.away_team_corner_count,
+      awayTeamBallPossession: game.away_team_possession,
+    },
+  });
+};
+
 const addGames = async ({
   competitionId,
   seasonId,
@@ -1065,6 +1104,8 @@ const addGames = async ({
         awayTeamLineup: awayTeamLineups,
       },
     });
+
+    await generateGameStatistics({ game, id });
 
     console.log("Game", id);
 
