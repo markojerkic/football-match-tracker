@@ -111,7 +111,7 @@ export default () => {
   );
 
   return (
-    <Form class="mx-auto flex max-w-md flex-col space-y-4">
+    <Form class="mx-auto flex max-w-lg flex-col space-y-4">
       <span class="flex flex-col">
         <label for="competition">Competition</label>
         <select
@@ -218,6 +218,11 @@ export default () => {
       <span class="flex flex-col">
         <label for="kickoffTime">Kickoff time</label>
         <input id="kickoffTime" type="datetime-local" />
+      </span>
+
+      <span class="flex flex-col">
+        <label for="kickoffTime">Is game over</label>
+        <input type="checkbox" class="toggle" checked />
       </span>
 
       <button class="btn" type="submit">
