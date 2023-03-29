@@ -1,3 +1,4 @@
+// @refresh reload
 import { For } from "solid-js";
 import { createStore } from "solid-js/store";
 import { useRouteData } from "solid-start";
@@ -109,6 +110,42 @@ export default () => {
       initialValue: [],
     }
   );
+
+  const homeTeamPlayers = createServerData$(
+    ([, seasonId, teamId]) => {
+      if (!teamId || !seasonId) {
+        return [];
+      }
+
+      return prisma.playersTeamInSeason.findMany({
+        where: {
+          seasonId,
+          teamId
+        },
+        select: {
+          player: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true
+            }
+          }
+        }
+      });
+    },
+    {
+      key: () => [
+        "player-in-hometeam",
+        formValue.season,
+        formValue.homeTeam,
+      ],
+      initialValue: [],
+      reconcileOptions: {
+        merge: true
+      }
+    }
+  );
+
 
   return (
     <Form class="mx-auto flex max-w-lg flex-col space-y-4">
@@ -223,6 +260,32 @@ export default () => {
       <span class="flex flex-col">
         <label for="kickoffTime">Is game over</label>
         <input type="checkbox" class="toggle" checked />
+      </span>
+
+      <span class="flex flex-col">
+        <label for="kickoffTime">Goal</label>
+        <select
+          class="select-bordered select w-full max-w-xs"
+          name="homeTeamPlayerGoal"
+          disabled={homeTeamPlayers()?.length === 0}
+          onInput={(e) => {
+            /*
+            const inputValue = (e.target as HTMLInputElement).value;
+            setFormValue({ awayTeam: inputValue });
+            */
+          }}
+        >
+          <HiddenOption />
+          <For each={homeTeamPlayers()}>
+            {(team) => (
+              <option
+                selected={false}
+                label={team.player.lastName}
+                value={team.player.id}
+              />
+            )}
+          </For>
+        </select>
       </span>
 
       <button class="btn" type="submit">
