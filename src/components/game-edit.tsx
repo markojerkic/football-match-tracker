@@ -1,41 +1,11 @@
-// @refresh reload
 import { createFormControl, createFormGroup } from "solid-forms";
 import { Suspense } from "solid-js";
-import { unstable_island, useRouteData } from "solid-start";
 import { createServerAction$, createServerData$ } from "solid-start/server";
-import { Select } from "~/components/form-helpers";
 import { getPlayersInTeamAndSeason } from "~/server/players";
 import { prisma } from "~/util/prisma";
+import { Select, type Option } from "./form-helpers";
 
-export const routeData = () => {
-  return createServerData$(
-    async () => {
-      return prisma.competition
-        .findMany({
-          select: {
-            id: true,
-            name: true,
-            country: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        })
-        .then((competitions) =>
-          competitions.map((c) => ({
-            label: `${c.country.name} - ${c.name}`,
-            value: c.id,
-          }))
-        );
-    },
-    { key: () => ["admin-competitions"], initialValue: [] }
-  );
-};
-
-export default () => {
-  const competitions = useRouteData<typeof routeData>();
-
+export default (props: { competitions: Option[] }) => {
   const [enrolling, { Form }] = createServerAction$(
     async (formData: FormData) => {
       const data = Object.fromEntries(formData.entries());
@@ -144,7 +114,7 @@ export default () => {
         <Select
           name="competition"
           control={gameFormGroup.controls.competition}
-          options={competitions() ?? []}
+          options={props.competitions}
         />
       </Suspense>
 
@@ -189,4 +159,4 @@ export default () => {
       </button>
     </Form>
   );
-};
+}
