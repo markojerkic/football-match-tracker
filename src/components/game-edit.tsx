@@ -2,14 +2,14 @@ import { Suspense } from "solid-js";
 import { createServerAction$, createServerData$ } from "solid-start/server";
 import { getPlayersInTeamAndSeason } from "~/server/players";
 import { prisma } from "~/util/prisma";
-import { Select, type Option, Date } from "./form-helpers";
-import { isServer } from "@tanstack/solid-query";
+import { Select, type Option, Date, Checkbox } from "./form-helpers";
 import { createStore } from "solid-js/store";
 
 export default (props: { competitions: Option[] }) => {
   const [enrolling, { Form }] = createServerAction$(
     async (formData: FormData) => {
       const data = Object.fromEntries(formData.entries());
+      console.log(data);
     }
   );
 
@@ -18,7 +18,8 @@ export default (props: { competitions: Option[] }) => {
     season: "",
     homeTeam: "",
     awayTeam: "",
-    kickoffTime: ""
+    kickoffTime: "",
+    isGameOver: true,
   });
 
   const seasons = createServerData$(
@@ -177,10 +178,14 @@ export default (props: { competitions: Option[] }) => {
         }}
       />
 
-      <span class="flex flex-col">
-        <label for="kickoffTime">Is game over</label>
-        <input type="checkbox" class="toggle" checked />
-      </span>
+      <Checkbox
+        label="Is game over"
+        name="isGameOver"
+        control={{
+          setValue: (val) => gameFormGroupControls({ isGameOver: val }),
+          value: gameFormGroup.isGameOver,
+        }}
+      />
 
       <button class="btn" type="submit">
         Save
