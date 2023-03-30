@@ -1,9 +1,10 @@
-import { createFormControl, createFormGroup } from "solid-forms";
 import { Suspense } from "solid-js";
 import { createServerAction$, createServerData$ } from "solid-start/server";
 import { getPlayersInTeamAndSeason } from "~/server/players";
 import { prisma } from "~/util/prisma";
-import { Select, type Option } from "./form-helpers";
+import { Select, type Option, Date } from "./form-helpers";
+import { isServer } from "@tanstack/solid-query";
+import { createStore } from "solid-js/store";
 
 export default (props: { competitions: Option[] }) => {
   const [enrolling, { Form }] = createServerAction$(
@@ -12,11 +13,12 @@ export default (props: { competitions: Option[] }) => {
     }
   );
 
-  const gameFormGroup = createFormGroup({
-    competition: createFormControl("", { required: true }),
-    season: createFormControl("", { required: true }),
-    homeTeam: createFormControl("", { required: true }),
-    awayTeam: createFormControl("", { required: true }),
+  const [gameFormGroup, gameFormGroupControls] = createStore({
+    competition: "",
+    season: "",
+    homeTeam: "",
+    awayTeam: "",
+    kickoffTime: ""
   });
 
   const seasons = createServerData$(
@@ -44,7 +46,7 @@ export default (props: { competitions: Option[] }) => {
         );
     },
     {
-      key: () => ["seasons-for-competition", gameFormGroup.value.competition],
+      key: () => ["seasons-for-competition", gameFormGroup.competition],
       initialValue: [],
     }
   );
@@ -77,8 +79,8 @@ export default (props: { competitions: Option[] }) => {
     {
       key: () => [
         "teams-in-season-competition",
-        gameFormGroup.value.competition,
-        gameFormGroup.value.season,
+        gameFormGroup.competition,
+        gameFormGroup.season,
       ],
       initialValue: [],
     }
@@ -89,8 +91,8 @@ export default (props: { competitions: Option[] }) => {
     {
       key: () => [
         "player-in-hometeam",
-        gameFormGroup.value.season,
-        gameFormGroup.value.homeTeam,
+        gameFormGroup.season,
+        gameFormGroup.homeTeam,
       ],
       initialValue: [],
     }
@@ -101,27 +103,38 @@ export default (props: { competitions: Option[] }) => {
     {
       key: () => [
         "player-in-awayteam",
-        gameFormGroup.value.season,
-        gameFormGroup.value.awayTeam,
+        gameFormGroup.season,
+        gameFormGroup.awayTeam,
       ],
       initialValue: [],
     }
   );
 
+  const values = () => JSON.stringify(gameFormGroup);
+
   return (
     <Form class="mx-auto flex max-w-lg flex-col space-y-4">
       <Suspense fallback={<p>Čekamo</p>}>
         <Select
+          label="Competition"
           name="competition"
-          control={gameFormGroup.controls.competition}
+          control={{
+            setValue: (val) => gameFormGroupControls({ competition: val }),
+            value: gameFormGroup.competition,
+          }}
           options={props.competitions}
         />
       </Suspense>
 
       <Suspense fallback={<p>Čekamo</p>}>
         <Select
+          label="Season"
+          disabled={gameFormGroup.competition === ""}
           name="season"
-          control={gameFormGroup.controls.season}
+          control={{
+            setValue: (val) => gameFormGroupControls({ season: val }),
+            value: gameFormGroup.season,
+          }}
           options={seasons() ?? []}
         />
       </Suspense>
@@ -129,25 +142,40 @@ export default (props: { competitions: Option[] }) => {
       <span class="flex justify-around">
         <Suspense fallback={<p>Čekamo</p>}>
           <Select
+            label="Home team"
+            disabled={gameFormGroup.season === ""}
             name="homeTeam"
-            control={gameFormGroup.controls.homeTeam}
+            control={{
+              setValue: (val) => gameFormGroupControls({ homeTeam: val }),
+              value: gameFormGroup.homeTeam,
+            }}
             options={teams() ?? []}
           />
         </Suspense>
 
         <Suspense>
           <Select
+            label="Away team"
+            disabled={gameFormGroup.season === ""}
             name="awayTeam"
-            control={gameFormGroup.controls.homeTeam}
+            control={{
+              setValue: (val) => gameFormGroupControls({ awayTeam: val }),
+              value: gameFormGroup.awayTeam,
+            }}
             options={teams() ?? []}
           />
         </Suspense>
       </span>
 
-      <span class="flex flex-col">
-        <label for="kickoffTime">Kickoff time</label>
-        <input id="kickoffTime" type="datetime-local" />
-      </span>
+      <Date
+        label="Kickoff time"
+        name="kickoffTime"
+        type="datetime-local"
+        control={{
+          setValue: (val) => gameFormGroupControls({ kickoffTime: val }),
+          value: gameFormGroup.awayTeam,
+        }}
+      />
 
       <span class="flex flex-col">
         <label for="kickoffTime">Is game over</label>
@@ -159,4 +187,4 @@ export default (props: { competitions: Option[] }) => {
       </button>
     </Form>
   );
-}
+};
