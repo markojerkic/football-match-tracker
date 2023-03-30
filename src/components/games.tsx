@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { ParentComponent, createMemo, } from "solid-js";
+import { ParentComponent, createMemo } from "solid-js";
 import { For, Show } from "solid-js/web";
 import { A, useSearchParams } from "solid-start";
 import { type Game } from "~/server/games";
@@ -67,8 +67,9 @@ export const GameDetailWrapper: ParentComponent<{
           <span class="flex-1">
             <A
               end={true}
-              href={`/game/${props.gameId}/goals${query.date ? "?date=" + query.date : ""
-                }`}
+              href={`/game/${props.gameId}/goals${
+                query.date ? "?date=" + query.date : ""
+              }`}
               activeClass={activeStyle}
               inactiveClass={inactiveStyle}
             >
@@ -80,8 +81,9 @@ export const GameDetailWrapper: ParentComponent<{
           <span class="flex-1">
             <A
               end={true}
-              href={`/game/${props.gameId}/lineup${query.date ? "?date=" + query.date : ""
-                }`}
+              href={`/game/${props.gameId}/lineup${
+                query.date ? "?date=" + query.date : ""
+              }`}
               activeClass={activeStyle}
               inactiveClass={inactiveStyle}
             >
@@ -93,8 +95,9 @@ export const GameDetailWrapper: ParentComponent<{
           <span class="flex-1">
             <A
               end={true}
-              href={`/game/${props.gameId}/statistics${query.date ? "?date=" + query.date : ""
-                }`}
+              href={`/game/${props.gameId}/statistics${
+                query.date ? "?date=" + query.date : ""
+              }`}
               activeClass={activeStyle}
               inactiveClass={inactiveStyle}
             >
@@ -114,7 +117,7 @@ export const GameDetailWrapper: ParentComponent<{
 
 export default function GamesList(props: { games: Game[] }) {
   return (
-    <div class="flex max-h-[75vh] md:max-h-max flex-col space-y-4">
+    <div class="flex max-h-[75vh] flex-col space-y-4 md:max-h-max">
       <Show when={props.games} keyed>
         {(data) => (
           <For each={data}>

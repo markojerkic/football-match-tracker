@@ -92,7 +92,14 @@ export default () => {
               <Title>
                 {gameData.homeTeam.name} vs {gameData.awayTeam.name}
               </Title>
-              <Meta name="description" content={`On ${gameData.kickoffTime.toLocaleString()}, ${gameData.homeTeam.name} and ${gameData.homeTeam.name} took each other on in a football game.`} />
+              <Meta
+                name="description"
+                content={`On ${gameData.kickoffTime.toLocaleString()}, ${
+                  gameData.homeTeam.name
+                } and ${
+                  gameData.homeTeam.name
+                } took each other on in a football game.`}
+              />
               <GameInfo {...gameData} />
             </>
           )}

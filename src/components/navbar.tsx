@@ -10,8 +10,7 @@ export default () => {
         href="/"
         class="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100"
       >
-        <span class="sr-only">Logo</span>
-        ⚽
+        <span class="sr-only">Logo</span>⚽
       </A>
 
       <ul class="flex items-center gap-2 text-sm font-medium text-gray-500">

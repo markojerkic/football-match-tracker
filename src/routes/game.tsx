@@ -1,5 +1,18 @@
-import { ErrorBoundary, Show, Suspense, createEffect, createSignal } from "solid-js";
-import { Meta, Outlet, Title, useParams, useRouteData, useSearchParams } from "solid-start";
+import {
+  ErrorBoundary,
+  Show,
+  Suspense,
+  createEffect,
+  createSignal,
+} from "solid-js";
+import {
+  Meta,
+  Outlet,
+  Title,
+  useParams,
+  useRouteData,
+  useSearchParams,
+} from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import { getGames } from "~/server/games";
 import GamesPage from "~/components/games";
@@ -66,7 +79,7 @@ export default () => {
           </svg>
         </label>
 
-        <div class="fixed top-4 left-0 z-20 col-start-1 row-start-2 h-full min-h-[120vh] w-full min-w-[300px] -translate-x-full space-y-4 overflow-auto bg-base-100 px-8 pt-8 pb-20 duration-300 ease-in-out peer-checked:translate-x-0 md:relative md:left-auto md:top-auto md:translate-x-0 md:pb-8">
+        <div class="fixed left-0 top-4 z-20 col-start-1 row-start-2 h-full min-h-[120vh] w-full min-w-[300px] -translate-x-full space-y-4 overflow-auto bg-base-100 px-8 pb-20 pt-8 duration-300 ease-in-out peer-checked:translate-x-0 md:relative md:left-auto md:top-auto md:translate-x-0 md:pb-8">
           <Show when={games()} keyed>
             {(games) => (
               <div class="mx-auto max-h-full w-full max-w-md overflow-y-scroll px-4">

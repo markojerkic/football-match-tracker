@@ -54,7 +54,7 @@ const PlayerRepresentation = (player: PlayerRepresentation) => {
         <Shirt shirtColor={player.shirtColor} />
         <span
           class={twMerge(
-            "absolute top-[50%] translate-y-[-50%] translate-x-[-50%] text-center text-white",
+            "absolute top-[50%] translate-x-[-50%] translate-y-[-50%] text-center text-white",
             player.shirtNumber.toString().length > 1
               ? "left-[47%]"
               : "left-[50%]"
