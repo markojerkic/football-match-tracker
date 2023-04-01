@@ -4,6 +4,7 @@ import { getPlayersInTeamAndSeason } from "~/server/players";
 import { prisma } from "~/util/prisma";
 import { Select, type Option, Date, Checkbox } from "./form-helpers";
 import { createStore } from "solid-js/store";
+import { EditLieneupWrapper, FieldWrapper } from "./lineup";
 
 export default (props: { competitions: Option[] }) => {
   const [enrolling, { Form }] = createServerAction$(
@@ -114,7 +115,7 @@ export default (props: { competitions: Option[] }) => {
   const values = () => JSON.stringify(gameFormGroup);
 
   return (
-    <Form class="mx-auto flex max-w-lg flex-col space-y-4">
+    <Form class="mx-auto flex w-[50%] max-w-lg flex-col space-y-4">
       <Suspense fallback={<p>Čekamo</p>}>
         <Select
           label="Competition"
@@ -186,6 +187,24 @@ export default (props: { competitions: Option[] }) => {
           value: gameFormGroup.isGameOver,
         }}
       />
+
+      <div class="flex justify-start">
+        <EditLieneupWrapper />
+
+        <div class="flex flex-col justify-between">
+          <div class="flex flex-col space-y-2">
+            <button class="btn" type="button">
+              +
+            </button>
+          </div>
+
+          <div class="flex flex-col space-y-2">
+            <button class="btn" type="button">
+              +
+            </button>
+          </div>
+        </div>
+      </div>
 
       <button class="btn" type="submit">
         Save

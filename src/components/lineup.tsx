@@ -1,4 +1,8 @@
-import { For } from "solid-js";
+import { createSign } from "crypto";
+import { Dialog, DialogPanel, DialogTitle, Transition } from "solid-headless";
+import { Show, createSignal } from "solid-js";
+import { Component, For, JSXElement, ParentComponent } from "solid-js";
+import { createStore } from "solid-js/store";
 import { A } from "solid-start";
 import { Lineups, PlayerInLineup } from "~/server/lineups";
 
@@ -132,20 +136,16 @@ const HalfFieldGrassPattern = (props: { isHomeTeam: boolean }) => (
   </div>
 );
 
-export const FieldWrapper = (props: { lineups: Lineups }) => {
+const AbstractFieldWrapper = (props: {
+  sideA: JSXElement;
+  sideB: JSXElement;
+}) => {
   return (
     <div class="mx-auto flex aspect-[10/20] w-full min-w-[50%] flex-col justify-around border border-black bg-green-400 md:w-fit lg:h-full lg:max-h-screen">
       <div class="h-[50%]">
         <HalfFieldGrassPattern isHomeTeam />
 
-        <div class="mt-[-100%] h-full py-2">
-          <Side
-            lineups={props.lineups.homeTeamLineup}
-            shirtColor={props.lineups.homeTeamShirtColor}
-            goalkeeperShirtColor={props.lineups.homeTeamGoalkeeperShirtColor}
-            isHomeTeam
-          />
-        </div>
+        <div class="mt-[-100%] h-full py-2">{props.sideA}</div>
       </div>
 
       <Divider />
@@ -153,15 +153,147 @@ export const FieldWrapper = (props: { lineups: Lineups }) => {
       <div class="h-[50%]">
         <HalfFieldGrassPattern isHomeTeam={false} />
 
-        <div class="mt-[-100%] h-full py-2">
-          <Side
-            lineups={props.lineups.awayTeamLineup}
-            shirtColor={props.lineups.awayTeamShirtColor}
-            goalkeeperShirtColor={props.lineups.awayTeamGoalkeeperShirtColor}
-            isHomeTeam={false}
-          />
-        </div>
+        <div class="mt-[-100%] h-full py-2">{props.sideB}</div>
       </div>
     </div>
+  );
+};
+
+export const FieldWrapper = (props: { lineups: Lineups }) => {
+  return (
+    <AbstractFieldWrapper
+      sideA={
+        <Side
+          lineups={props.lineups.homeTeamLineup}
+          shirtColor={props.lineups.homeTeamShirtColor}
+          goalkeeperShirtColor={props.lineups.homeTeamGoalkeeperShirtColor}
+          isHomeTeam
+        />
+      }
+      sideB={
+        <Side
+          lineups={props.lineups.awayTeamLineup}
+          shirtColor={props.lineups.awayTeamShirtColor}
+          goalkeeperShirtColor={props.lineups.awayTeamGoalkeeperShirtColor}
+          isHomeTeam={false}
+        />
+      }
+    />
+  );
+};
+
+export type Formation = "442" | "433" | "4231" | "352" | "3511" | "343" | "532";
+
+const PlusIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke-width="1.5"
+    stroke="currentColor"
+    class="h-6 w-6"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M12 4.5v15m7.5-7.5h-15"
+    />
+  </svg>
+);
+
+const EditablePlayerRepresentation = (info: { shirtColor: string }) => {
+  const [selectedPlayer, setSelectedPlayer] = createSignal<{
+    shirtNumber: number;
+    name: string;
+    id: string;
+  }>();
+
+  const isNumberTwoDigit = () =>
+    (selectedPlayer()?.shirtNumber.toString().length ?? 0) > 1;
+
+  return (
+    <>
+      <div class="hover:z-1 group flex flex-col items-center justify-start p-2 hover:scale-125 hover:rounded-md hover:bg-green-700 md:max-w-md">
+        <span class="relative mx-auto flex flex-col justify-center">
+          <Shirt shirtColor={info.shirtColor} />
+          <span
+            classList={{
+              "absolute top-[50%] translate-x-[-50%] translate-y-[-50%] text-center text-white":
+                true,
+              "left-[47%]": isNumberTwoDigit(),
+              "left-[50%]": !isNumberTwoDigit(),
+            }}
+          >
+            <Show when={selectedPlayer()} fallback={<PlusIcon />}>
+              {selectedPlayer()?.shirtNumber}
+            </Show>
+          </span>
+        </span>
+        <span class="absolute translate-y-[175%] text-center text-sm text-white group-hover:relative group-hover:translate-y-0">
+          <Show when={selectedPlayer()}>{selectedPlayer()?.name}</Show>
+        </span>
+      </div>
+      <SelectPlayerDialog />
+    </>
+  );
+};
+
+const SelectPlayerDialog = () => {
+  const [isOpen, setIsOpen] = createSignal(false);
+
+  return (
+    <Transition appear show={isOpen()}>
+      <Dialog isOpen>
+        <DialogPanel>
+          <DialogTitle>Select a player</DialogTitle>
+        </DialogPanel>
+      </Dialog>
+    </Transition >
+  )
+}
+
+const EditablePlayerRow = (props: { players: number }) => {
+  const players = Array(props.players).fill(undefined);
+  const selectedPlayers = createStore([]);
+
+  return (
+    <div class="flex justify-around">
+      <For each={players}>
+        {() => <EditablePlayerRepresentation shirtColor="red" />}
+      </For>
+    </div>
+  );
+};
+
+const EditableSide = (sideInfo: {
+  formation: Formation;
+  isHomeTeam: boolean;
+}) => {
+  const playerNumInRow = () => {
+    const playersInRow = sideInfo.formation.split("").map(Number);
+    playersInRow.unshift(1);
+    return playersInRow;
+  }
+
+  return (
+    <div
+      classList={{
+        "flex h-full flex-col justify-around": true,
+        "flex-col-reverse": !sideInfo.isHomeTeam,
+      }}
+    >
+      <For each={playerNumInRow()}>
+        {(row, index) => <EditablePlayerRow players={row} />}
+      </For>
+    </div>
+  );
+};
+
+export const EditLieneupWrapper = () => {
+  return (
+    <AbstractFieldWrapper
+      sideA={<EditableSide formation="442" isHomeTeam />}
+      sideB={<EditableSide formation="433" isHomeTeam={false} />}
+    />
   );
 };
