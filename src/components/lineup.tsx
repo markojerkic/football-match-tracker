@@ -1,5 +1,12 @@
 import { createSign } from "crypto";
-import { Dialog, DialogPanel, DialogTitle, Transition } from "solid-headless";
+import {
+  Dialog,
+  DialogOverlay,
+  DialogPanel,
+  DialogTitle,
+  Transition,
+  TransitionChild,
+} from "solid-headless";
 import { Show, createSignal } from "solid-js";
 import { Component, For, JSXElement, ParentComponent } from "solid-js";
 import { createStore } from "solid-js/store";
@@ -201,7 +208,7 @@ const PlusIcon = () => (
   </svg>
 );
 
-const EditablePlayerRepresentation = (info: { shirtColor: string }) => {
+const IEditablePlayerRepresentation = (info: { shirtColor: string }) => {
   const [selectedPlayer, setSelectedPlayer] = createSignal<{
     shirtNumber: number;
     name: string;
@@ -233,24 +240,139 @@ const EditablePlayerRepresentation = (info: { shirtColor: string }) => {
           <Show when={selectedPlayer()}>{selectedPlayer()?.name}</Show>
         </span>
       </div>
-      <SelectPlayerDialog />
     </>
   );
 };
 
-const SelectPlayerDialog = () => {
+function classNames(...classes: (string | boolean | undefined)[]): string {
+  return classes.filter(Boolean).join(" ");
+}
+
+const BUTTON = classNames(
+  "rounded-md px-4 py-2 text-sm font-medium transition duration-150",
+  "focus:outline-none focus-visible:ring focus-visible:ring-opacity-75",
+  "focus-visible:ring-gray-900",
+  "dark:focus-visible:ring-gray-50",
+  "border-2 border-gray-900 dark:border-gray-50",
+  // Background
+  "bg-gray-900 hover:bg-gray-700 active:bg-gray-800",
+  // Foreground
+  "text-gray-50 hover:text-gray-200 active:text-gray-100"
+);
+
+export const EditablePlayerRepresentation = (info: { shirtColor: string }) => {
   const [isOpen, setIsOpen] = createSignal(false);
 
+  function closeModal() {
+    setIsOpen(false);
+  }
+
+  function openModal() {
+    setIsOpen(true);
+  }
+
+  const [selectedPlayer, setSelectedPlayer] = createSignal<{
+    shirtNumber: number;
+    name: string;
+    id: string;
+  }>();
+
+  const isNumberTwoDigit = () =>
+    (selectedPlayer()?.shirtNumber.toString().length ?? 0) > 1;
+
   return (
-    <Transition appear show={isOpen()}>
-      <Dialog isOpen>
+    <>
+      <button
+        type="button"
+        class="hover:z-1 group flex flex-col items-center justify-start p-2 hover:scale-125 hover:rounded-md hover:bg-green-700 md:max-w-md"
+        onClick={openModal}
+      >
+        <span class="relative mx-auto flex flex-col justify-center">
+          <Shirt shirtColor={info.shirtColor} />
+          <span
+            classList={{
+              "absolute top-[50%] translate-x-[-50%] translate-y-[-50%] text-center text-white":
+                true,
+              "left-[47%]": isNumberTwoDigit(),
+              "left-[50%]": !isNumberTwoDigit(),
+            }}
+          >
+            <Show when={selectedPlayer()} fallback={<PlusIcon />}>
+              {selectedPlayer()?.shirtNumber}
+            </Show>
+          </span>
+        </span>
+        <span class="absolute translate-y-[175%] text-center text-sm text-white group-hover:relative group-hover:translate-y-0">
+          <Show when={selectedPlayer()}>{selectedPlayer()?.name}</Show>
+        </span>
+      </button>
+
+      <Transition appear show={isOpen()}>
+        <Dialog
+          isOpen
+          class="fixed inset-0 z-10 overflow-y-auto"
+          onClose={closeModal}
+        >
+          <div class="flex min-h-screen items-center justify-center px-4">
+            <TransitionChild
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <DialogOverlay class="fixed inset-0 bg-gray-900 bg-opacity-50" />
+            </TransitionChild>
+
+            {/* This element is to trick the browser into centering the modal contents. */}
+            <span class="inline-block h-screen align-middle" aria-hidden="true">
+              &#8203;
+            </span>
+            <TransitionChild
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <DialogPanel class="my-8 inline-block w-full max-w-md transform overflow-hidden rounded-2xl border bg-base-300 p-6 text-left align-middle text-black shadow-xl transition-all">
+                <DialogTitle as="h3" class="text-lg font-medium leading-6">
+                  Select a player
+                </DialogTitle>
+                <div class="mt-2">
+                  <p class="text-sm">
+                    Your payment has been successfully submitted. We’ve sent
+                    your an email with all of the details of your order.
+                  </p>
+                </div>
+
+                <div class="mt-4">
+                  <button type="button" class={BUTTON} onClick={closeModal}>
+                    Got it, thanks!
+                  </button>
+                </div>
+              </DialogPanel>
+            </TransitionChild>
+          </div>
+        </Dialog>
+      </Transition>
+    </>
+  );
+};
+
+const SelectPlayerDialog = (props: { isOpen: boolean }) => {
+  return (
+    <Transition appear show={props.isOpen}>
+      <Dialog isOpen={props.isOpen}>
         <DialogPanel>
           <DialogTitle>Select a player</DialogTitle>
         </DialogPanel>
       </Dialog>
-    </Transition >
-  )
-}
+    </Transition>
+  );
+};
 
 const EditablePlayerRow = (props: { players: number }) => {
   const players = Array(props.players).fill(undefined);
@@ -273,7 +395,7 @@ const EditableSide = (sideInfo: {
     const playersInRow = sideInfo.formation.split("").map(Number);
     playersInRow.unshift(1);
     return playersInRow;
-  }
+  };
 
   return (
     <div
