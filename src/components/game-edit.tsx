@@ -210,20 +210,22 @@ export default (props: { competitions: Option[] }) => {
       />
 
       <div class="flex justify-start">
-        <Show when={homeTeamPlayers() && awayTeamPlayers()}>
-          <EditLieneupWrapper
-            homeTeamPlayers={homeTeamPlayers() ?? []}
-            awayTeamPlayers={awayTeamPlayers() ?? []}
-            homeTeamShirtsColor={gameFormGroup.homeTeamShirtsColor}
-            awayTeamShirtsColor={gameFormGroup.awayTeamShirtsColor}
-            homeTeamGoalKeeperShirtsColor={
-              gameFormGroup.homeTeamGoalkeeperShirtsColor
-            }
-            awayTeamGoalKeeperShirtsColor={
-              gameFormGroup.awayTeamGoalkeeperShirtsColor
-            }
-          />
-        </Show>
+        <Suspense>
+          <Show when={homeTeamPlayers() && awayTeamPlayers()}>
+            <EditLieneupWrapper
+              homeTeamPlayers={homeTeamPlayers() ?? []}
+              awayTeamPlayers={awayTeamPlayers() ?? []}
+              homeTeamShirtsColor={gameFormGroup.homeTeamShirtsColor}
+              awayTeamShirtsColor={gameFormGroup.awayTeamShirtsColor}
+              homeTeamGoalKeeperShirtsColor={
+                gameFormGroup.homeTeamGoalkeeperShirtsColor
+              }
+              awayTeamGoalKeeperShirtsColor={
+                gameFormGroup.awayTeamGoalkeeperShirtsColor
+              }
+            />
+          </Show>
+        </Suspense>
 
         <div class="flex flex-col justify-between">
           <ColorPicker

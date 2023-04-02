@@ -263,6 +263,8 @@ const BUTTON = classNames(
 export const EditablePlayerRepresentation = (info: {
   shirtColor: string;
   choice: Option[];
+  rowNumber: number;
+  colNumber: number;
 }) => {
   const [isOpen, setIsOpen] = createSignal(false);
 
@@ -345,9 +347,24 @@ export const EditablePlayerRepresentation = (info: {
                   Select a player
                 </DialogTitle>
                 <div class="mt-2">
-                  <p class="text-sm">
+                  <p class="flex flex-col text-sm">
                     <For each={info.choice}>
-                      {(player) => <p>{player.label}</p>}
+                      {(player) => (
+                        <span class="form-control">
+                          <label for={player.value as string} class="label cursor-pointer">
+                            <span class="label-text">
+                              {player.label}
+                            </span>
+                            <input
+                              class="radio checked:bg-red-500"
+                              type="radio"
+                              name="player"
+                              id={player.value as string}
+                              value={player.value}
+                            />
+                          </label>
+                        </span>
+                      )}
                     </For>
                   </p>
                 </div>
@@ -382,17 +399,19 @@ const EditablePlayerRow = (props: {
   players: number;
   choice: Option[];
   shirtColor: string;
+  rowNumber: number;
 }) => {
   const players = Array(props.players).fill(undefined);
-  const selectedPlayers = createStore([]);
 
   return (
     <div class="flex justify-around">
       <For each={players}>
-        {() => (
+        {(_, index) => (
           <EditablePlayerRepresentation
             shirtColor={props.shirtColor}
             choice={props.choice}
+            rowNumber={props.rowNumber}
+            colNumber={index()}
           />
         )}
       </For>
@@ -421,15 +440,16 @@ const EditableSide = (sideInfo: {
       }}
     >
       <For each={playerNumInRow()}>
-        {(row, index) => (
+        {(playersInRow, index) => (
           <EditablePlayerRow
-            players={row}
+            players={playersInRow}
             choice={sideInfo.players}
             shirtColor={
               index() === 0
                 ? sideInfo.goalkeeperShirtColor
                 : sideInfo.shirtColor
             }
+            rowNumber={index()}
           />
         )}
       </For>
