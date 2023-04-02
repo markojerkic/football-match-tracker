@@ -1,11 +1,30 @@
-import { Suspense } from "solid-js";
+import { Show, Suspense } from "solid-js";
 import { createServerAction$, createServerData$ } from "solid-start/server";
 import { getPlayersInTeamAndSeason } from "~/server/players";
 import { prisma } from "~/util/prisma";
 import { Select, type Option, Date, Checkbox } from "./form-helpers";
 import { createStore } from "solid-js/store";
-import { EditLieneupWrapper, FieldWrapper } from "./lineup";
+import { EditLieneupWrapper } from "./lineup";
 
+const ColorPicker = (props: {
+  control: (c: string) => void;
+  value: string;
+  name: string;
+  label: string;
+}) => {
+  return (
+    <span class="flex flex-col">
+      {props.value}
+      <label for={props.name}>{props.label}</label>
+      <input
+        type="color"
+        name={props.name}
+        value={props.value}
+        onInput={(e) => props.control(e.currentTarget.value)}
+      />
+    </span>
+  );
+};
 export default (props: { competitions: Option[] }) => {
   const [enrolling, { Form }] = createServerAction$(
     async (formData: FormData) => {
@@ -21,6 +40,10 @@ export default (props: { competitions: Option[] }) => {
     awayTeam: "",
     kickoffTime: "",
     isGameOver: true,
+    homeTeamShirtsColor: "#FF5733",
+    awayTeamShirtsColor: "#3386FF",
+    homeTeamGoalkeeperShirtsColor: "#581845",
+    awayTeamGoalkeeperShirtsColor: "#DAF7A6",
   });
 
   const seasons = createServerData$(
@@ -112,8 +135,6 @@ export default (props: { competitions: Option[] }) => {
     }
   );
 
-  const values = () => JSON.stringify(gameFormGroup);
-
   return (
     <Form class="mx-auto flex w-[50%] max-w-lg flex-col space-y-4">
       <Suspense fallback={<p>Čekamo</p>}>
@@ -189,20 +210,55 @@ export default (props: { competitions: Option[] }) => {
       />
 
       <div class="flex justify-start">
-        <EditLieneupWrapper />
+        <Show when={homeTeamPlayers() && awayTeamPlayers()}>
+          <EditLieneupWrapper
+            homeTeamPlayers={homeTeamPlayers() ?? []}
+            awayTeamPlayers={awayTeamPlayers() ?? []}
+            homeTeamShirtsColor={gameFormGroup.homeTeamShirtsColor}
+            awayTeamShirtsColor={gameFormGroup.awayTeamShirtsColor}
+            homeTeamGoalKeeperShirtsColor={
+              gameFormGroup.homeTeamGoalkeeperShirtsColor
+            }
+            awayTeamGoalKeeperShirtsColor={
+              gameFormGroup.awayTeamGoalkeeperShirtsColor
+            }
+          />
+        </Show>
 
         <div class="flex flex-col justify-between">
-          <div class="flex flex-col space-y-2">
-            <button class="btn" type="button">
-              +
-            </button>
-          </div>
+          <ColorPicker
+            label="Home team goalkeeper shirt color"
+            value={gameFormGroup.homeTeamGoalkeeperShirtsColor}
+            control={(val) =>
+              gameFormGroupControls({ homeTeamGoalkeeperShirtsColor: val })
+            }
+            name="homeTeamGoalkeeperShirtsColor"
+          />
+          <ColorPicker
+            label="Home team shirt color"
+            value={gameFormGroup.homeTeamShirtsColor}
+            control={(val) =>
+              gameFormGroupControls({ homeTeamShirtsColor: val })
+            }
+            name="homeTeamShirtsColor"
+          />
 
-          <div class="flex flex-col space-y-2">
-            <button class="btn" type="button">
-              +
-            </button>
-          </div>
+          <ColorPicker
+            label="Away team shirt color"
+            value={gameFormGroup.awayTeamShirtsColor}
+            control={(val) =>
+              gameFormGroupControls({ awayTeamShirtsColor: val })
+            }
+            name="awayTeamShirtsColor"
+          />
+          <ColorPicker
+            label="Away team goalkeeper shirt color"
+            value={gameFormGroup.awayTeamGoalkeeperShirtsColor}
+            control={(val) =>
+              gameFormGroupControls({ awayTeamGoalkeeperShirtsColor: val })
+            }
+            name="awayTeamGoalkeeperShirtsColor"
+          />
         </div>
       </div>
 

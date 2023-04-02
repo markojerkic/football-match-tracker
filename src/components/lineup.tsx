@@ -1,4 +1,3 @@
-import { createSign } from "crypto";
 import {
   Dialog,
   DialogOverlay,
@@ -7,8 +6,9 @@ import {
   Transition,
   TransitionChild,
 } from "solid-headless";
-import { Show, createSignal } from "solid-js";
-import { Component, For, JSXElement, ParentComponent } from "solid-js";
+import { Select, type Option } from "~/components/form-helpers";
+import { Match, Show, Switch, createSignal } from "solid-js";
+import { For, JSXElement } from "solid-js";
 import { createStore } from "solid-js/store";
 import { A } from "solid-start";
 import { Lineups, PlayerInLineup } from "~/server/lineups";
@@ -260,7 +260,10 @@ const BUTTON = classNames(
   "text-gray-50 hover:text-gray-200 active:text-gray-100"
 );
 
-export const EditablePlayerRepresentation = (info: { shirtColor: string }) => {
+export const EditablePlayerRepresentation = (info: {
+  shirtColor: string;
+  choice: Option[];
+}) => {
   const [isOpen, setIsOpen] = createSignal(false);
 
   function closeModal() {
@@ -343,8 +346,9 @@ export const EditablePlayerRepresentation = (info: { shirtColor: string }) => {
                 </DialogTitle>
                 <div class="mt-2">
                   <p class="text-sm">
-                    Your payment has been successfully submitted. We’ve sent
-                    your an email with all of the details of your order.
+                    <For each={info.choice}>
+                      {(player) => <p>{player.label}</p>}
+                    </For>
                   </p>
                 </div>
 
@@ -374,14 +378,23 @@ const SelectPlayerDialog = (props: { isOpen: boolean }) => {
   );
 };
 
-const EditablePlayerRow = (props: { players: number }) => {
+const EditablePlayerRow = (props: {
+  players: number;
+  choice: Option[];
+  shirtColor: string;
+}) => {
   const players = Array(props.players).fill(undefined);
   const selectedPlayers = createStore([]);
 
   return (
     <div class="flex justify-around">
       <For each={players}>
-        {() => <EditablePlayerRepresentation shirtColor="red" />}
+        {() => (
+          <EditablePlayerRepresentation
+            shirtColor={props.shirtColor}
+            choice={props.choice}
+          />
+        )}
       </For>
     </div>
   );
@@ -390,6 +403,9 @@ const EditablePlayerRow = (props: { players: number }) => {
 const EditableSide = (sideInfo: {
   formation: Formation;
   isHomeTeam: boolean;
+  players: Option[];
+  shirtColor: string;
+  goalkeeperShirtColor: string;
 }) => {
   const playerNumInRow = () => {
     const playersInRow = sideInfo.formation.split("").map(Number);
@@ -405,17 +421,50 @@ const EditableSide = (sideInfo: {
       }}
     >
       <For each={playerNumInRow()}>
-        {(row, index) => <EditablePlayerRow players={row} />}
+        {(row, index) => (
+          <EditablePlayerRow
+            players={row}
+            choice={sideInfo.players}
+            shirtColor={
+              index() === 0
+                ? sideInfo.goalkeeperShirtColor
+                : sideInfo.shirtColor
+            }
+          />
+        )}
       </For>
     </div>
   );
 };
 
-export const EditLieneupWrapper = () => {
+export const EditLieneupWrapper = (props: {
+  homeTeamPlayers: Option[];
+  awayTeamPlayers: Option[];
+  homeTeamShirtsColor: string;
+  awayTeamShirtsColor: string;
+  homeTeamGoalKeeperShirtsColor: string;
+  awayTeamGoalKeeperShirtsColor: string;
+}) => {
   return (
     <AbstractFieldWrapper
-      sideA={<EditableSide formation="442" isHomeTeam />}
-      sideB={<EditableSide formation="433" isHomeTeam={false} />}
+      sideA={
+        <EditableSide
+          shirtColor={props.homeTeamShirtsColor}
+          goalkeeperShirtColor={props.homeTeamGoalKeeperShirtsColor}
+          formation="442"
+          players={props.homeTeamPlayers}
+          isHomeTeam
+        />
+      }
+      sideB={
+        <EditableSide
+          shirtColor={props.awayTeamShirtsColor}
+          goalkeeperShirtColor={props.awayTeamGoalKeeperShirtsColor}
+          formation="433"
+          players={props.awayTeamPlayers}
+          isHomeTeam={false}
+        />
+      }
     />
   );
 };
