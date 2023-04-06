@@ -5,6 +5,7 @@ import { prisma } from "~/util/prisma";
 import { Select, type Option, Date, Checkbox } from "./form-helpers";
 import { createStore } from "solid-js/store";
 import { EditLieneupWrapper } from "./lineup";
+import { PlayerInTeamLineup } from "~/server/lineups";
 
 const ColorPicker = (props: {
   control: (c: string) => void;
@@ -25,6 +26,36 @@ const ColorPicker = (props: {
     </span>
   );
 };
+
+type GameForm = {
+  competition: string;
+  season: string;
+  homeTeam: string;
+  awayTeam: string;
+  kickoffTime: string;
+  isGameOver: boolean;
+  homeTeamShirtsColor: string;
+  awayTeamShirtsColor: string;
+  homeTeamGoalkeeperShirtsColor: string;
+  awayTeamGoalkeeperShirtsColor: string;
+  homeTeamLineup: PlayerInTeamLineup[];
+  awayTeamLineup: PlayerInTeamLineup[];
+};
+export const [gameFormGroup, gameFormGroupControls] = createStore<GameForm>({
+  competition: "",
+  season: "",
+  homeTeam: "",
+  awayTeam: "",
+  kickoffTime: "",
+  isGameOver: true,
+  homeTeamShirtsColor: "#FF5733",
+  awayTeamShirtsColor: "#3386FF",
+  homeTeamGoalkeeperShirtsColor: "#581845",
+  awayTeamGoalkeeperShirtsColor: "#DAF7A6",
+  homeTeamLineup: [],
+  awayTeamLineup: [],
+});
+
 export default (props: { competitions: Option[] }) => {
   const [enrolling, { Form }] = createServerAction$(
     async (formData: FormData) => {
@@ -32,19 +63,6 @@ export default (props: { competitions: Option[] }) => {
       console.log(data);
     }
   );
-
-  const [gameFormGroup, gameFormGroupControls] = createStore({
-    competition: "",
-    season: "",
-    homeTeam: "",
-    awayTeam: "",
-    kickoffTime: "",
-    isGameOver: true,
-    homeTeamShirtsColor: "#FF5733",
-    awayTeamShirtsColor: "#3386FF",
-    homeTeamGoalkeeperShirtsColor: "#581845",
-    awayTeamGoalkeeperShirtsColor: "#DAF7A6",
-  });
 
   const seasons = createServerData$(
     async ([, competition]) => {
@@ -209,6 +227,7 @@ export default (props: { competitions: Option[] }) => {
         }}
       />
 
+      <pre>{JSON.stringify(gameFormGroup, null, 2)}</pre>
       <div class="flex justify-start">
         <Suspense>
           <Show when={homeTeamPlayers() && awayTeamPlayers()}>

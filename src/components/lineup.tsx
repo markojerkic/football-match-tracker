@@ -6,12 +6,12 @@ import {
   Transition,
   TransitionChild,
 } from "solid-headless";
-import { Select, type Option } from "~/components/form-helpers";
-import { Match, Show, Switch, createSignal } from "solid-js";
+import { type Option, Select } from "~/components/form-helpers";
+import { Show, createEffect, createMemo, createSignal } from "solid-js";
 import { For, JSXElement } from "solid-js";
-import { createStore } from "solid-js/store";
 import { A } from "solid-start";
-import { Lineups, PlayerInLineup } from "~/server/lineups";
+import { Lineups, PlayerInTeamLineup } from "~/server/lineups";
+import { gameFormGroup, gameFormGroupControls } from "./game-edit";
 
 const Divider = () => {
   return <span class="w-full border-t border-black" />;
@@ -265,6 +265,7 @@ export const EditablePlayerRepresentation = (info: {
   choice: Option[];
   rowNumber: number;
   colNumber: number;
+  isHomeTeamPlayer: boolean;
 }) => {
   const [isOpen, setIsOpen] = createSignal(false);
 
@@ -276,14 +277,50 @@ export const EditablePlayerRepresentation = (info: {
     setIsOpen(true);
   }
 
-  const [selectedPlayer, setSelectedPlayer] = createSignal<{
-    shirtNumber: number;
-    name: string;
-    id: string;
-  }>();
+  let lineup = () =>
+    info.isHomeTeamPlayer
+      ? gameFormGroup.homeTeamLineup
+      : gameFormGroup.awayTeamLineup;
 
-  const isNumberTwoDigit = () =>
-    (selectedPlayer()?.shirtNumber.toString().length ?? 0) > 1;
+  const [shirtNumber, setShirtNumber] = createSignal<number>(0);
+  const [selectedPlayer, setSelectedPlayer] = createSignal<string | null>();
+
+  const updateForm = () => {
+    let player = selectedPlayer();
+    if (player) {
+      let l = lineup();
+      l = l.filter(
+        (p) =>
+          p.lineupRow !== info.rowNumber && p.lineupColumn !== info.colNumber
+      );
+      l.push({
+        playerId: player,
+        lineupRow: info.rowNumber,
+        lineupColumn: info.colNumber,
+        shirtNumber: shirtNumber(),
+      });
+
+      if (info.isHomeTeamPlayer) {
+        gameFormGroupControls((curr) => ({ ...curr, homeTeamLineup: l }));
+      } else {
+        gameFormGroupControls((curr) => ({ ...curr, awayTeamLineup: l }));
+      }
+    }
+  };
+
+  const playerName = () => {
+    let player = selectedPlayer();
+    if (player) {
+      for (let p of info.choice) {
+        if (p.value === player) {
+          return p.label;
+        }
+      }
+    }
+    return "";
+  };
+
+  const isNumberTwoDigit = () => (shirtNumber().toString().length ?? 0) > 1;
 
   return (
     <>
@@ -302,13 +339,13 @@ export const EditablePlayerRepresentation = (info: {
               "left-[50%]": !isNumberTwoDigit(),
             }}
           >
-            <Show when={selectedPlayer()} fallback={<PlusIcon />}>
-              {selectedPlayer()?.shirtNumber}
+            <Show when={shirtNumber() > 0} fallback={<PlusIcon />}>
+              {shirtNumber()}
             </Show>
           </span>
         </span>
         <span class="absolute translate-y-[175%] text-center text-sm text-white group-hover:relative group-hover:translate-y-0">
-          <Show when={selectedPlayer()}>{selectedPlayer()?.name}</Show>
+          <Show when={playerName()}>{playerName()}</Show>
         </span>
       </button>
 
@@ -347,26 +384,34 @@ export const EditablePlayerRepresentation = (info: {
                   Select a player
                 </DialogTitle>
                 <div class="mt-2">
-                  <p class="flex flex-col text-sm">
-                    <For each={info.choice}>
-                      {(player) => (
-                        <span class="form-control">
-                          <label for={player.value as string} class="label cursor-pointer">
-                            <span class="label-text">
-                              {player.label}
-                            </span>
-                            <input
-                              class="radio checked:bg-red-500"
-                              type="radio"
-                              name="player"
-                              id={player.value as string}
-                              value={player.value}
-                            />
-                          </label>
-                        </span>
-                      )}
-                    </For>
-                  </p>
+                  <div class="flex flex-col text-sm">
+                    <label for="shirtNumber">Shirt number</label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={99}
+                      name="shirtNumber"
+                      value={shirtNumber()}
+                      onInput={(e) => {
+                        setShirtNumber(
+                          +(e.currentTarget as HTMLInputElement).value ?? 0
+                        );
+                        updateForm();
+                      }}
+                    />
+                    <Select
+                      label="Player"
+                      name="player"
+                      control={{
+                        setValue: (val) => {
+                          setSelectedPlayer(val);
+                          updateForm();
+                        },
+                        value: selectedPlayer() ?? "",
+                      }}
+                      options={info.choice}
+                    />
+                  </div>
                 </div>
 
                 <div class="mt-4">
@@ -400,6 +445,7 @@ const EditablePlayerRow = (props: {
   choice: Option[];
   shirtColor: string;
   rowNumber: number;
+  isHomeTeam: boolean;
 }) => {
   const players = Array(props.players).fill(undefined);
 
@@ -408,6 +454,7 @@ const EditablePlayerRow = (props: {
       <For each={players}>
         {(_, index) => (
           <EditablePlayerRepresentation
+            isHomeTeamPlayer={props.isHomeTeam}
             shirtColor={props.shirtColor}
             choice={props.choice}
             rowNumber={props.rowNumber}
@@ -442,6 +489,7 @@ const EditableSide = (sideInfo: {
       <For each={playerNumInRow()}>
         {(playersInRow, index) => (
           <EditablePlayerRow
+            isHomeTeam={sideInfo.isHomeTeam}
             players={playersInRow}
             choice={sideInfo.players}
             shirtColor={
