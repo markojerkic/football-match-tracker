@@ -289,10 +289,12 @@ export const EditablePlayerRepresentation = (info: {
     let player = selectedPlayer();
     if (player) {
       let l = lineup();
+
       l = l.filter(
         (p) =>
-          p.lineupRow !== info.rowNumber && p.lineupColumn !== info.colNumber
+          !(p.lineupRow === info.rowNumber && p.lineupColumn === info.colNumber)
       );
+
       l.push({
         playerId: player,
         lineupRow: info.rowNumber,
@@ -392,9 +394,9 @@ export const EditablePlayerRepresentation = (info: {
                       max={99}
                       name="shirtNumber"
                       value={shirtNumber()}
-                      onInput={(e) => {
+                      onChange={(e) => {
                         setShirtNumber(
-                          +(e.currentTarget as HTMLInputElement).value ?? 0
+                          +e.currentTarget.value ?? 0
                         );
                         updateForm();
                       }}
