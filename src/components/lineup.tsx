@@ -381,7 +381,7 @@ export const EditablePlayerRepresentation = (info: {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <DialogPanel class="my-8 inline-block w-full max-w-md transform overflow-hidden rounded-2xl border bg-base-300 p-6 text-left align-middle text-black shadow-xl transition-all">
+              <DialogPanel class="my-8 inline-block w-full min-w-[75vw] max-w-md transform overflow-hidden rounded-2xl border bg-base-300 p-6 text-left align-middle text-black shadow-xl transition-all md:min-w-[50rem]">
                 <DialogTitle as="h3" class="text-lg font-medium leading-6">
                   Select a player
                 </DialogTitle>
@@ -395,9 +395,7 @@ export const EditablePlayerRepresentation = (info: {
                       name="shirtNumber"
                       value={shirtNumber()}
                       onChange={(e) => {
-                        setShirtNumber(
-                          +e.currentTarget.value ?? 0
-                        );
+                        setShirtNumber(+e.currentTarget.value ?? 0);
                         updateForm();
                       }}
                     />
@@ -417,8 +415,8 @@ export const EditablePlayerRepresentation = (info: {
                 </div>
 
                 <div class="mt-4">
-                  <button type="button" class={BUTTON} onClick={closeModal}>
-                    Got it, thanks!
+                  <button type="button" class="btn" onClick={closeModal}>
+                    OK
                   </button>
                 </div>
               </DialogPanel>
