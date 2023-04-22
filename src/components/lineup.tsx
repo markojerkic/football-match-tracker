@@ -10,7 +10,7 @@ import { type Option, Select } from "~/components/form-helpers";
 import { Show, createEffect, createMemo, createSignal } from "solid-js";
 import { For, JSXElement } from "solid-js";
 import { A } from "solid-start";
-import { Lineups, PlayerInTeamLineup } from "~/server/lineups";
+import { Lineups, PlayerInLineup, PlayerInTeamLineup } from "~/server/lineups";
 import { gameFormGroup, gameFormGroupControls } from "./game-edit";
 
 const Divider = () => {
@@ -389,6 +389,7 @@ export const EditablePlayerRepresentation = (info: {
                   <div class="flex flex-col text-sm">
                     <label for="shirtNumber">Shirt number</label>
                     <input
+                      class="w-16 border-transparent text-center"
                       type="number"
                       min={1}
                       max={99}

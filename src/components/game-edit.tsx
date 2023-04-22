@@ -184,6 +184,7 @@ export default (props: { competitions: Option[] }) => {
 
   const isFormValid = createMemo(() => {
     return (
+      gameFormGroup.homeTeam !== gameFormGroup.awayTeam &&
       gameFormGroup.homeTeamLineup.length === 11 &&
       gameFormGroup.awayTeamLineup.length === 11 &&
       /*
