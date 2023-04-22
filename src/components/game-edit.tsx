@@ -4,8 +4,8 @@ import { getPlayersInTeamAndSeason } from "~/server/players";
 import { prisma } from "~/util/prisma";
 import { Select, type Option, Date, Checkbox } from "./form-helpers";
 import { createStore } from "solid-js/store";
-import { EditLieneupWrapper, Formation } from "./lineup";
-import { PlayerInTeamLineup, lineupValidator } from "~/server/lineups";
+import { EditLieneupWrapper, type Formation } from "./lineup";
+import { type PlayerInTeamLineup, lineupPlayerSchema } from "~/server/lineups";
 
 const ColorPicker = (props: {
   control: (c: string) => void;
@@ -186,8 +186,10 @@ export default (props: { competitions: Option[] }) => {
     return (
       gameFormGroup.homeTeamLineup.length === 11 &&
       gameFormGroup.awayTeamLineup.length === 11 &&
-      lineupValidator.safeParse(gameFormGroup.homeTeamLineup.length).success &&
-      lineupValidator.safeParse(gameFormGroup.awayTeamLineup.length).success &&
+      /*
+      lineupPlayerSchema.array().safeParse(gameFormGroup.homeTeamLineup.length).success &&
+      lineupPlayerSchema.array().safeParse(gameFormGroup.awayTeamLineup.length).success &&
+      */
       noDuplicatePlayers(gameFormGroup.homeTeamLineup) &&
       noDuplicatePlayers(gameFormGroup.homeTeamLineup)
     );
