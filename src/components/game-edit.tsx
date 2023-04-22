@@ -4,8 +4,8 @@ import { getPlayersInTeamAndSeason } from "~/server/players";
 import { prisma } from "~/util/prisma";
 import { Select, type Option, Date, Checkbox } from "./form-helpers";
 import { createStore } from "solid-js/store";
-import { EditLieneupWrapper } from "./lineup";
-import { PlayerInTeamLineup } from "~/server/lineups";
+import { EditLieneupWrapper, Formation } from "./lineup";
+import { PlayerInTeamLineup, lineupValidator } from "~/server/lineups";
 
 const ColorPicker = (props: {
   control: (c: string) => void;
@@ -40,6 +40,8 @@ type GameForm = {
   awayTeamGoalkeeperShirtsColor: string;
   homeTeamLineup: PlayerInTeamLineup[];
   awayTeamLineup: PlayerInTeamLineup[];
+  homeTeamFormation: Formation;
+  awayTeamFormation: Formation;
 };
 export const [gameFormGroup, gameFormGroupControls] = createStore<GameForm>({
   competition: "",
@@ -54,7 +56,34 @@ export const [gameFormGroup, gameFormGroupControls] = createStore<GameForm>({
   awayTeamGoalkeeperShirtsColor: "#DAF7A6",
   homeTeamLineup: [],
   awayTeamLineup: [],
+  homeTeamFormation: "442",
+  awayTeamFormation: "433",
 });
+
+const noDuplicatePlayers = (players: PlayerInTeamLineup[]) => {
+  const usedShirtNumbers: number[] = [];
+  const usedIds: string[] = [];
+  for (let player of players) {
+    if (
+      usedIds.includes(player.playerId) ||
+      usedShirtNumbers.includes(player.shirtNumber)
+    ) {
+      return false;
+    }
+    usedIds.push(player.playerId);
+    usedShirtNumbers.push(player.shirtNumber);
+  }
+};
+
+const formationOptions: Option[] = [
+  { label: "442", value: "442" },
+  { label: "433", value: "433" },
+  { label: "4231", value: "4231" },
+  { label: "352", value: "352" },
+  { label: "3511", value: "3511" },
+  { label: "343", value: "343" },
+  { label: "532", value: "532" },
+];
 
 export default (props: { competitions: Option[] }) => {
   const [enrolling, { Form }] = createServerAction$(
@@ -153,8 +182,19 @@ export default (props: { competitions: Option[] }) => {
     }
   );
 
+  const isFormValid = () => {
+    return (
+      gameFormGroup.homeTeamLineup.length === 11 &&
+      gameFormGroup.awayTeamLineup.length === 11 &&
+      lineupValidator.safeParse(gameFormGroup.homeTeamLineup.length).success &&
+      lineupValidator.safeParse(gameFormGroup.awayTeamLineup.length).success &&
+      noDuplicatePlayers(gameFormGroup.homeTeamLineup) &&
+      noDuplicatePlayers(gameFormGroup.homeTeamLineup)
+    );
+  };
+
   return (
-    <Form class="mx-auto flex w-[50%] max-w-lg flex-col space-y-4">
+    <Form class="group mx-auto flex w-[50%] max-w-lg flex-col space-y-4">
       <Suspense fallback={<p>Čekamo</p>}>
         <Select
           label="Competition"
@@ -236,6 +276,8 @@ export default (props: { competitions: Option[] }) => {
               awayTeamPlayers={awayTeamPlayers() ?? []}
               homeTeamShirtsColor={gameFormGroup.homeTeamShirtsColor}
               awayTeamShirtsColor={gameFormGroup.awayTeamShirtsColor}
+              homeTeamFormation={gameFormGroup.homeTeamFormation}
+              awayTeamFormation={gameFormGroup.awayTeamFormation}
               homeTeamGoalKeeperShirtsColor={
                 gameFormGroup.homeTeamGoalkeeperShirtsColor
               }
@@ -264,6 +306,17 @@ export default (props: { competitions: Option[] }) => {
             name="homeTeamShirtsColor"
           />
 
+          <Select
+            options={formationOptions}
+            label="Home team formation"
+            name="homeTeamFormation"
+            control={{
+              setValue: (val) =>
+                gameFormGroupControls({ homeTeamFormation: val as Formation }),
+              value: gameFormGroup.homeTeamFormation,
+            }}
+          />
+
           <ColorPicker
             label="Away team shirt color"
             value={gameFormGroup.awayTeamShirtsColor}
@@ -280,10 +333,25 @@ export default (props: { competitions: Option[] }) => {
             }
             name="awayTeamGoalkeeperShirtsColor"
           />
+
+          <Select
+            options={formationOptions}
+            label="Away team formation"
+            name="awayTeamFormation"
+            control={{
+              setValue: (val) =>
+                gameFormGroupControls({ awayTeamFormation: val as Formation }),
+              value: gameFormGroup.awayTeamFormation,
+            }}
+          />
         </div>
       </div>
 
-      <button class="btn" type="submit">
+      <button
+        class="btn group-invalid:btn-disabled"
+        type="submit"
+        disabled={!isFormValid()}
+      >
         Save
       </button>
     </Form>

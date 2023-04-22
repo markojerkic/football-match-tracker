@@ -18,7 +18,7 @@ const lineupPlayer = z.object({
   shirtNumber: z.number(),
 });
 
-const lineupValidator = lineupPlayer.array();
+export const lineupValidator = lineupPlayer.array();
 
 export type PlayerInTeamLineup = z.infer<typeof lineupPlayer>;
 

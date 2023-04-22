@@ -512,6 +512,8 @@ export const EditLieneupWrapper = (props: {
   awayTeamShirtsColor: string;
   homeTeamGoalKeeperShirtsColor: string;
   awayTeamGoalKeeperShirtsColor: string;
+  homeTeamFormation: Formation;
+  awayTeamFormation: Formation;
 }) => {
   return (
     <AbstractFieldWrapper
@@ -519,7 +521,7 @@ export const EditLieneupWrapper = (props: {
         <EditableSide
           shirtColor={props.homeTeamShirtsColor}
           goalkeeperShirtColor={props.homeTeamGoalKeeperShirtsColor}
-          formation="442"
+          formation={props.homeTeamFormation}
           players={props.homeTeamPlayers}
           isHomeTeam
         />
@@ -528,7 +530,7 @@ export const EditLieneupWrapper = (props: {
         <EditableSide
           shirtColor={props.awayTeamShirtsColor}
           goalkeeperShirtColor={props.awayTeamGoalKeeperShirtsColor}
-          formation="433"
+          formation={props.awayTeamFormation}
           players={props.awayTeamPlayers}
           isHomeTeam={false}
         />
