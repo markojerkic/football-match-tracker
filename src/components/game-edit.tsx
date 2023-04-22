@@ -1,4 +1,4 @@
-import { Show, Suspense } from "solid-js";
+import { Show, Suspense, createMemo } from "solid-js";
 import { createServerAction$, createServerData$ } from "solid-start/server";
 import { getPlayersInTeamAndSeason } from "~/server/players";
 import { prisma } from "~/util/prisma";
@@ -182,7 +182,7 @@ export default (props: { competitions: Option[] }) => {
     }
   );
 
-  const isFormValid = () => {
+  const isFormValid = createMemo(() => {
     return (
       gameFormGroup.homeTeamLineup.length === 11 &&
       gameFormGroup.awayTeamLineup.length === 11 &&
@@ -191,7 +191,7 @@ export default (props: { competitions: Option[] }) => {
       noDuplicatePlayers(gameFormGroup.homeTeamLineup) &&
       noDuplicatePlayers(gameFormGroup.homeTeamLineup)
     );
-  };
+  });
 
   return (
     <Form class="group mx-auto flex w-[50%] max-w-lg flex-col space-y-4">
