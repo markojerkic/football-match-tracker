@@ -10,7 +10,7 @@ import { type Option, Select } from "~/components/form-helpers";
 import { Show, createEffect, createMemo, createSignal } from "solid-js";
 import { For, JSXElement } from "solid-js";
 import { A } from "solid-start";
-import { Lineups, PlayerInTeamLineup } from "~/server/lineups";
+import { Lineups, PlayerInLineup, PlayerInTeamLineup } from "~/server/lineups";
 import { gameFormGroup, gameFormGroupControls } from "./game-edit";
 
 const Divider = () => {
@@ -381,7 +381,7 @@ export const EditablePlayerRepresentation = (info: {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <DialogPanel class="my-8 inline-block w-full max-w-md transform overflow-hidden rounded-2xl border bg-base-300 p-6 text-left align-middle text-black shadow-xl transition-all">
+              <DialogPanel class="my-8 inline-block w-full min-w-[75vw] max-w-md transform overflow-hidden rounded-2xl border bg-base-300 p-6 text-left align-middle text-black shadow-xl transition-all md:min-w-[50rem]">
                 <DialogTitle as="h3" class="text-lg font-medium leading-6">
                   Select a player
                 </DialogTitle>
@@ -389,15 +389,14 @@ export const EditablePlayerRepresentation = (info: {
                   <div class="flex flex-col text-sm">
                     <label for="shirtNumber">Shirt number</label>
                     <input
+                      class="w-16 border-transparent text-center"
                       type="number"
                       min={1}
                       max={99}
                       name="shirtNumber"
                       value={shirtNumber()}
                       onChange={(e) => {
-                        setShirtNumber(
-                          +e.currentTarget.value ?? 0
-                        );
+                        setShirtNumber(+e.currentTarget.value ?? 0);
                         updateForm();
                       }}
                     />
@@ -417,8 +416,8 @@ export const EditablePlayerRepresentation = (info: {
                 </div>
 
                 <div class="mt-4">
-                  <button type="button" class={BUTTON} onClick={closeModal}>
-                    Got it, thanks!
+                  <button type="button" class="btn" onClick={closeModal}>
+                    OK
                   </button>
                 </div>
               </DialogPanel>
@@ -514,6 +513,8 @@ export const EditLieneupWrapper = (props: {
   awayTeamShirtsColor: string;
   homeTeamGoalKeeperShirtsColor: string;
   awayTeamGoalKeeperShirtsColor: string;
+  homeTeamFormation: Formation;
+  awayTeamFormation: Formation;
 }) => {
   return (
     <AbstractFieldWrapper
@@ -521,7 +522,7 @@ export const EditLieneupWrapper = (props: {
         <EditableSide
           shirtColor={props.homeTeamShirtsColor}
           goalkeeperShirtColor={props.homeTeamGoalKeeperShirtsColor}
-          formation="442"
+          formation={props.homeTeamFormation}
           players={props.homeTeamPlayers}
           isHomeTeam
         />
@@ -530,7 +531,7 @@ export const EditLieneupWrapper = (props: {
         <EditableSide
           shirtColor={props.awayTeamShirtsColor}
           goalkeeperShirtColor={props.awayTeamGoalKeeperShirtsColor}
-          formation="433"
+          formation={props.awayTeamFormation}
           players={props.awayTeamPlayers}
           isHomeTeam={false}
         />

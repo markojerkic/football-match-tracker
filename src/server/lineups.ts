@@ -11,16 +11,16 @@ type TPlayerInGameLineup = {
 
 export type PlayerInLineup = TPlayerInGameLineup & { lastName: string };
 
-const lineupPlayer = z.object({
+export const lineupPlayerSchema = z.object({
   playerId: z.string(),
   lineupRow: z.number(),
   lineupColumn: z.number(),
   shirtNumber: z.number(),
 });
 
-const lineupValidator = lineupPlayer.array();
+const lineupValidator = lineupPlayerSchema.array();
 
-export type PlayerInTeamLineup = z.infer<typeof lineupPlayer>;
+export type PlayerInTeamLineup = z.infer<typeof lineupPlayerSchema>;
 
 const mapLineup = ({
   playersRaw,
