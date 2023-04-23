@@ -245,11 +245,10 @@ model Goal {
   scorerId            String
   isOwnGoal           Boolean
   isPenalty           Boolean
-  isPenaltyInShootout Boolean
   scoredInMinute      Int
   scoredInExtraMinute Int?
   isHomeTeamGoal      Boolean
-  scoredInHalftime    Halftime
+  // scoredInHalftime    Halftime
   assistedBy          Player?  @relation("assists", fields: [assistentId], references: [id])
   assistentId         String?
   inGame              Game     @relation(fields: [gameId], references: [id])

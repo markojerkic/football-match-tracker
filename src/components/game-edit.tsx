@@ -6,6 +6,7 @@ import { Select, type Option, Date, Checkbox } from "./form-helpers";
 import { createStore } from "solid-js/store";
 import { EditLieneupWrapper, type Formation } from "./lineup";
 import { type PlayerInTeamLineup, lineupPlayerSchema } from "~/server/lineups";
+import { AddEvent } from "./events";
 
 const ColorPicker = (props: {
   control: (c: string) => void;
@@ -349,6 +350,13 @@ export default (props: { competitions: Option[] }) => {
           />
         </div>
       </div>
+
+      <div class="divider" />
+      <pre class="text-xl font-bold">Events</pre>
+      <AddEvent
+        homeTeamPlayers={homeTeamPlayers() ?? []}
+        awayTeamPlayers={awayTeamPlayers() ?? []}
+      />
 
       <button
         class="btn group-invalid:btn-disabled"
