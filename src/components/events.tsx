@@ -17,6 +17,7 @@ import {
 import { createStore } from "solid-js/store";
 import { isValid, z } from "zod";
 import { type Option, Select, Checkbox } from "~/components/form-helpers";
+import { gameFormGroup, gameFormGroupControls } from "./game-edit";
 
 const goalSchema = z.object({
   scorerId: z.string(),
@@ -26,23 +27,23 @@ const goalSchema = z.object({
   scoredInMinute: z.number().min(1).max(120),
   scoredInExtraMinute: z.number().min(1).max(15).optional(),
 });
-type Goal = z.infer<typeof goalSchema>;
+export type Goal = z.infer<typeof goalSchema>;
 
-const defaultGoal: Goal = {
+const defaultGoal = (): Goal => ({
   scorerId: "",
   isPenalty: false,
   isOwnGoal: false,
   scoredInMinute: 0,
   assistentId: undefined,
   scoredInExtraMinute: undefined,
-};
+});
 
+const [goal, setGoal] = createStore<Goal>(defaultGoal());
 const AddGoal = (props: {
   awayTeamPlayers: Option[];
   homeTeamPlayers: Option[];
-  isValid: (valid: boolean) => void;
+  onClose: () => void;
 }) => {
-  const [goal, setGoal] = createStore<Goal>(defaultGoal);
   const [isHomeTeam, setIsHomeTeam] = createSignal(true);
 
   const playersOptions = createMemo(() => {
@@ -59,18 +60,10 @@ const AddGoal = (props: {
     { initialValue: false }
   );
 
-  createEffect(() => {
-    props.isValid(isGoalValid());
-  });
-
-  const v = () => isGoalValid() ? 'valid' : 'falc';
   const b = () => JSON.stringify(goal);
 
   return (
     <div>
-      {isGoalValid.state}
-      {v()}
-      {b()}
       <Checkbox
         label="Is home team goal"
         name="isHomeTeamGoal"
@@ -144,6 +137,16 @@ const AddGoal = (props: {
           value={goal.scoredInExtraMinute}
         />
       </div>
+      <div class="mt-4">
+        <button
+          type="button"
+          class="btn"
+          disabled={isGoalValid()}
+          onClick={props.onClose}
+        >
+          Save goal
+        </button>
+      </div>
     </div>
   );
 };
@@ -156,16 +159,18 @@ export const AddEvent = (props: {
 
   const closeModal = () => {
     setIsOpen(false);
+    gameFormGroupControls("goals", g => {
+      console.log("goals curr", g)
+      const ng = [...g, { ...goal }];
+      console.log("ng", JSON.stringify(ng))
+      return ng;
+    });
+    setGoal(defaultGoal());
   };
-
-  const [selectedEventType, setSelectedEventType] = createSignal<
-    "goal" | "card" | "sub"
-  >("goal");
-
-  const [isFormValid, setIsFormValid] = createSignal(false);
 
   return (
     <>
+      {g()}
       <button
         type="button"
         class="btn-outline btn gap-2"
@@ -186,7 +191,7 @@ export const AddEvent = (props: {
           />
         </svg>
 
-        <pre>Add event</pre>
+        <pre>Add goal</pre>
       </button>
 
       <Transition appear show={isOpen()}>
@@ -225,64 +230,14 @@ export const AddEvent = (props: {
                 </DialogTitle>
                 <div class="mt-2">
                   <div class="flex flex-col text-sm">
-                    <div class="tabs">
-                      <div
-                        onClick={() => setSelectedEventType("goal")}
-                        class="tab-bordered tab"
-                        classList={{
-                          "tab-active": selectedEventType() === "goal",
-                        }}
-                      >
-                        Goal
-                      </div>
-                      <div
-                        onClick={() => setSelectedEventType("card")}
-                        class="tab-bordered tab"
-                        classList={{
-                          "tab-active": selectedEventType() === "card",
-                        }}
-                      >
-                        Card
-                      </div>
-                      <div
-                        onClick={() => setSelectedEventType("sub")}
-                        class="tab-bordered tab"
-                        classList={{
-                          "tab-active": selectedEventType() === "sub",
-                        }}
-                      >
-                        Substitution
-                      </div>
-                    </div>
-
-                    <Switch>
-                      <Match when={selectedEventType() === "goal"}>
-                        <AddGoal
-                          homeTeamPlayers={props.homeTeamPlayers}
-                          awayTeamPlayers={props.awayTeamPlayers}
-                          isValid={setIsFormValid}
-                        />
-                      </Match>
-                      <Match when={selectedEventType() === "card"}>
-                        <pre>card</pre>
-                      </Match>
-                      <Match when={selectedEventType() === "sub"}>
-                        <pre>sub</pre>
-                      </Match>
-                    </Switch>
+                    <AddGoal
+                      homeTeamPlayers={props.homeTeamPlayers}
+                      awayTeamPlayers={props.awayTeamPlayers}
+                      onClose={closeModal}
+                    />
                   </div>
                 </div>
 
-                <div class="mt-4">
-                  <button
-                    type="button"
-                    class="btn"
-                    disabled={isFormValid()}
-                    onClick={closeModal}
-                  >
-                    OK
-                  </button>
-                </div>
               </DialogPanel>
             </TransitionChild>
           </div>

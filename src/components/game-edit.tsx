@@ -6,7 +6,7 @@ import { Select, type Option, Date, Checkbox } from "./form-helpers";
 import { createStore } from "solid-js/store";
 import { EditLieneupWrapper, type Formation } from "./lineup";
 import { type PlayerInTeamLineup, lineupPlayerSchema } from "~/server/lineups";
-import { AddEvent } from "./events";
+import { AddEvent, Goal } from "./events";
 
 const ColorPicker = (props: {
   control: (c: string) => void;
@@ -43,6 +43,7 @@ type GameForm = {
   awayTeamLineup: PlayerInTeamLineup[];
   homeTeamFormation: Formation;
   awayTeamFormation: Formation;
+  goals: Goal[]
 };
 export const [gameFormGroup, gameFormGroupControls] = createStore<GameForm>({
   competition: "",
@@ -59,6 +60,7 @@ export const [gameFormGroup, gameFormGroupControls] = createStore<GameForm>({
   awayTeamLineup: [],
   homeTeamFormation: "442",
   awayTeamFormation: "433",
+  goals: []
 });
 
 const noDuplicatePlayers = (players: PlayerInTeamLineup[]) => {
