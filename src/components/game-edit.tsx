@@ -1,4 +1,4 @@
-import { Show, Suspense, createMemo } from "solid-js";
+import { Resource, Show, Suspense, createMemo } from "solid-js";
 import { createServerAction$, createServerData$ } from "solid-start/server";
 import { getPlayersInTeamAndSeason } from "~/server/players";
 import { prisma } from "~/util/prisma";
@@ -7,6 +7,8 @@ import { createStore } from "solid-js/store";
 import { EditLieneupWrapper, type Formation } from "./lineup";
 import { type PlayerInTeamLineup } from "~/server/lineups";
 import { AddGoalEvent, Goal } from "./events";
+import GameDetail from "./game-detail";
+import { GoalsInGame } from "~/server/games";
 
 const ColorPicker = (props: {
   control: (c: string) => void;
@@ -88,6 +90,69 @@ const formationOptions: Option[] = [
   { label: "532", value: "532" },
 ];
 
+const GoalsDisplay = () => {
+  const goals: Resource<GoalsInGame | undefined> = createServerData$(
+    async ([, fg]) => {
+      const formGoals = fg as Goal[];
+
+      const playerIds = formGoals
+        .map((g) => [g.scorerId, g.assistentId])
+        .flat()
+        .filter((id) => id !== undefined);
+      console.log("playerIds", playerIds);
+      const players = await prisma.player.findMany({
+        where: {
+          id: {
+            in: playerIds as string[],
+          },
+        },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+        },
+      });
+      console.log("players", players);
+
+      const mappedGoals: GoalsInGame = formGoals.map((g) => {
+        const scorer = players.find((p) => p.id === g.scorerId);
+        const assistent = players.find((p) => p.id === g.assistentId);
+
+        const goal: GetElementType<GoalsInGame> = {
+          isOwnGoal: g.isOwnGoal,
+          isPenalty: g.isPenalty,
+          scoredInMinute: g.scoredInMinute,
+          scoredInExtraMinute: g.scoredInExtraMinute ?? null,
+          scoredBy: {
+            firstName: scorer?.firstName ?? "",
+            lastName: scorer?.lastName ?? "",
+          },
+
+          assistedBy: null,
+          isHomeTeamGoal: true,
+        };
+        if (assistent !== undefined) {
+          goal.assistedBy = {
+            firstName: assistent?.firstName ?? "",
+            lastName: assistent?.lastName ?? "",
+          };
+        }
+        return goal;
+      });
+      console.log("mappedGoals", mappedGoals);
+      return mappedGoals;
+    },
+    { key: () => ["goal-info", gameFormGroup.goals] }
+  );
+
+  return (
+    <Suspense fallback="Loading player data">
+      <GameDetail goals={goals()} />
+    </Suspense>
+  );
+};
+
+type GetElementType<T extends any[]> = T extends (infer U)[] ? U : never;
 export default (props: { competitions: Option[] }) => {
   const [enrolling, { Form }] = createServerAction$(
     async (formData: FormData) => {
@@ -359,6 +424,10 @@ export default (props: { competitions: Option[] }) => {
         homeTeamPlayers={homeTeamPlayers() ?? []}
         awayTeamPlayers={awayTeamPlayers() ?? []}
       />
+
+      <Suspense fallback="Loading player data">
+        <GoalsDisplay />
+      </Suspense>
 
       <button
         class="btn group-invalid:btn-disabled"

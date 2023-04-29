@@ -6,18 +6,25 @@ import {
   Transition,
   TransitionChild,
 } from "solid-headless";
-import {
-  Match,
-  Switch,
-  createEffect,
-  createMemo,
-  createResource,
-  createSignal,
-} from "solid-js";
+import { createMemo, createResource, createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
-import { isValid, z } from "zod";
+import { z } from "zod";
 import { type Option, Select, Checkbox } from "~/components/form-helpers";
-import { gameFormGroup, gameFormGroupControls } from "./game-edit";
+import { gameFormGroupControls } from "./game-edit";
+
+// scoredBy: {
+//     firstName: string;
+//     lastName: string;
+// };
+// assistedBy: {
+//     firstName: string;
+//     lastName: string;
+// } | null;
+// isOwnGoal: boolean;
+// isPenalty: boolean;
+// scoredInMinute: number;
+// scoredInExtraMinute: number | null;
+// isHomeTeamGoal: boolean;
 
 const goalSchema = z.object({
   scorerId: z.string(),
