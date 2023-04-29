@@ -5,8 +5,8 @@ import { prisma } from "~/util/prisma";
 import { Select, type Option, Date, Checkbox } from "./form-helpers";
 import { createStore } from "solid-js/store";
 import { EditLieneupWrapper, type Formation } from "./lineup";
-import { type PlayerInTeamLineup, lineupPlayerSchema } from "~/server/lineups";
-import { AddEvent, Goal } from "./events";
+import { type PlayerInTeamLineup } from "~/server/lineups";
+import { AddGoalEvent, Goal } from "./events";
 
 const ColorPicker = (props: {
   control: (c: string) => void;
@@ -43,7 +43,7 @@ type GameForm = {
   awayTeamLineup: PlayerInTeamLineup[];
   homeTeamFormation: Formation;
   awayTeamFormation: Formation;
-  goals: Goal[]
+  goals: Goal[];
 };
 export const [gameFormGroup, gameFormGroupControls] = createStore<GameForm>({
   competition: "",
@@ -60,7 +60,7 @@ export const [gameFormGroup, gameFormGroupControls] = createStore<GameForm>({
   awayTeamLineup: [],
   homeTeamFormation: "442",
   awayTeamFormation: "433",
-  goals: []
+  goals: [],
 });
 
 const noDuplicatePlayers = (players: PlayerInTeamLineup[]) => {
@@ -355,7 +355,7 @@ export default (props: { competitions: Option[] }) => {
 
       <div class="divider" />
       <pre class="text-xl font-bold">Events</pre>
-      <AddEvent
+      <AddGoalEvent
         homeTeamPlayers={homeTeamPlayers() ?? []}
         awayTeamPlayers={awayTeamPlayers() ?? []}
       />

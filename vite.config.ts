@@ -12,7 +12,7 @@ export default defineConfig(({ command }) => ({
             adapter: vercel({}),
           }),
     }),
-    devtools()
+    devtools(),
   ],
   ssr: { external: ["@prisma/client"] },
 }));

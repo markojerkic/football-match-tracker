@@ -53,14 +53,12 @@ const AddGoal = (props: {
     return props.awayTeamPlayers;
   });
 
-  const [isGoalValid, { refetch }] = createResource(
+  const [isGoalValid] = createResource(
     () => goal,
     (g) => goalSchema.safeParseAsync(g).then((v) => v.success),
     // (g) => goalSchema.safeParse(g).success,
     { initialValue: false }
   );
-
-  const b = () => JSON.stringify(goal);
 
   return (
     <div>
@@ -151,7 +149,7 @@ const AddGoal = (props: {
   );
 };
 
-export const AddEvent = (props: {
+export const AddGoalEvent = (props: {
   awayTeamPlayers: Option[];
   homeTeamPlayers: Option[];
 }) => {
@@ -159,10 +157,10 @@ export const AddEvent = (props: {
 
   const closeModal = () => {
     setIsOpen(false);
-    gameFormGroupControls("goals", g => {
-      console.log("goals curr", g)
+    gameFormGroupControls("goals", (g) => {
+      console.log("goals curr", g);
       const ng = [...g, { ...goal }];
-      console.log("ng", JSON.stringify(ng))
+      console.log("ng", JSON.stringify(ng));
       return ng;
     });
     setGoal(defaultGoal());
@@ -170,7 +168,6 @@ export const AddEvent = (props: {
 
   return (
     <>
-      {g()}
       <button
         type="button"
         class="btn-outline btn gap-2"
@@ -237,7 +234,6 @@ export const AddEvent = (props: {
                     />
                   </div>
                 </div>
-
               </DialogPanel>
             </TransitionChild>
           </div>
