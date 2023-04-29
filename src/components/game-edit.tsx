@@ -147,9 +147,15 @@ const GoalsDisplay = () => {
 
   return (
     <Suspense fallback="Loading player data">
-      <GameDetail goals={goals()} onRemove={(index) => {
-        gameFormGroupControls("goals", gls => [...gls].filter((g, i) => i !== index))
-      }} />
+      <GameDetail
+        goals={goals()}
+        cards={[]}
+        onRemoveGoal={(index) => {
+          gameFormGroupControls("goals", (gls) =>
+            [...gls].filter((g, i) => i !== index)
+          );
+        }}
+      />
     </Suspense>
   );
 };

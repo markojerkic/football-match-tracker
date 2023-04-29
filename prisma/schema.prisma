@@ -240,8 +240,8 @@ model Game {
 }
 
 model Goal {
-  id                  String   @id @default(cuid())
-  scoredBy            Player   @relation("goals", fields: [scorerId], references: [id])
+  id                  String  @id @default(cuid())
+  scoredBy            Player  @relation("goals", fields: [scorerId], references: [id])
   scorerId            String
   isOwnGoal           Boolean
   isPenalty           Boolean
@@ -249,9 +249,9 @@ model Goal {
   scoredInExtraMinute Int?
   isHomeTeamGoal      Boolean
   // scoredInHalftime    Halftime
-  assistedBy          Player?  @relation("assists", fields: [assistentId], references: [id])
+  assistedBy          Player? @relation("assists", fields: [assistentId], references: [id])
   assistentId         String?
-  inGame              Game     @relation(fields: [gameId], references: [id])
+  inGame              Game    @relation(fields: [gameId], references: [id])
   gameId              String
 }
 
@@ -288,14 +288,14 @@ model GameStatistics {
 }
 
 model CardAwarded {
-  id       String   @id @default(cuid())
-  cardType CardType
-  player   Player   @relation(fields: [playerId], references: [id])
-  playerId String
-  game     Game     @relation(fields: [gameId], references: [id])
-  gameId   String
-  minute   Decimal
-  halftime Halftime
+  id              String   @id @default(cuid())
+  cardType        CardType
+  player          Player   @relation(fields: [playerId], references: [id])
+  playerId        String
+  game            Game     @relation(fields: [gameId], references: [id])
+  gameId          String
+  minute          Int
+  extraTimeMinute Int?
 }
 
 enum Halftime {
@@ -308,6 +308,7 @@ enum Halftime {
 enum CardType {
   RED
   YELLOW
+  SECOND_YELLOW
 }
 
 enum Position {

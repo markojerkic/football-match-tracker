@@ -65,7 +65,7 @@ export const getGames = async (selectedDate: string | undefined) => {
   return games;
 };
 
-type ArrayElement<ArrayType extends readonly unknown[]> =
+export type ArrayElement<ArrayType extends readonly unknown[]> =
   ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 export type Game = ArrayElement<Awaited<ReturnType<typeof getGames>>>;
 
