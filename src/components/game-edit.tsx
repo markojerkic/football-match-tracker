@@ -1,3 +1,4 @@
+// @refresh reload
 import { Resource, Show, Suspense, createMemo } from "solid-js";
 import { createServerAction$, createServerData$ } from "solid-start/server";
 import { getPlayersInTeamAndSeason } from "~/server/players";
@@ -6,7 +7,12 @@ import { Select, type Option, Date, Checkbox } from "./form-helpers";
 import { createStore } from "solid-js/store";
 import { EditLieneupWrapper, type Formation } from "./lineup";
 import { type PlayerInTeamLineup } from "~/server/lineups";
-import { AddGoalEvent, Goal } from "./events";
+import {
+  AddCardEvent,
+  AddGoalEvent,
+  AddSubstitutionEvent,
+  Goal,
+} from "./events";
 import GameDetail from "./game-detail";
 import { GoalsInGame } from "~/server/games";
 
@@ -274,32 +280,34 @@ export default (props: { competitions: Option[] }) => {
 
   return (
     <Form class="group mx-auto flex w-[50%] max-w-lg flex-col space-y-4">
-      <Suspense fallback={<p>Čekamo</p>}>
-        <Select
-          label="Competition"
-          name="competition"
-          control={{
-            setValue: (val) => gameFormGroupControls({ competition: val }),
-            value: gameFormGroup.competition,
-          }}
-          options={props.competitions}
-        />
-      </Suspense>
+      <div class="flex flex-col">
+        <Suspense fallback={<p>Čekamo</p>}>
+          <Select
+            label="Competition"
+            name="competition"
+            control={{
+              setValue: (val) => gameFormGroupControls({ competition: val }),
+              value: gameFormGroup.competition,
+            }}
+            options={props.competitions}
+          />
+        </Suspense>
 
-      <Suspense fallback={<p>Čekamo</p>}>
-        <Select
-          label="Season"
-          disabled={gameFormGroup.competition === ""}
-          name="season"
-          control={{
-            setValue: (val) => gameFormGroupControls({ season: val }),
-            value: gameFormGroup.season,
-          }}
-          options={seasons() ?? []}
-        />
-      </Suspense>
+        <Suspense fallback={<p>Čekamo</p>}>
+          <Select
+            label="Season"
+            disabled={gameFormGroup.competition === ""}
+            name="season"
+            control={{
+              setValue: (val) => gameFormGroupControls({ season: val }),
+              value: gameFormGroup.season,
+            }}
+            options={seasons() ?? []}
+          />
+        </Suspense>
+      </div>
 
-      <span class="flex justify-around">
+      <span class="grid grid-flow-col justify-stretch gap-2">
         <Suspense fallback={<p>Čekamo</p>}>
           <Select
             label="Home team"
@@ -428,10 +436,23 @@ export default (props: { competitions: Option[] }) => {
 
       <div class="divider" />
       <pre class="text-xl font-bold">Events</pre>
-      <AddGoalEvent
-        homeTeamPlayers={homeTeamPlayers() ?? []}
-        awayTeamPlayers={awayTeamPlayers() ?? []}
-      />
+
+      <div class="grid grid-flow-col justify-stretch gap-2">
+        <AddGoalEvent
+          homeTeamPlayers={homeTeamPlayers() ?? []}
+          awayTeamPlayers={awayTeamPlayers() ?? []}
+        />
+
+        <AddCardEvent
+          homeTeamPlayers={homeTeamPlayers() ?? []}
+          awayTeamPlayers={awayTeamPlayers() ?? []}
+        />
+
+        <AddSubstitutionEvent
+          homeTeamPlayers={homeTeamPlayers() ?? []}
+          awayTeamPlayers={awayTeamPlayers() ?? []}
+        />
+      </div>
 
       <Suspense fallback="Loading player data">
         <GoalsDisplay />

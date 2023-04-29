@@ -1,4 +1,3 @@
-import { Toggle } from "solid-headless";
 import { For } from "solid-js";
 
 const HiddenOption = () => <option class="hidden" disabled selected />;
@@ -14,7 +13,7 @@ export const Select = (props: {
     <span class="flex flex-col">
       <label for="competition">{props.label}</label>
       <select
-        class="select-bordered select w-full max-w-xs"
+        class="select-bordered select w-full"
         name={props.name}
         required
         disabled={props.disabled ?? false}
