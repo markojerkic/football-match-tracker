@@ -6,7 +6,12 @@ import {
   Transition,
   TransitionChild,
 } from "solid-headless";
-import { createEffect, createMemo, createResource, createSignal } from "solid-js";
+import {
+  createEffect,
+  createMemo,
+  createResource,
+  createSignal,
+} from "solid-js";
 import { createStore } from "solid-js/store";
 import { z } from "zod";
 import { type Option, Select, Checkbox } from "~/components/form-helpers";
@@ -139,7 +144,13 @@ const AddGoal = (props: {
           type="button"
           class="btn"
           disabled={isGoalValid()}
-          onClick={props.onClose}
+          onClick={() => {
+            gameFormGroupControls("goals", (g) => {
+              const ng = [...g, { ...goal }];
+              return ng;
+            });
+            props.onClose();
+          }}
         >
           Save goal
         </button>
@@ -156,18 +167,18 @@ export const AddGoalEvent = (props: {
 
   const closeModal = () => {
     setIsOpen(false);
-    gameFormGroupControls("goals", (g) => {
-      const ng = [...g, { ...goal }];
-      return ng;
-    });
     setGoal(defaultGoal());
   };
+
+  const cannotOpen = () =>
+    props.awayTeamPlayers.length === 0 || props.homeTeamPlayers.length === 0;
 
   return (
     <>
       <button
         type="button"
         class="btn-outline btn gap-2"
+        disabled={cannotOpen()}
         onClick={() => setIsOpen(true)}
       >
         <svg
