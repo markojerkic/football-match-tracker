@@ -6,18 +6,28 @@ import {
   Transition,
   TransitionChild,
 } from "solid-headless";
-import { Match, Switch, createMemo, createSignal } from "solid-js";
+import {
+  Match,
+  Switch,
+  createEffect,
+  createMemo,
+  createResource,
+  createSignal,
+} from "solid-js";
 import { createStore } from "solid-js/store";
+import { isValid, z } from "zod";
 import { type Option, Select, Checkbox } from "~/components/form-helpers";
 
-type Goal = {
-  scorerId: string;
-  assistentId: string | undefined;
-  isOwnGoal: boolean;
-  isPenalty: boolean;
-  scoredInMinute: number;
-  scoredInExtraMinute: number | undefined;
-};
+const goalSchema = z.object({
+  scorerId: z.string(),
+  assistentId: z.string().optional(),
+  isOwnGoal: z.boolean(),
+  isPenalty: z.boolean(),
+  scoredInMinute: z.number().min(1).max(120),
+  scoredInExtraMinute: z.number().min(1).max(15).optional(),
+});
+type Goal = z.infer<typeof goalSchema>;
+
 const defaultGoal: Goal = {
   scorerId: "",
   isPenalty: false,
@@ -30,6 +40,7 @@ const defaultGoal: Goal = {
 const AddGoal = (props: {
   awayTeamPlayers: Option[];
   homeTeamPlayers: Option[];
+  isValid: (valid: boolean) => void;
 }) => {
   const [goal, setGoal] = createStore<Goal>(defaultGoal);
   const [isHomeTeam, setIsHomeTeam] = createSignal(true);
@@ -41,8 +52,25 @@ const AddGoal = (props: {
     return props.awayTeamPlayers;
   });
 
+  const [isGoalValid, { refetch }] = createResource(
+    () => goal,
+    (g) => goalSchema.safeParseAsync(g).then((v) => v.success),
+    // (g) => goalSchema.safeParse(g).success,
+    { initialValue: false }
+  );
+
+  createEffect(() => {
+    props.isValid(isGoalValid());
+  });
+
+  const v = () => isGoalValid() ? 'valid' : 'falc';
+  const b = () => JSON.stringify(goal);
+
   return (
     <div>
+      {isGoalValid.state}
+      {v()}
+      {b()}
       <Checkbox
         label="Is home team goal"
         name="isHomeTeamGoal"
@@ -80,10 +108,20 @@ const AddGoal = (props: {
         options={playersOptions()}
       />
 
+      <Select
+        label="Assisted by"
+        name="assistentId"
+        control={{
+          setValue: (val) => setGoal({ assistentId: val }),
+          value: goal.assistentId ?? "",
+        }}
+        options={playersOptions()}
+      />
+
       <div class="my-4 flex flex-col space-y-2">
         <label for="scoredInMinute">Scored in minute</label>
         <input
-          class="h-12 w-12 text-center invalid:border invalid:input-error"
+          class="h-12 w-12 text-center invalid:input-error invalid:border"
           type="number"
           name="scoredInMinute"
           min="1"
@@ -95,12 +133,14 @@ const AddGoal = (props: {
 
         <label for="scoredInMinute">Scored in extra time minute</label>
         <input
-          class="h-12 w-12 text-center invalid:border invalid:input-error"
+          class="h-12 w-12 text-center invalid:input-error invalid:border"
           type="number"
           name="scoredInExtraMinute"
           min="1"
           max="15"
-          onChange={(e) => setGoal({ scoredInExtraMinute: +e.currentTarget.value })}
+          onChange={(e) =>
+            setGoal({ scoredInExtraMinute: +e.currentTarget.value })
+          }
           value={goal.scoredInExtraMinute}
         />
       </div>
@@ -121,6 +161,8 @@ export const AddEvent = (props: {
   const [selectedEventType, setSelectedEventType] = createSignal<
     "goal" | "card" | "sub"
   >("goal");
+
+  const [isFormValid, setIsFormValid] = createSignal(false);
 
   return (
     <>
@@ -218,6 +260,7 @@ export const AddEvent = (props: {
                         <AddGoal
                           homeTeamPlayers={props.homeTeamPlayers}
                           awayTeamPlayers={props.awayTeamPlayers}
+                          isValid={setIsFormValid}
                         />
                       </Match>
                       <Match when={selectedEventType() === "card"}>
@@ -231,7 +274,12 @@ export const AddEvent = (props: {
                 </div>
 
                 <div class="mt-4">
-                  <button type="button" class="btn" onClick={closeModal}>
+                  <button
+                    type="button"
+                    class="btn"
+                    disabled={isFormValid()}
+                    onClick={closeModal}
+                  >
                     OK
                   </button>
                 </div>
