@@ -6,27 +6,14 @@ import {
   Transition,
   TransitionChild,
 } from "solid-headless";
-import { createMemo, createResource, createSignal } from "solid-js";
+import { createEffect, createMemo, createResource, createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
 import { z } from "zod";
 import { type Option, Select, Checkbox } from "~/components/form-helpers";
 import { gameFormGroupControls } from "./game-edit";
 
-// scoredBy: {
-//     firstName: string;
-//     lastName: string;
-// };
-// assistedBy: {
-//     firstName: string;
-//     lastName: string;
-// } | null;
-// isOwnGoal: boolean;
-// isPenalty: boolean;
-// scoredInMinute: number;
-// scoredInExtraMinute: number | null;
-// isHomeTeamGoal: boolean;
-
 const goalSchema = z.object({
+  isHomeTeamGoal: z.boolean(),
   scorerId: z.string(),
   assistentId: z.string().optional(),
   isOwnGoal: z.boolean(),
@@ -37,6 +24,7 @@ const goalSchema = z.object({
 export type Goal = z.infer<typeof goalSchema>;
 
 const defaultGoal = (): Goal => ({
+  isHomeTeamGoal: false,
   scorerId: "",
   isPenalty: false,
   isOwnGoal: false,
@@ -52,6 +40,10 @@ const AddGoal = (props: {
   onClose: () => void;
 }) => {
   const [isHomeTeam, setIsHomeTeam] = createSignal(true);
+
+  createEffect(() => {
+    setGoal({ isHomeTeamGoal: isHomeTeam() });
+  });
 
   const playersOptions = createMemo(() => {
     if (isHomeTeam()) {
@@ -165,9 +157,7 @@ export const AddGoalEvent = (props: {
   const closeModal = () => {
     setIsOpen(false);
     gameFormGroupControls("goals", (g) => {
-      console.log("goals curr", g);
       const ng = [...g, { ...goal }];
-      console.log("ng", JSON.stringify(ng));
       return ng;
     });
     setGoal(defaultGoal());

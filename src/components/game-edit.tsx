@@ -129,7 +129,7 @@ const GoalsDisplay = () => {
           },
 
           assistedBy: null,
-          isHomeTeamGoal: true,
+          isHomeTeamGoal: g.isHomeTeamGoal,
         };
         if (assistent !== undefined) {
           goal.assistedBy = {
