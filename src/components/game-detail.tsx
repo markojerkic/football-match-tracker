@@ -3,6 +3,48 @@ import { twMerge } from "tailwind-merge";
 import { ArrayElement, GoalsInGame } from "~/server/games";
 import { CardEvent, SubstitutionEvent } from "./events";
 
+const SubstitutionInTimeline = (props: { sub: SubstitutionEvent }) => {
+  const extraTime = () => {
+    if (!props.sub.extraTimeMinute) return "";
+    return ` ${props.sub.minute}''`;
+  };
+  return (
+    <div
+      class={`flex ${
+        props.sub.isHomeTeam ? "self-start" : "flex-row-reverse self-end"
+      }`}
+    >
+      <span
+        classList={{
+          "flex w-72 justify-between": true,
+          "flex-row-reverse": props.sub.isHomeTeam,
+        }}
+      >
+        {/*<span class="mx-4">{props.sub.cardType}</span>*/}
+        <span
+          classList={{
+            "grow font-semibold": true,
+            "text-end": props.sub.isHomeTeam,
+            "text-start": !props.sub.isHomeTeam,
+          }}
+        >
+          {props.sub.playerInName}
+          {props.sub.playerOutName}
+        </span>
+        <span
+          classList={{
+            "text-end": props.sub.isHomeTeam,
+            "text-start": !props.sub.isHomeTeam,
+          }}
+        >
+          {`${props.sub.minute}\``}
+          {extraTime()}
+        </span>
+      </span>
+    </div>
+  );
+};
+
 const CardInTimeline = (props: { card: CardEvent }) => {
   const extraTime = () => {
     if (!props.card.extraTimeMinute) return "";
@@ -185,8 +227,8 @@ export default (gameData: GameDetailProps) => {
 
   return (
     <div class="flex flex-col-reverse">
-      <Show when={gameData.goals?.length === 0}>
-        <p class="w-full text-center">No goals</p>
+      <Show when={events().length === 0}>
+        <p class="w-full text-center">No events</p>
       </Show>
 
       <For each={events()}>
@@ -287,7 +329,9 @@ export default (gameData: GameDetailProps) => {
             <Match when={event.substitution} keyed>
               {(substitution) => (
                 <div class="flex">
-                  <div class="grow">{JSON.stringify(substitution)}</div>
+                  <div class="grow">
+                    <SubstitutionInTimeline sub={substitution.substitution} />
+                  </div>
                   {/*
                     TODO: extract delete into new component
                     */}
