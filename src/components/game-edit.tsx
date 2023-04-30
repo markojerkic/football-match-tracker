@@ -1,4 +1,3 @@
-// @refresh reload
 import { Resource, Show, Suspense, createEffect, createMemo } from "solid-js";
 import { createServerAction$, createServerData$ } from "solid-start/server";
 import { getPlayersInTeamAndSeason } from "~/server/players";
@@ -17,7 +16,11 @@ import {
 } from "./events";
 import GameDetail from "./game-detail";
 import { GoalsInGame } from "~/server/games";
-import { StatisticEditor, StatisticsForm, defaultStatisticsFrom } from "./statistic";
+import {
+  StatisticEditor,
+  StatisticsForm,
+  defaultStatisticsFrom,
+} from "./statistic";
 
 const ColorPicker = (props: {
   control: (c: string) => void;
@@ -93,6 +96,7 @@ const noDuplicatePlayers = (players: PlayerInTeamLineup[]) => {
     usedIds.push(player.playerId);
     usedShirtNumbers.push(player.shirtNumber);
   }
+  return true;
 };
 
 const formationOptions: Option[] = [
@@ -193,10 +197,19 @@ export default (props: { competitions: Option[] }) => {
     async (formData: FormData) => {
       const data = Object.fromEntries(formData.entries());
       console.log(data);
+      const game = JSON.parse(formData.get("gameStore") as string) as GameForm;
+      const statistics = JSON.parse(
+        formData.get("statisticsStore") as string
+      ) as StatisticsForm;
+
+      console.log("game", game);
+      console.log("statistics", statistics);
     }
   );
 
-  const [statistics, setStatistics] = createStore<StatisticsForm>(defaultStatisticsFrom());
+  const [statistics, setStatistics] = createStore<StatisticsForm>(
+    defaultStatisticsFrom()
+  );
 
   createEffect(() => {
     if (!gameFormGroup.hasGameStarted) {
@@ -298,18 +311,29 @@ export default (props: { competitions: Option[] }) => {
       gameFormGroup.homeTeam !== gameFormGroup.awayTeam &&
       gameFormGroup.homeTeamLineup.length === 11 &&
       gameFormGroup.awayTeamLineup.length === 11 &&
+      noDuplicatePlayers(gameFormGroup.homeTeamLineup) &&
+      noDuplicatePlayers(gameFormGroup.awayTeamLineup)
       /*
       lineupPlayerSchema.array().safeParse(gameFormGroup.homeTeamLineup.length).success &&
       lineupPlayerSchema.array().safeParse(gameFormGroup.awayTeamLineup.length).success &&
       */
-      noDuplicatePlayers(gameFormGroup.homeTeamLineup) &&
-      noDuplicatePlayers(gameFormGroup.homeTeamLineup)
     );
   });
 
   return (
     <Form class="group mx-auto flex w-[50%] max-w-lg flex-col space-y-4">
       <div class="flex flex-col">
+        <input
+          type="hidden"
+          name="gameStore"
+          value={JSON.stringify(gameFormGroup)}
+        />
+        <input
+          type="hidden"
+          name="statisticsStore"
+          value={JSON.stringify(statistics)}
+        />
+
         <Suspense fallback={<p>Čekamo</p>}>
           <Select
             label="Competition"
@@ -392,7 +416,17 @@ export default (props: { competitions: Option[] }) => {
         }}
       />
 
-      <pre>{JSON.stringify(gameFormGroup, null, 2)}</pre>
+      <pre>
+        {gameFormGroup.homeTeam}-{gameFormGroup.awayTeam}-
+        {gameFormGroup.homeTeamLineup.length}-
+        {gameFormGroup.awayTeamLineup.length}-
+        {noDuplicatePlayers(gameFormGroup.homeTeamLineup) ? "tr" : "falc"}-
+        {noDuplicatePlayers(gameFormGroup.awayTeamLineup) ? "tr" : "falc"}
+      </pre>
+
+      <Show when={false && import.meta.env.DEV}>
+        <pre>{JSON.stringify(gameFormGroup, null, 2)}</pre>
+      </Show>
       <div class="flex justify-start">
         <Suspense>
           <Show when={homeTeamPlayers() && awayTeamPlayers()}>
@@ -503,7 +537,6 @@ export default (props: { competitions: Option[] }) => {
 
         <StatisticEditor value={statistics} control={setStatistics} />
       </Show>
-
 
       <button
         class="btn group-invalid:btn-disabled"

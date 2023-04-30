@@ -9,8 +9,10 @@ export const Statistic = (statistic: {
   unit?: string;
 }) => {
   const total = () => statistic.homeTeam + statistic.awayTeam;
-  const homeTeamPercentage = () => (statistic.homeTeam / total()) * 100;
-  const awayTeamPercentage = () => (statistic.awayTeam / total()) * 100;
+  const homeTeamPercentage = () =>
+    statistic.homeTeam === 0 ? 0 : (statistic.homeTeam / total()) * 100;
+  const awayTeamPercentage = () =>
+    statistic.awayTeam === 0 ? 0 : (statistic.awayTeam / total()) * 100;
 
   return (
     <Show when={statistic.awayTeam !== -1 && statistic.homeTeam !== -1}>
