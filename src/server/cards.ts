@@ -1,6 +1,9 @@
+import { CardEvent } from "~/components/events";
 import { prisma } from "~/util/prisma";
 
-export const getCardsFromGame = async (gameId: string) => {
+export const getCardsFromGame = async (
+  gameId: string
+): Promise<CardEvent[]> => {
   const cards = await prisma.cardAwarded.findMany({
     where: {
       gameId: gameId,
@@ -12,14 +15,22 @@ export const getCardsFromGame = async (gameId: string) => {
       minute: true,
       extraTimeMinute: true,
       cardType: true,
+      isHomeTeam: true,
       player: {
         select: {
-          firstName: true,
+          id: true,
           lastName: true,
         },
       },
     },
   });
 
-  return cards;
+  return cards.map((card) => ({
+    isHomeTeam: card.isHomeTeam,
+    extraTimeMinute: card.extraTimeMinute ?? undefined,
+    minute: card.minute,
+    playerId: card.player?.id ?? "",
+    playerLastName: card.player.lastName,
+    cardType: card.cardType,
+  }));
 };

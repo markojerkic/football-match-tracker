@@ -85,6 +85,8 @@ model Player {
   lineup             PlayerInGameLineup[]
   favouritedByUser   FavouritePlayer[]
   teams              PlayersTeamInSeason[]
+  substitutionsIn    Substitution[]        @relation("substitutionsIn")
+  substitutionsOut   Substitution[]        @relation("substitutionsOut")
 }
 
 model TeamInCompetition {
@@ -206,6 +208,21 @@ model PlayerInGameLineup {
   gameId            String
 }
 
+model Substitution {
+  id              String  @id @default(cuid())
+  playerIn        Player? @relation("substitutionsIn", fields: [playerInId], references: [id])
+  playerOut       Player? @relation("substitutionsOut", fields: [playerOutId], references: [id])
+  minute          Int
+  extraTimeMinute Int?
+  game            Game    @relation(fields: [gameId], references: [id])
+  // FIXME: to awoid unnecesarry calculations
+  isHomeTeam      Boolean
+
+  playerInId  String
+  playerOutId String
+  gameId      String
+}
+
 model Game {
   id                                        String               @id @default(cuid())
   competition                               Competition          @relation(fields: [competitionId], references: [id])
@@ -237,6 +254,7 @@ model Game {
   players                                   PlayerInGameLineup[]
   homeTeamLineup                            Json
   awayTeamLineup                            Json
+  substitutions                             Substitution[]
 }
 
 model Goal {
@@ -296,6 +314,8 @@ model CardAwarded {
   gameId          String
   minute          Int
   extraTimeMinute Int?
+  // FIXME: to awoid unnecesarry calculations
+  isHomeTeam      Boolean
 }
 
 enum Halftime {

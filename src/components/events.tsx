@@ -469,15 +469,81 @@ export const AddCardEvent = (props: {
   );
 };
 
+export type SubstitutionEvent = {
+  playerInId: string;
+  playerInName: string;
+  playerOutId: string;
+  playerOutName: string;
+  minute: number;
+  extraTimeMinute: number | undefined;
+  isHomeTeam: boolean;
+};
+
+const defaultSubstitutionEvent = (): SubstitutionEvent => ({
+  playerInId: "",
+  playerInName: "",
+  playerOutId: "",
+  playerOutName: "",
+  minute: 0,
+  extraTimeMinute: undefined,
+  isHomeTeam: true,
+});
+
 export const AddSubstitutionEvent = (props: {
   awayTeamPlayers: Option[];
   homeTeamPlayers: Option[];
 }) => {
   const [isOpen, setIsOpen] = createSignal(false);
 
+  const [substitution, setSubstitution] = createStore<SubstitutionEvent>(
+    defaultSubstitutionEvent()
+  );
+
+  const [isHomeTeam, setIsHomeTeam] = createSignal(true);
+
+  const playersOptions = createMemo(() => {
+    if (isHomeTeam()) {
+      return props.homeTeamPlayers;
+    }
+    return props.awayTeamPlayers;
+  });
+
+  const isSubInvalid = () => {
+    return (
+      substitution.playerInId === "" ||
+      substitution.playerInId === "" ||
+      substitution.playerOutId === "" ||
+      substitution.playerOutId === "" ||
+      substitution.playerInId === substitution.playerOutId ||
+      substitution.minute <= 0
+    );
+  };
+
+  createEffect(() => {
+    setSubstitution({ isHomeTeam: isHomeTeam() });
+  });
+
+  createEffect(() => {
+    const playerInId = substitution.playerInId;
+    if (playerInId !== "") {
+      const playerInName = playersOptions().find(
+        (p) => p.value === playerInId
+      )?.label;
+      setSubstitution({ playerInName: playerInName ?? "" });
+    }
+
+    const playerOutId = substitution.playerOutId;
+    if (playerOutId !== "") {
+      const playerOutName = playersOptions().find(
+        (p) => p.value === playerOutId
+      )?.label;
+      setSubstitution({ playerOutName: playerOutName ?? "" });
+    }
+  });
+
   const closeModal = () => {
     setIsOpen(false);
-    setGoal(defaultGoal());
+    setSubstitution(defaultSubstitutionEvent());
   };
 
   const cannotOpen = () =>
@@ -545,11 +611,93 @@ export const AddSubstitutionEvent = (props: {
                 </DialogTitle>
                 <div class="mt-2">
                   <div class="flex flex-col text-sm">
-                    <AddGoal
-                      homeTeamPlayers={props.homeTeamPlayers}
-                      awayTeamPlayers={props.awayTeamPlayers}
-                      onClose={closeModal}
-                    />
+                    <div>
+                      <Checkbox
+                        label="Is home team player"
+                        name="isHomeTeamPlayer"
+                        control={{
+                          setValue: setIsHomeTeam,
+                          value: isHomeTeam(),
+                        }}
+                      />
+
+                      <Select
+                        label="Player goes in"
+                        name="playerInId"
+                        control={{
+                          setValue: (val) =>
+                            setSubstitution({ playerInId: val }),
+                          value: substitution.playerInId,
+                        }}
+                        options={playersOptions()}
+                      />
+
+                      <Select
+                        label="Player goes out"
+                        name="playerOutId"
+                        control={{
+                          setValue: (val) =>
+                            setSubstitution({ playerOutId: val }),
+                          value: substitution.playerOutId,
+                        }}
+                        options={playersOptions()}
+                      />
+
+                      <div class="my-4 flex flex-col space-y-2">
+                        <label for="minute">In minute</label>
+                        <input
+                          class="h-12 w-12 text-center invalid:input-error invalid:border"
+                          type="number"
+                          name="minute"
+                          min="1"
+                          max="120"
+                          onChange={(e) =>
+                            setSubstitution({ minute: +e.currentTarget.value })
+                          }
+                          value={substitution.minute}
+                        />
+                        {/* TODO: add invalid text */}
+
+                        <label for="extraTimeMinute">
+                          Awarded in extra time minute
+                        </label>
+                        <input
+                          class="h-12 w-12 text-center invalid:input-error invalid:border"
+                          type="number"
+                          name="extraTimeMinute"
+                          min="1"
+                          max="15"
+                          onChange={(e) =>
+                            setSubstitution({
+                              extraTimeMinute: +e.currentTarget.value,
+                            })
+                          }
+                          value={substitution.extraTimeMinute}
+                        />
+                      </div>
+                      <div class="mt-4">
+                        <button
+                          type="button"
+                          class="btn"
+                          disabled={isSubInvalid()}
+                          onClick={() => {
+                            gameFormGroupControls(
+                              "substitutions",
+                              (currSubs) => {
+                                const newSubs = [
+                                  ...currSubs,
+                                  { ...substitution },
+                                ];
+                                return newSubs;
+                              }
+                            );
+                            closeModal();
+                          }}
+                        >
+                          Save substitution
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </DialogPanel>
