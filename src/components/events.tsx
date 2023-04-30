@@ -16,6 +16,7 @@ import { createStore } from "solid-js/store";
 import { z } from "zod";
 import { type Option, Select, Checkbox } from "~/components/form-helpers";
 import { gameFormGroupControls } from "./game-edit";
+import { CardType } from "@prisma/client";
 
 const goalSchema = z.object({
   isHomeTeamGoal: z.boolean(),
@@ -251,15 +252,66 @@ export const AddGoalEvent = (props: {
   );
 };
 
+export type CardEvent = {
+  playerId: string;
+  minute: number;
+  extraTimeMinute: number | undefined;
+  cardType: CardType;
+  playerLastName: string;
+  isHomeTeam: boolean;
+};
+const defaultCardEvent = (): CardEvent => ({
+  playerId: "",
+  playerLastName: "",
+  minute: 0,
+  extraTimeMinute: undefined,
+  cardType: CardType.YELLOW,
+  isHomeTeam: true,
+});
+
+const cardOptions: Option[] = [
+  { label: "Yellow", value: CardType.YELLOW },
+  { label: "Second yellow", value: CardType.SECOND_YELLOW },
+  { label: "Red", value: CardType.RED },
+];
+
 export const AddCardEvent = (props: {
   awayTeamPlayers: Option[];
   homeTeamPlayers: Option[];
 }) => {
   const [isOpen, setIsOpen] = createSignal(false);
 
+  const [card, setCard] = createStore<CardEvent>(defaultCardEvent());
+
+  const [isHomeTeam, setIsHomeTeam] = createSignal(true);
+
+  const playersOptions = createMemo(() => {
+    if (isHomeTeam()) {
+      return props.homeTeamPlayers;
+    }
+    return props.awayTeamPlayers;
+  });
+
+  const isCardInvalid = () => {
+    return card.playerId === "" || card.minute <= 0;
+  };
+
+  createEffect(() => {
+    setCard({ isHomeTeam: isHomeTeam() });
+  });
+  createEffect(() => {
+    const playerId = card.playerId;
+    if (playerId !== "") {
+      const playerName = playersOptions().find(
+        (p) => p.value === playerId
+      )?.label;
+      setCard({ playerLastName: playerName ?? "" });
+    }
+  });
+
   const closeModal = () => {
     setIsOpen(false);
-    setGoal(defaultGoal());
+    setCard(defaultCardEvent());
   };
 
   const cannotOpen = () =>
@@ -327,11 +379,85 @@ export const AddCardEvent = (props: {
                 </DialogTitle>
                 <div class="mt-2">
                   <div class="flex flex-col text-sm">
-                    <AddGoal
-                      homeTeamPlayers={props.homeTeamPlayers}
-                      awayTeamPlayers={props.awayTeamPlayers}
-                      onClose={closeModal}
-                    />
+                    <div>
+                      <Checkbox
+                        label="Is home team player"
+                        name="isHomeTeamPlayer"
+                        control={{
+                          setValue: setIsHomeTeam,
+                          value: isHomeTeam(),
+                        }}
+                      />
+
+                      <Select
+                        label="Awarded to player"
+                        name="playerId"
+                        control={{
+                          setValue: (val) => setCard({ playerId: val }),
+                          value: card.playerId,
+                        }}
+                        options={playersOptions()}
+                      />
+
+                      <Select
+                        label="Card type"
+                        name="cardType"
+                        control={{
+                          setValue: (val) =>
+                            setCard({ cardType: val as CardType }),
+                          value: card.cardType,
+                        }}
+                        options={cardOptions}
+                      />
+
+                      <div class="my-4 flex flex-col space-y-2">
+                        <label for="minute">Awarded in minute</label>
+                        <input
+                          class="h-12 w-12 text-center invalid:input-error invalid:border"
+                          type="number"
+                          name="minute"
+                          min="1"
+                          max="120"
+                          onChange={(e) =>
+                            setCard({ minute: +e.currentTarget.value })
+                          }
+                          value={card.minute}
+                        />
+                        {/* TODO: add invalid text */}
+
+                        <label for="extraTimeMinute">
+                          Awarded in extra time minute
+                        </label>
+                        <input
+                          class="h-12 w-12 text-center invalid:input-error invalid:border"
+                          type="number"
+                          name="extraTimeMinute"
+                          min="1"
+                          max="15"
+                          onChange={(e) =>
+                            setCard({ extraTimeMinute: +e.currentTarget.value })
+                          }
+                          value={card.extraTimeMinute}
+                        />
+                      </div>
+                      <div class="mt-4">
+                        <button
+                          type="button"
+                          class="btn"
+                          disabled={isCardInvalid()}
+                          onClick={() => {
+                            console.log("zatvaramo");
+                            gameFormGroupControls("cards", (currCards) => {
+                              const newCards = [...currCards, { ...card }];
+                              return newCards;
+                            });
+                            closeModal();
+                          }}
+                        >
+                          Save card
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </DialogPanel>

@@ -11,6 +11,7 @@ import {
   AddCardEvent,
   AddGoalEvent,
   AddSubstitutionEvent,
+  CardEvent,
   Goal,
 } from "./events";
 import GameDetail from "./game-detail";
@@ -52,6 +53,7 @@ type GameForm = {
   homeTeamFormation: Formation;
   awayTeamFormation: Formation;
   goals: Goal[];
+  cards: CardEvent[];
 };
 export const [gameFormGroup, gameFormGroupControls] = createStore<GameForm>({
   competition: "",
@@ -69,6 +71,7 @@ export const [gameFormGroup, gameFormGroupControls] = createStore<GameForm>({
   homeTeamFormation: "442",
   awayTeamFormation: "433",
   goals: [],
+  cards: [],
 });
 
 const noDuplicatePlayers = (players: PlayerInTeamLineup[]) => {
@@ -155,10 +158,15 @@ const GoalsDisplay = () => {
     <Suspense fallback="Loading player data">
       <GameDetail
         goals={goals()}
-        cards={[]}
+        cards={gameFormGroup.cards}
+        onRemoveCard={(index) => {
+          gameFormGroupControls("cards", (crds) =>
+            [...crds].filter((_, i) => i !== index)
+          );
+        }}
         onRemoveGoal={(index) => {
           gameFormGroupControls("goals", (gls) =>
-            [...gls].filter((g, i) => i !== index)
+            [...gls].filter((_, i) => i !== index)
           );
         }}
       />
