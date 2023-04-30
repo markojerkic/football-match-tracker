@@ -3,7 +3,7 @@ import { createServerData$ } from "solid-start/server";
 import { GameDetailWrapper } from "~/components/games";
 import { prisma } from "~/util/prisma";
 import { Show, Suspense } from "solid-js";
-import { stat } from "fs";
+import { Statistic } from "~/components/statistic";
 
 export const routeData = ({ params }: RouteDataArgs) => {
   return createServerData$(
@@ -15,47 +15,6 @@ export const routeData = ({ params }: RouteDataArgs) => {
       });
     },
     { key: () => ["game-statistics", params.id] }
-  );
-};
-
-const Statistic = (statistic: {
-  label: string;
-  homeTeam: number;
-  awayTeam: number;
-  unit?: string;
-}) => {
-  const total = () => statistic.homeTeam + statistic.awayTeam;
-  const homeTeamPercentage = () => (statistic.homeTeam / total()) * 100;
-  const awayTeamPercentage = () => (statistic.awayTeam / total()) * 100;
-
-  return (
-    <Show when={statistic.awayTeam !== -1 && statistic.homeTeam !== -1}>
-      <div class="flex w-full flex-col">
-        <p class="w-full text-center font-bold">{statistic.label}</p>
-        <p class="flex w-full justify-between font-semibold">
-          <span>
-            {statistic.homeTeam}
-            {statistic.unit}
-          </span>
-          <span>
-            {statistic.awayTeam}
-            {statistic.unit}
-          </span>
-        </p>
-        <p class="flex justify-center">
-          <progress
-            class="progress mr-[-2.5px] w-[40%] rotate-180"
-            value={homeTeamPercentage()}
-            max="100"
-          />
-          <progress
-            class="progress ml-[-2.5px] w-[40%]"
-            value={awayTeamPercentage()}
-            max="100"
-          />
-        </p>
-      </div>
-    </Show>
   );
 };
 

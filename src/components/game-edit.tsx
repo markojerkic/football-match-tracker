@@ -1,5 +1,5 @@
 // @refresh reload
-import { Resource, Show, Suspense, createMemo } from "solid-js";
+import { Resource, Show, Suspense, createEffect, createMemo } from "solid-js";
 import { createServerAction$, createServerData$ } from "solid-start/server";
 import { getPlayersInTeamAndSeason } from "~/server/players";
 import { prisma } from "~/util/prisma";
@@ -17,6 +17,7 @@ import {
 } from "./events";
 import GameDetail from "./game-detail";
 import { GoalsInGame } from "~/server/games";
+import { StatisticEditor, StatisticsForm, defaultStatisticsFrom } from "./statistic";
 
 const ColorPicker = (props: {
   control: (c: string) => void;
@@ -45,6 +46,7 @@ type GameForm = {
   awayTeam: string;
   kickoffTime: string;
   isGameOver: boolean;
+  hasGameStarted: boolean;
   homeTeamShirtsColor: string;
   awayTeamShirtsColor: string;
   homeTeamGoalkeeperShirtsColor: string;
@@ -64,6 +66,7 @@ export const [gameFormGroup, gameFormGroupControls] = createStore<GameForm>({
   awayTeam: "",
   kickoffTime: "",
   isGameOver: true,
+  hasGameStarted: true,
   homeTeamShirtsColor: "#FF5733",
   awayTeamShirtsColor: "#3386FF",
   homeTeamGoalkeeperShirtsColor: "#581845",
@@ -184,6 +187,7 @@ const GoalsDisplay = () => {
 };
 
 type GetElementType<T extends any[]> = T extends (infer U)[] ? U : never;
+
 export default (props: { competitions: Option[] }) => {
   const [enrolling, { Form }] = createServerAction$(
     async (formData: FormData) => {
@@ -191,6 +195,14 @@ export default (props: { competitions: Option[] }) => {
       console.log(data);
     }
   );
+
+  const [statistics, setStatistics] = createStore<StatisticsForm>(defaultStatisticsFrom());
+
+  createEffect(() => {
+    if (!gameFormGroup.hasGameStarted) {
+      setStatistics(defaultStatisticsFrom());
+    }
+  });
 
   const seasons = createServerData$(
     async ([, competition]) => {
@@ -371,6 +383,15 @@ export default (props: { competitions: Option[] }) => {
         }}
       />
 
+      <Checkbox
+        label="Game has started"
+        name="hasGameStarted"
+        control={{
+          setValue: (val) => gameFormGroupControls({ hasGameStarted: val }),
+          value: gameFormGroup.hasGameStarted,
+        }}
+      />
+
       <pre>{JSON.stringify(gameFormGroup, null, 2)}</pre>
       <div class="flex justify-start">
         <Suspense>
@@ -471,13 +492,18 @@ export default (props: { competitions: Option[] }) => {
         />
       </div>
 
-      {/* Statistics */}
-      <div class="divider" />
-      <pre class="text-xl font-bold">Statistics</pre>
-
       <Suspense fallback="Loading player data">
         <GoalsDisplay />
       </Suspense>
+
+      {/* Statistics */}
+      <Show when={gameFormGroup.hasGameStarted}>
+        <div class="divider" />
+        <pre class="text-xl font-bold">Statistics</pre>
+
+        <StatisticEditor value={statistics} control={setStatistics} />
+      </Show>
+
 
       <button
         class="btn group-invalid:btn-disabled"
