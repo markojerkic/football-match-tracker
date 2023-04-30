@@ -471,6 +471,10 @@ export default (props: { competitions: Option[] }) => {
         />
       </div>
 
+      {/* Statistics */}
+      <div class="divider" />
+      <pre class="text-xl font-bold">Statistics</pre>
+
       <Suspense fallback="Loading player data">
         <GoalsDisplay />
       </Suspense>

@@ -237,7 +237,8 @@ model Game {
   kickoffTime                               DateTime
   firstHalfEndedAferAdditionalTime          Int
   secondHalfEndedAferAdditionalTime         Int
-  isOver                                    Boolean
+  isOver                                    Boolean              @default(false)
+  hasStarted                                Boolean              @default(false)
   goals                                     Goal[]
   hasExtraTime                              Boolean
   firstExtendedHalfEndedAferAdditionalTime  Int?
