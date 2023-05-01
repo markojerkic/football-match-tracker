@@ -1,4 +1,3 @@
-import { Player } from "@prisma/client";
 import { GameForm } from "~/components/game-edit";
 import { prisma } from "~/util/prisma";
 import { PlayerInTeamLineup } from "./lineups";
@@ -264,8 +263,7 @@ export const getGameFormData = async (
         season: game.seasonId,
         homeTeam: game.homeTeamId,
         awayTeam: game.awayTeamId,
-        isGameOver: game.isOver,
-        hasGameStarted: game.hasStarted,
+        status: game.status,
         homeTeamShirtsColor: game.homeTeamShirtColor,
         awayTeamShirtsColor: game.awayTeamShirtColor,
         homeTeamGoalkeeperShirtsColor: game.homeTeamGoalkeeperShirtColor,

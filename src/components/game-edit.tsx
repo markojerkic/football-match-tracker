@@ -21,6 +21,7 @@ import {
   StatisticsForm,
   defaultStatisticsFrom,
 } from "./statistic";
+import { GameStatus } from "@prisma/client";
 
 const ColorPicker = (props: {
   control: (c: string) => void;
@@ -48,8 +49,7 @@ export type GameForm = {
   homeTeam: string;
   awayTeam: string;
   kickoffTime: string;
-  isGameOver: boolean;
-  hasGameStarted: boolean;
+  status: string;
   homeTeamShirtsColor: string;
   awayTeamShirtsColor: string;
   homeTeamGoalkeeperShirtsColor: string;
@@ -68,8 +68,7 @@ export const [gameFormGroup, gameFormGroupControls] = createStore<GameForm>({
   homeTeam: "",
   awayTeam: "",
   kickoffTime: "",
-  isGameOver: true,
-  hasGameStarted: true,
+  status: "",
   homeTeamShirtsColor: "#FF5733",
   awayTeamShirtsColor: "#3386FF",
   homeTeamGoalkeeperShirtsColor: "#581845",
@@ -192,6 +191,13 @@ const GoalsDisplay = () => {
 
 type GetElementType<T extends any[]> = T extends (infer U)[] ? U : never;
 
+const gameStatusOptions: Option[] = [
+  { label: "Not started", value: "NOT_STARTED" },
+  { label: "Started", value: "STARTED" },
+  { label: "Halftime", value: "HALFTIME" },
+  { label: "Over", value: "OVER" },
+];
+
 export default (props: {
   competitions: Option[];
   gameData?: GameForm;
@@ -211,11 +217,16 @@ export default (props: {
     }
   );
 
+  const [statistics, setStatistics] = createStore<StatisticsForm>(
+    defaultStatisticsFrom()
+  );
+
   createEffect(() => {
     const gameData = props.gameData;
     const stats = props.statisticsData;
 
     if (gameData) {
+      console.log("gd", gameData);
       gameFormGroupControls(gameData);
     }
 
@@ -225,12 +236,8 @@ export default (props: {
     }
   });
 
-  const [statistics, setStatistics] = createStore<StatisticsForm>(
-    defaultStatisticsFrom()
-  );
-
   createEffect(() => {
-    if (!gameFormGroup.hasGameStarted) {
+    if (gameFormGroup.status === GameStatus.NOT_STARTED) {
       setStatistics(defaultStatisticsFrom());
     }
   });
@@ -416,22 +423,15 @@ export default (props: {
         }}
       />
 
-      <Checkbox
-        label="Is game over"
-        name="isGameOver"
+      <Select
+        label="Game status"
+        name="gameStatus"
         control={{
-          setValue: (val) => gameFormGroupControls({ isGameOver: val }),
-          value: gameFormGroup.isGameOver,
+          value: gameFormGroup.status,
+          setValue: (val) =>
+            gameFormGroupControls({ status: val as GameStatus }),
         }}
-      />
-
-      <Checkbox
-        label="Game has started"
-        name="hasGameStarted"
-        control={{
-          setValue: (val) => gameFormGroupControls({ hasGameStarted: val }),
-          value: gameFormGroup.hasGameStarted,
-        }}
+        options={gameStatusOptions}
       />
 
       <pre>
@@ -549,7 +549,7 @@ export default (props: {
       </Suspense>
 
       {/* Statistics */}
-      <Show when={gameFormGroup.hasGameStarted}>
+      <Show when={gameFormGroup.status !== "NOT_STARTED"}>
         <div class="divider" />
         <pre class="text-xl font-bold">Statistics</pre>
 

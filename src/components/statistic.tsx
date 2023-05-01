@@ -96,7 +96,7 @@ const SingleStatisticEditor = (control: {
           class="h-12 w-12 text-center invalid:input-error invalid:border"
           type="number"
           name={`${control.name}HomeTeam`}
-          min={control.homeTeamMin}
+          min={control.homeTeamMin ?? 0}
           max={control.homeTeamMax}
           onChange={(e) => control.updateHomeTeam(+e.currentTarget.value)}
           value={control.valueHomeTeam}
@@ -105,7 +105,7 @@ const SingleStatisticEditor = (control: {
           class="h-12 w-12 text-center invalid:input-error invalid:border"
           type="number"
           name={`${control.name}HomeTeam`}
-          min={control.awayTeamMin}
+          min={control.awayTeamMin ?? 0}
           max={control.awayTeamMax}
           onChange={(e) => control.updateAwayTeam(+e.currentTarget.value)}
           value={control.valueAwayTeam}

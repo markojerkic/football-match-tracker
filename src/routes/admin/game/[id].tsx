@@ -24,6 +24,7 @@ export const routeData = ({ params }: RouteDataArgs<{ id: string }>) => {
       if (game === null) {
         throw new ServerError("Game not found");
       }
+      console.log("gd", game);
       return game;
     },
     { key: () => ["admin-game", params.id], deferStream: true }

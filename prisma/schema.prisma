@@ -237,8 +237,7 @@ model Game {
   kickoffTime                               DateTime
   firstHalfEndedAferAdditionalTime          Int
   secondHalfEndedAferAdditionalTime         Int
-  isOver                                    Boolean              @default(false)
-  hasStarted                                Boolean              @default(false)
+  status                                    GameStatus           @default(OVER)
   goals                                     Goal[]
   hasExtraTime                              Boolean
   firstExtendedHalfEndedAferAdditionalTime  Int?
@@ -361,3 +360,9 @@ enum CompetitionType {
   TOURNAMENT
 }
 
+enum GameStatus {
+  NOT_STARTED
+  STARTED
+  HALFTIME
+  OVER
+}

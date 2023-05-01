@@ -1,6 +1,6 @@
 import {
   CompetitionType,
-  Halftime,
+  GameStatus,
   Position,
   PrismaClient,
 } from "@prisma/client";
@@ -761,19 +761,17 @@ const generateRandomGoals = async ({
       extraMinute = +timing.split("'")[1];
     }
 
-    const halftime = minute <= 45 ? Halftime.FIRST_HALF : Halftime.SECOND_HALF;
+    // const halftime = minute <= 45 ? Halftime.FIRST_HALF : Halftime.SECOND_HALF;
 
     const createdGoal = await prisma.goal.create({
       data: {
         isOwnGoal: false,
         scorerId: player.playerId,
         isPenalty: Math.floor(Math.random() * 2) === 1,
-        isPenaltyInShootout: false,
         scoredInMinute: minute,
         ...(isInExtratime && extraMinute
           ? { scoredInExtraMinute: extraMinute }
           : {}),
-        scoredInHalftime: halftime,
         gameId,
         isHomeTeamGoal,
       },
@@ -1103,7 +1101,8 @@ const addGames = async ({
         secondHalfEndedAferAdditionalTime: 0,
         hasExtraTime: false,
 
-        isOver: game.status === "complete",
+        status:
+          game.status === "complete" ? GameStatus.OVER : GameStatus.STARTED,
         hasPenaltyShootout: false,
 
         homeTeamShirtColor: homeTeam.primaryShirtColor,
