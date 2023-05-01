@@ -210,7 +210,7 @@ export default (props: {
     console.log("statistics", statistics);
 
     const gameId = await updateOrSaveGame(game, statistics);
-    return redirect(`/game/${gameId}/lineup`);
+    return redirect(`/game/${gameId}/goals`);
   });
 
   const [statistics, setStatistics] = createStore<StatisticsForm>(

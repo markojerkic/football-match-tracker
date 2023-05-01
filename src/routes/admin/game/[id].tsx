@@ -1,6 +1,6 @@
 // @refresh reload
 import { ErrorBoundary, Resource, Show, createEffect } from "solid-js";
-import { ErrorMessage, RouteDataArgs, useRouteData } from "solid-start";
+import { ErrorMessage, RouteDataArgs, Title, useRouteData } from "solid-start";
 import {
   HttpStatusCode,
   ServerError,
@@ -50,23 +50,26 @@ export default () => {
   const nonEmptyCompetitions = () => data.competitions() ?? [];
 
   return (
-    <ErrorBoundary
-      fallback={(e) => (
-        <Show when={e.message}>
-          <HttpStatusCode code={404} />
-          <ErrorMessage error={e} />
-        </Show>
-      )}
-    >
-      <Show when={data.gameData()} keyed>
-        {(gameData) => (
-          <GameEdit
-            competitions={nonEmptyCompetitions()}
-            gameData={gameData}
-            statisticsData={data.statistics()}
-          />
+    <>
+      <Title>Edit game</Title>
+      <ErrorBoundary
+        fallback={(e) => (
+          <Show when={e.message}>
+            <HttpStatusCode code={404} />
+            <ErrorMessage error={e} />
+          </Show>
         )}
-      </Show>
-    </ErrorBoundary>
+      >
+        <Show when={data.gameData()} keyed>
+          {(gameData) => (
+            <GameEdit
+              competitions={nonEmptyCompetitions()}
+              gameData={gameData}
+              statisticsData={data.statistics()}
+            />
+          )}
+        </Show>
+      </ErrorBoundary>
+    </>
   );
 };
