@@ -7,11 +7,13 @@ import {
   TransitionChild,
 } from "solid-headless";
 import { type Option, Select } from "~/components/form-helpers";
-import { Show, createEffect, createMemo, createSignal } from "solid-js";
+import { Show, createEffect, createSignal } from "solid-js";
 import { For, JSXElement } from "solid-js";
 import { A } from "solid-start";
-import { Lineups, PlayerInLineup, PlayerInTeamLineup } from "~/server/lineups";
+import { Lineups } from "~/server/lineups";
 import { gameFormGroup, gameFormGroupControls } from "./game-edit";
+import { PlayerInLineup } from "~/util/lineups-mapper";
+import { create } from "domain";
 
 const Divider = () => {
   return <span class="w-full border-t border-black" />;
@@ -130,7 +132,7 @@ const FieldGrassLine = (props: { isEvenRow: boolean }) => {
   );
 };
 
-const HalfFieldGrassPattern = (props: { isHomeTeam: boolean }) => (
+const HalfFieldGrassPattern = () => (
   <div class="flex h-full flex-col">
     <FieldGrassLine isEvenRow={true} />
     <FieldGrassLine isEvenRow={false} />
@@ -150,7 +152,7 @@ const AbstractFieldWrapper = (props: {
   return (
     <div class="mx-auto flex aspect-[10/20] w-full min-w-[50%] flex-col justify-around border border-black bg-green-400 md:w-fit lg:h-full lg:max-h-screen">
       <div class="h-[50%]">
-        <HalfFieldGrassPattern isHomeTeam />
+        <HalfFieldGrassPattern />
 
         <div class="mt-[-100%] h-full py-2">{props.sideA}</div>
       </div>
@@ -158,7 +160,7 @@ const AbstractFieldWrapper = (props: {
       <Divider />
 
       <div class="h-[50%]">
-        <HalfFieldGrassPattern isHomeTeam={false} />
+        <HalfFieldGrassPattern />
 
         <div class="mt-[-100%] h-full py-2">{props.sideB}</div>
       </div>
@@ -208,57 +210,56 @@ const PlusIcon = () => (
   </svg>
 );
 
-const IEditablePlayerRepresentation = (info: { shirtColor: string }) => {
-  const [selectedPlayer, setSelectedPlayer] = createSignal<{
-    shirtNumber: number;
-    name: string;
-    id: string;
-  }>();
+// const IEditablePlayerRepresentation = (info: { shirtColor: string }) => {
+//   const [selectedPlayer, setSelectedPlayer] = createSignal<{
+//     shirtNumber: number;
+//     name: string;
+//     id: string;
+//   }>();
+//
+//   const isNumberTwoDigit = () =>
+//     (selectedPlayer()?.shirtNumber.toString().length ?? 0) > 1;
+//
+//   return (
+//     <>
+//       <div class="hover:z-1 group flex flex-col items-center justify-start p-2 hover:scale-125 hover:rounded-md hover:bg-green-700 md:max-w-md">
+//         <span class="relative mx-auto flex flex-col justify-center">
+//           <Shirt shirtColor={info.shirtColor} />
+//           <span
+//             classList={{
+//               "absolute top-[50%] translate-x-[-50%] translate-y-[-50%] text-center text-white":
+//                 true,
+//               "left-[47%]": isNumberTwoDigit(),
+//               "left-[50%]": !isNumberTwoDigit(),
+//             }}
+//           >
+//             <Show when={selectedPlayer()} fallback={<PlusIcon />}>
+//               {selectedPlayer()?.shirtNumber}
+//             </Show>
+//           </span>
+//         </span>
+//         <span class="absolute translate-y-[175%] text-center text-sm text-white group-hover:relative group-hover:translate-y-0">
+//           <Show when={selectedPlayer()}>{selectedPlayer()?.name}</Show>
+//         </span>
+//       </div>
+//     </>
+//   );
+// };
 
-  const isNumberTwoDigit = () =>
-    (selectedPlayer()?.shirtNumber.toString().length ?? 0) > 1;
-
-  return (
-    <>
-      <div class="hover:z-1 group flex flex-col items-center justify-start p-2 hover:scale-125 hover:rounded-md hover:bg-green-700 md:max-w-md">
-        <span class="relative mx-auto flex flex-col justify-center">
-          <Shirt shirtColor={info.shirtColor} />
-          <span
-            classList={{
-              "absolute top-[50%] translate-x-[-50%] translate-y-[-50%] text-center text-white":
-                true,
-              "left-[47%]": isNumberTwoDigit(),
-              "left-[50%]": !isNumberTwoDigit(),
-            }}
-          >
-            <Show when={selectedPlayer()} fallback={<PlusIcon />}>
-              {selectedPlayer()?.shirtNumber}
-            </Show>
-          </span>
-        </span>
-        <span class="absolute translate-y-[175%] text-center text-sm text-white group-hover:relative group-hover:translate-y-0">
-          <Show when={selectedPlayer()}>{selectedPlayer()?.name}</Show>
-        </span>
-      </div>
-    </>
+const findInitialPlayer = (
+  lineup: SelectedLineup[],
+  row: number,
+  column: number
+) => {
+  const player = lineup.find(
+    (p) => p.lineupRow === row && p.lineupColumn === column
   );
+  console.log("finding player", row, column);
+  console.log(lineup);
+  console.log(player);
+  console.warn("---");
+  return player;
 };
-
-function classNames(...classes: (string | boolean | undefined)[]): string {
-  return classes.filter(Boolean).join(" ");
-}
-
-const BUTTON = classNames(
-  "rounded-md px-4 py-2 text-sm font-medium transition duration-150",
-  "focus:outline-none focus-visible:ring focus-visible:ring-opacity-75",
-  "focus-visible:ring-gray-900",
-  "dark:focus-visible:ring-gray-50",
-  "border-2 border-gray-900 dark:border-gray-50",
-  // Background
-  "bg-gray-900 hover:bg-gray-700 active:bg-gray-800",
-  // Foreground
-  "text-gray-50 hover:text-gray-200 active:text-gray-100"
-);
 
 export const EditablePlayerRepresentation = (info: {
   shirtColor: string;
@@ -266,6 +267,7 @@ export const EditablePlayerRepresentation = (info: {
   rowNumber: number;
   colNumber: number;
   isHomeTeamPlayer: boolean;
+  lineup: SelectedLineup[];
 }) => {
   const [isOpen, setIsOpen] = createSignal(false);
 
@@ -284,6 +286,16 @@ export const EditablePlayerRepresentation = (info: {
 
   const [shirtNumber, setShirtNumber] = createSignal<number>(0);
   const [selectedPlayer, setSelectedPlayer] = createSignal<string | null>();
+
+  createEffect(() => {
+    const player = findInitialPlayer(
+      info.lineup,
+      info.rowNumber,
+      info.colNumber
+    );
+    setShirtNumber(player?.shirtNumber ?? 0);
+    setSelectedPlayer(player?.playerId ?? null);
+  });
 
   const updateForm = () => {
     let player = selectedPlayer();
@@ -429,24 +441,13 @@ export const EditablePlayerRepresentation = (info: {
   );
 };
 
-const SelectPlayerDialog = (props: { isOpen: boolean }) => {
-  return (
-    <Transition appear show={props.isOpen}>
-      <Dialog isOpen={props.isOpen}>
-        <DialogPanel>
-          <DialogTitle>Select a player</DialogTitle>
-        </DialogPanel>
-      </Dialog>
-    </Transition>
-  );
-};
-
 const EditablePlayerRow = (props: {
   players: number;
   choice: Option[];
   shirtColor: string;
   rowNumber: number;
   isHomeTeam: boolean;
+  lineup: SelectedLineup[];
 }) => {
   const players = Array(props.players).fill(undefined);
 
@@ -460,6 +461,7 @@ const EditablePlayerRow = (props: {
             choice={props.choice}
             rowNumber={props.rowNumber}
             colNumber={index()}
+            lineup={props.lineup}
           />
         )}
       </For>
@@ -473,6 +475,7 @@ const EditableSide = (sideInfo: {
   players: Option[];
   shirtColor: string;
   goalkeeperShirtColor: string;
+  lineup: SelectedLineup[];
 }) => {
   const playerNumInRow = () => {
     const playersInRow = sideInfo.formation.split("").map(Number);
@@ -499,11 +502,19 @@ const EditableSide = (sideInfo: {
                 : sideInfo.shirtColor
             }
             rowNumber={index()}
+            lineup={sideInfo.lineup}
           />
         )}
       </For>
     </div>
   );
+};
+
+type SelectedLineup = {
+  lineupRow: number;
+  playerId: string;
+  lineupColumn: number;
+  shirtNumber: number;
 };
 
 export const EditLieneupWrapper = (props: {
@@ -515,6 +526,8 @@ export const EditLieneupWrapper = (props: {
   awayTeamGoalKeeperShirtsColor: string;
   homeTeamFormation: Formation;
   awayTeamFormation: Formation;
+  homeTeamLineup: SelectedLineup[];
+  awayTeamLineup: SelectedLineup[];
 }) => {
   return (
     <AbstractFieldWrapper
@@ -524,6 +537,7 @@ export const EditLieneupWrapper = (props: {
           goalkeeperShirtColor={props.homeTeamGoalKeeperShirtsColor}
           formation={props.homeTeamFormation}
           players={props.homeTeamPlayers}
+          lineup={props.homeTeamLineup}
           isHomeTeam
         />
       }
@@ -533,6 +547,7 @@ export const EditLieneupWrapper = (props: {
           goalkeeperShirtColor={props.awayTeamGoalKeeperShirtsColor}
           formation={props.awayTeamFormation}
           players={props.awayTeamPlayers}
+          lineup={props.awayTeamLineup}
           isHomeTeam={false}
         />
       }

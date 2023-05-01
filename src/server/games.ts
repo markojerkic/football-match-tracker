@@ -2,6 +2,10 @@ import { GameForm } from "~/components/game-edit";
 import { prisma } from "~/util/prisma";
 import { PlayerInTeamLineup } from "./lineups";
 import { CardEvent, Goal, SubstitutionEvent } from "~/components/events";
+import { Formation } from "~/components/lineup";
+import { StatisticsForm } from "~/components/statistic";
+import { CardAwarded, GameStatus } from "@prisma/client";
+import { ServerError } from "solid-start";
 
 export const getGames = async (selectedDate: string | undefined) => {
   const date = selectedDate !== undefined ? new Date(selectedDate) : undefined;
@@ -111,6 +115,27 @@ export const getGameDataById = async (id: string) => {
 };
 
 export type GameDataById = Awaited<ReturnType<typeof getGameDataById>>;
+
+const getFormationFromDbObject = (
+  formation: PlayerInTeamLineup[]
+): Formation => {
+  const maxPerRow = new Map<number, number>();
+  for (let player of formation) {
+    const currMax = maxPerRow.get(player.lineupRow);
+    if (currMax === undefined || player.lineupColumn + 1 > currMax) {
+      maxPerRow.set(player.lineupRow, player.lineupColumn + 1);
+    }
+  }
+
+  const first = maxPerRow.get(1);
+  const second = maxPerRow.get(2);
+  const third = maxPerRow.get(3);
+  const fourth = maxPerRow.get(4);
+
+  const calculatedFormation = `${first}${second}${third}${fourth ?? ""}`;
+
+  return calculatedFormation as Formation;
+};
 
 export const getGameGoalsById = async (gameId: string) => {
   return await prisma.goal.findMany({
@@ -257,6 +282,7 @@ export const getGameFormData = async (
       );
 
       return {
+        id: game.id,
         // FIXME: check if right formating
         kickoffTime: game.kickoffTime.toJSON(),
         competition: game.competitionId,
@@ -270,8 +296,12 @@ export const getGameFormData = async (
         awayTeamGoalkeeperShirtsColor: game.awayTeamGoalkeeperShirtColor,
         homeTeamLineup: game.homeTeamLineup as PlayerInTeamLineup[],
         awayTeamLineup: game.awayTeamLineup as PlayerInTeamLineup[],
-        homeTeamFormation: "442",
-        awayTeamFormation: "442",
+        homeTeamFormation: getFormationFromDbObject(
+          game.homeTeamLineup as PlayerInTeamLineup[]
+        ),
+        awayTeamFormation: getFormationFromDbObject(
+          game.awayTeamLineup as PlayerInTeamLineup[]
+        ),
         goals,
         cards,
         substitutions,
@@ -279,4 +309,182 @@ export const getGameFormData = async (
     });
 
   return game;
+};
+
+export const updateOrSaveGame = async (
+  game: GameForm,
+  statistics: StatisticsForm
+) => {
+  let gameId: string | undefined = game.id;
+
+  if (game.id) {
+    const exists = await prisma.game
+      .findUnique({ where: { id: gameId }, select: { id: true } })
+      .then((g) => g !== null);
+
+    if (!exists) {
+      throw new ServerError("Game does not exists");
+    }
+
+    gameId = game.id;
+
+    await Promise.all([
+      prisma.goal.deleteMany({ where: { gameId } }),
+      prisma.cardAwarded.deleteMany({ where: { gameId } }),
+      prisma.substitution.deleteMany({ where: { gameId } }),
+      prisma.gameStatistics.delete({ where: { gameId } }),
+    ]);
+
+    await prisma.game.update({
+      where: {
+        id: game.id,
+      },
+
+      // FIXME: extract to new object
+      data: {
+        competitionId: game.competition,
+        homeTeamId: game.homeTeam,
+        awayTeamId: game.awayTeam,
+        kickoffTime: game.kickoffTime,
+
+        firstHalfEndedAferAdditionalTime: 0,
+        secondHalfEndedAferAdditionalTime: 0,
+        status: game.status as GameStatus,
+
+        seasonId: game.season,
+        homeTeamShirtColor: game.homeTeamShirtsColor,
+        homeTeamGoalkeeperShirtColor: game.homeTeamGoalkeeperShirtsColor,
+        awayTeamShirtColor: game.awayTeamShirtsColor,
+        awayTeamGoalkeeperShirtColor: game.awayTeamGoalkeeperShirtsColor,
+
+        homeTeamLineup: game.homeTeamLineup,
+        awayTeamLineup: game.awayTeamLineup,
+
+        goals: {
+          createMany: {
+            data: game.goals,
+          },
+        },
+
+        cardsAwarded: {
+          createMany: {
+            data: game.cards,
+          },
+        },
+
+        substitutions: {
+          createMany: {
+            data: game.substitutions,
+          },
+        },
+
+        statistics: {
+          create: {
+            homeTeamBallPossession: statistics.homeTeamBallPossession,
+            homeTeamTotalShots: statistics.homeTeamTotalShots,
+            homeTeamShotsOnTarget: statistics.homeTeamShotsOnTarget,
+            homeTeamCornerKicks: statistics.homeTeamCornerKicks,
+            homeTeamOffsides: statistics.homeTeamOffsides,
+            homeTeamFouls: statistics.homeTeamFouls,
+            homeTeamBigChances: statistics.homeTeamBigChances,
+            homeTeamPasses: statistics.homeTeamPasses,
+            homeTeamCrosses: statistics.homeTeamCrosses,
+            homeTeamTackles: statistics.homeTeamTackles,
+            homeTeamDribles: statistics.homeTeamDribles,
+            homeTeamDriblesSucessful: statistics.homeTeamDriblesSucessful,
+            awayTeamBallPossession: statistics.awayTeamBallPossession,
+            awayTeamTotalShots: statistics.awayTeamTotalShots,
+            awayTeamShotsOnTarget: statistics.awayTeamShotsOnTarget,
+            awayTeamCornerKicks: statistics.awayTeamCornerKicks,
+            awayTeamOffsides: statistics.awayTeamOffsides,
+            awayTeamFouls: statistics.awayTeamFouls,
+            awayTeamBigChances: statistics.awayTeamBigChances,
+            awayTeamPasses: statistics.awayTeamPasses,
+            awayTeamCrosses: statistics.awayTeamCrosses,
+            awayTeamTackles: statistics.awayTeamTackles,
+            awayTeamDribles: statistics.awayTeamDribles,
+            awayTeamDriblesSucessful: statistics.awayTeamDriblesSucessful,
+          },
+        },
+      },
+    });
+  } else {
+    gameId = await prisma.game
+      .create({
+        data: {
+          competitionId: game.competition,
+          homeTeamId: game.homeTeam,
+          awayTeamId: game.awayTeam,
+          kickoffTime: game.kickoffTime,
+
+          // FIXME: read
+          firstHalfEndedAferAdditionalTime: 0,
+          secondHalfEndedAferAdditionalTime: 0,
+          status: game.status as GameStatus,
+
+          seasonId: game.season,
+          homeTeamShirtColor: game.homeTeamShirtsColor,
+          homeTeamGoalkeeperShirtColor: game.homeTeamGoalkeeperShirtsColor,
+          awayTeamShirtColor: game.awayTeamShirtsColor,
+          awayTeamGoalkeeperShirtColor: game.awayTeamGoalkeeperShirtsColor,
+
+          homeTeamLineup: game.homeTeamLineup,
+          awayTeamLineup: game.awayTeamLineup,
+
+          goals: {
+            createMany: {
+              data: game.goals,
+            },
+          },
+
+          cardsAwarded: {
+            createMany: {
+              data: game.cards,
+            },
+          },
+
+          substitutions: {
+            createMany: {
+              data: game.substitutions,
+            },
+          },
+
+          statistics: {
+            create: {
+              homeTeamBallPossession: statistics.homeTeamBallPossession,
+              homeTeamTotalShots: statistics.homeTeamTotalShots,
+              homeTeamShotsOnTarget: statistics.homeTeamShotsOnTarget,
+              homeTeamCornerKicks: statistics.homeTeamCornerKicks,
+              homeTeamOffsides: statistics.homeTeamOffsides,
+              homeTeamFouls: statistics.homeTeamFouls,
+              homeTeamBigChances: statistics.homeTeamBigChances,
+              homeTeamPasses: statistics.homeTeamPasses,
+              homeTeamCrosses: statistics.homeTeamCrosses,
+              homeTeamTackles: statistics.homeTeamTackles,
+              homeTeamDribles: statistics.homeTeamDribles,
+              homeTeamDriblesSucessful: statistics.homeTeamDriblesSucessful,
+              awayTeamBallPossession: statistics.awayTeamBallPossession,
+              awayTeamTotalShots: statistics.awayTeamTotalShots,
+              awayTeamShotsOnTarget: statistics.awayTeamShotsOnTarget,
+              awayTeamCornerKicks: statistics.awayTeamCornerKicks,
+              awayTeamOffsides: statistics.awayTeamOffsides,
+              awayTeamFouls: statistics.awayTeamFouls,
+              awayTeamBigChances: statistics.awayTeamBigChances,
+              awayTeamPasses: statistics.awayTeamPasses,
+              awayTeamCrosses: statistics.awayTeamCrosses,
+              awayTeamTackles: statistics.awayTeamTackles,
+              awayTeamDribles: statistics.awayTeamDribles,
+              awayTeamDriblesSucessful: statistics.awayTeamDriblesSucessful,
+            },
+          },
+        },
+      })
+      .then((game) => game.id);
+  }
+
+  if (gameId === undefined) {
+    throw new ServerError("Game does not exists");
+  }
+
+  return gameId;
 };

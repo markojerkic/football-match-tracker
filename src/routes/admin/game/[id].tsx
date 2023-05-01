@@ -1,5 +1,5 @@
 // @refresh reload
-import { ErrorBoundary, Resource, Show } from "solid-js";
+import { ErrorBoundary, Resource, Show, createEffect } from "solid-js";
 import { ErrorMessage, RouteDataArgs, useRouteData } from "solid-start";
 import {
   HttpStatusCode,
@@ -24,7 +24,7 @@ export const routeData = ({ params }: RouteDataArgs<{ id: string }>) => {
       if (game === null) {
         throw new ServerError("Game not found");
       }
-      console.log("gd", game);
+
       return game;
     },
     { key: () => ["admin-game", params.id], deferStream: true }
@@ -52,17 +52,21 @@ export default () => {
   return (
     <ErrorBoundary
       fallback={(e) => (
-        <Show when={e.message === "Game not found"}>
+        <Show when={e.message}>
           <HttpStatusCode code={404} />
           <ErrorMessage error={e} />
         </Show>
       )}
     >
-      <GameEdit
-        competitions={nonEmptyCompetitions()}
-        gameData={data.gameData()}
-        statisticsData={data.statistics()}
-      />
+      <Show when={data.gameData()} keyed>
+        {(gameData) => (
+          <GameEdit
+            competitions={nonEmptyCompetitions()}
+            gameData={gameData}
+            statisticsData={data.statistics()}
+          />
+        )}
+      </Show>
     </ErrorBoundary>
   );
 };

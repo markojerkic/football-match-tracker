@@ -45,8 +45,11 @@ export const Statistic = (statistic: {
   );
 };
 
-export type StatisticsForm = Omit<GameStatistics, "id" | "gameId">;
+export type StatisticsForm = Omit<GameStatistics, "id" | "gameId"> & {
+  id: string | undefined;
+};
 export const defaultStatisticsFrom = (): StatisticsForm => ({
+  id: undefined,
   homeTeamBallPossession: 0,
   homeTeamTotalShots: 0,
   homeTeamShotsOnTarget: 0,

@@ -1,11 +1,14 @@
 import { Resource, Show, Suspense, createEffect, createMemo } from "solid-js";
-import { createServerAction$, createServerData$ } from "solid-start/server";
+import {
+  createServerAction$,
+  createServerData$,
+  redirect,
+} from "solid-start/server";
 import { getPlayersInTeamAndSeason } from "~/server/players";
 import { prisma } from "~/util/prisma";
-import { Select, type Option, Date, Checkbox } from "./form-helpers";
+import { Select, type Option, Date } from "./form-helpers";
 import { createStore } from "solid-js/store";
 import { EditLieneupWrapper, type Formation } from "./lineup";
-import { type PlayerInTeamLineup } from "~/server/lineups";
 import {
   AddCardEvent,
   AddGoalEvent,
@@ -15,13 +18,14 @@ import {
   SubstitutionEvent,
 } from "./events";
 import GameDetail from "./game-detail";
-import { GoalsInGame } from "~/server/games";
+import { GoalsInGame, updateOrSaveGame } from "~/server/games";
 import {
   StatisticEditor,
   StatisticsForm,
   defaultStatisticsFrom,
 } from "./statistic";
 import { GameStatus } from "@prisma/client";
+import { PlayerInTeamLineup } from "~/server/lineups";
 
 const ColorPicker = (props: {
   control: (c: string) => void;
@@ -44,6 +48,7 @@ const ColorPicker = (props: {
 };
 
 export type GameForm = {
+  id: string | undefined;
   competition: string;
   season: string;
   homeTeam: string;
@@ -63,6 +68,7 @@ export type GameForm = {
   substitutions: SubstitutionEvent[];
 };
 export const [gameFormGroup, gameFormGroupControls] = createStore<GameForm>({
+  id: undefined,
   competition: "",
   season: "",
   homeTeam: "",
@@ -83,19 +89,8 @@ export const [gameFormGroup, gameFormGroupControls] = createStore<GameForm>({
 });
 
 const noDuplicatePlayers = (players: PlayerInTeamLineup[]) => {
-  const usedShirtNumbers: number[] = [];
-  const usedIds: string[] = [];
-  for (let player of players) {
-    if (
-      usedIds.includes(player.playerId) ||
-      usedShirtNumbers.includes(player.shirtNumber)
-    ) {
-      return false;
-    }
-    usedIds.push(player.playerId);
-    usedShirtNumbers.push(player.shirtNumber);
-  }
-  return true;
+  const unique = new Set(players.map((p) => p.playerId));
+  return unique.size === players.length;
 };
 
 const formationOptions: Option[] = [
@@ -157,7 +152,7 @@ const GoalsDisplay = () => {
         }
         return goal;
       });
-      console.log("mappedGoals", mappedGoals);
+
       return mappedGoals;
     },
     { key: () => ["goal-info", gameFormGroup.goals] }
@@ -203,19 +198,20 @@ export default (props: {
   gameData?: GameForm;
   statisticsData?: StatisticsForm;
 }) => {
-  const [enrolling, { Form }] = createServerAction$(
-    async (formData: FormData) => {
-      const data = Object.fromEntries(formData.entries());
-      console.log(data);
-      const game = JSON.parse(formData.get("gameStore") as string) as GameForm;
-      const statistics = JSON.parse(
-        formData.get("statisticsStore") as string
-      ) as StatisticsForm;
+  const [, { Form }] = createServerAction$(async (formData: FormData) => {
+    const data = Object.fromEntries(formData.entries());
+    console.log(data);
+    const game = JSON.parse(formData.get("gameStore") as string) as GameForm;
+    const statistics = JSON.parse(
+      formData.get("statisticsStore") as string
+    ) as StatisticsForm;
 
-      console.log("game", game);
-      console.log("statistics", statistics);
-    }
-  );
+    console.log("game", game);
+    console.log("statistics", statistics);
+
+    const gameId = await updateOrSaveGame(game, statistics);
+    return redirect(`/game/${gameId}/lineup`);
+  });
 
   const [statistics, setStatistics] = createStore<StatisticsForm>(
     defaultStatisticsFrom()
@@ -226,18 +222,16 @@ export default (props: {
     const stats = props.statisticsData;
 
     if (gameData) {
-      console.log("gd", gameData);
       gameFormGroupControls(gameData);
     }
 
     if (stats) {
-      console.log(stats);
       setStatistics(stats);
     }
   });
 
   createEffect(() => {
-    if (gameFormGroup.status === GameStatus.NOT_STARTED) {
+    if (gameFormGroup.status === "NOT_STARTED") {
       setStatistics(defaultStatisticsFrom());
     }
   });
@@ -359,7 +353,7 @@ export default (props: {
           value={JSON.stringify(statistics)}
         />
 
-        <Suspense fallback={<p>Čekamo</p>}>
+        <Suspense fallback={<p>Loading...</p>}>
           <Select
             label="Competition"
             name="competition"
@@ -371,7 +365,7 @@ export default (props: {
           />
         </Suspense>
 
-        <Suspense fallback={<p>Čekamo</p>}>
+        <Suspense fallback={<p>Loading...</p>}>
           <Select
             label="Season"
             disabled={gameFormGroup.competition === ""}
@@ -386,7 +380,7 @@ export default (props: {
       </div>
 
       <span class="grid grid-flow-col justify-stretch gap-2">
-        <Suspense fallback={<p>Čekamo</p>}>
+        <Suspense fallback={<p>Loading...</p>}>
           <Select
             label="Home team"
             disabled={gameFormGroup.season === ""}
@@ -442,7 +436,7 @@ export default (props: {
         {noDuplicatePlayers(gameFormGroup.awayTeamLineup) ? "tr" : "falc"}
       </pre>
 
-      <Show when={false && import.meta.env.DEV}>
+      <Show when={import.meta.env.DEV}>
         <pre>{JSON.stringify(gameFormGroup, null, 2)}</pre>
       </Show>
       <div class="flex justify-start">
@@ -461,6 +455,8 @@ export default (props: {
               awayTeamGoalKeeperShirtsColor={
                 gameFormGroup.awayTeamGoalkeeperShirtsColor
               }
+              homeTeamLineup={gameFormGroup.homeTeamLineup}
+              awayTeamLineup={gameFormGroup.awayTeamLineup}
             />
           </Show>
         </Suspense>

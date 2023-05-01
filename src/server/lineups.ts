@@ -1,15 +1,7 @@
 // @refresh reload
 import { z } from "zod";
+import { PlayerInLineup, mapLineup } from "~/util/lineups-mapper";
 import { prisma } from "~/util/prisma";
-
-type TPlayerInGameLineup = {
-  playerId: string;
-  lineupRow: number;
-  lineupColumn: number;
-  shirtNumber: number;
-};
-
-export type PlayerInLineup = TPlayerInGameLineup & { lastName: string };
 
 export const lineupPlayerSchema = z.object({
   playerId: z.string(),
@@ -21,35 +13,6 @@ export const lineupPlayerSchema = z.object({
 const lineupValidator = lineupPlayerSchema.array();
 
 export type PlayerInTeamLineup = z.infer<typeof lineupPlayerSchema>;
-
-const mapLineup = ({
-  playersRaw,
-  lastNames,
-}: {
-  playersRaw: TPlayerInGameLineup[];
-  lastNames: Map<string, string>;
-}) => {
-  const lineup: PlayerInLineup[][] = [];
-
-  for (let player of playersRaw) {
-    const playerLastName = lastNames.get(player.playerId);
-    if (!playerLastName) {
-      throw Error(`Player with id ${player} could not be found`);
-    }
-    const playerInLineup = {
-      ...player,
-      lastName: playerLastName,
-    };
-
-    const row = lineup[player.lineupRow];
-    if (!row) {
-      lineup[player.lineupRow] = [];
-    }
-    lineup[player.lineupRow][player.lineupColumn] = playerInLineup;
-  }
-
-  return lineup;
-};
 
 export const getLineups = async ({ gameId }: { gameId: string }) => {
   const lineup = await prisma.game.findUniqueOrThrow({
