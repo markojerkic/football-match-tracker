@@ -1099,11 +1099,9 @@ const addGames = async ({
         // TODO: prema krajnjojo minuti gola zadnjeg odrediti ako ima dodatnog vremena?
         firstHalfEndedAferAdditionalTime: 0,
         secondHalfEndedAferAdditionalTime: 0,
-        hasExtraTime: false,
 
         status:
           game.status === "complete" ? GameStatus.OVER : GameStatus.STARTED,
-        hasPenaltyShootout: false,
 
         homeTeamShirtColor: homeTeam.primaryShirtColor,
         awayTeamShirtColor: awayTeam.primaryShirtColor,
