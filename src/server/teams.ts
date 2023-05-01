@@ -1,6 +1,9 @@
 import { prisma } from "~/util/prisma";
 
-export const getTeamsInSeasonAndCompetition = async (seasonId: string, competitionId: string) => {
+export const getTeamsInSeasonAndCompetition = async (
+  seasonId: string,
+  competitionId: string
+) => {
   if (!competitionId || !seasonId) {
     return [];
   }
@@ -23,4 +26,4 @@ export const getTeamsInSeasonAndCompetition = async (seasonId: string, competiti
     .then((teams) =>
       teams.map((t) => ({ label: t.team.name, value: t.team.id }))
     );
-}
+};

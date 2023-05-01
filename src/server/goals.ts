@@ -51,4 +51,4 @@ export const getMappedGoals = async (fg: Goal[]) => {
   });
 
   return mappedGoals;
-}
+};

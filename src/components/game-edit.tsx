@@ -196,7 +196,8 @@ export default (props: {
   );
 
   const teams = createServerData$(
-    ([, competitionId, seasonId]) => getTeamsInSeasonAndCompetition(seasonId, competitionId),
+    ([, competitionId, seasonId]) =>
+      getTeamsInSeasonAndCompetition(seasonId, competitionId),
     {
       key: () => [
         "teams-in-season-competition",

@@ -22,4 +22,4 @@ export const getSeasonsFromCompetition = async (competition: string) => {
     .then((seasons) =>
       seasons.map((s) => ({ label: s.season.title, value: s.season.id }))
     );
-}
+};
