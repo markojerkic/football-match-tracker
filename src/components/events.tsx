@@ -16,7 +16,6 @@ import { createStore } from "solid-js/store";
 import { z } from "zod";
 import { type Option, Select, Checkbox } from "~/components/form-helpers";
 import { gameFormGroupControls } from "./game-edit";
-import { CardType } from "@prisma/client";
 
 const goalSchema = z.object({
   id: z.string().optional(),
@@ -258,7 +257,7 @@ export type CardEvent = {
   playerId: string;
   minute: number;
   extraTimeMinute: number | undefined;
-  cardType: CardType;
+  cardType: string;
   playerLastName: string;
   isHomeTeam: boolean;
 };
@@ -267,14 +266,14 @@ const defaultCardEvent = (): CardEvent => ({
   playerLastName: "",
   minute: 0,
   extraTimeMinute: undefined,
-  cardType: CardType.YELLOW,
+  cardType: "YELLOW",
   isHomeTeam: true,
 });
 
 const cardOptions: Option[] = [
-  { label: "Yellow", value: CardType.YELLOW },
-  { label: "Second yellow", value: CardType.SECOND_YELLOW },
-  { label: "Red", value: CardType.RED },
+  { label: "Yellow", value: "YELLOW" },
+  { label: "Second yellow", value: "SECOND_YELLOW" },
+  { label: "Red", value: "RED" },
 ];
 
 export const AddCardEvent = (props: {
@@ -406,7 +405,7 @@ export const AddCardEvent = (props: {
                         name="cardType"
                         control={{
                           setValue: (val) =>
-                            setCard({ cardType: val as CardType }),
+                            setCard({ cardType: val }),
                           value: card.cardType,
                         }}
                         options={cardOptions}
