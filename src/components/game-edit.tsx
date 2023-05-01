@@ -5,7 +5,6 @@ import {
   redirect,
 } from "solid-start/server";
 import { getPlayersInTeamAndSeason } from "~/server/players";
-import { prisma } from "~/util/prisma";
 import { Select, type Option, Date } from "./form-helpers";
 import { createStore } from "solid-js/store";
 import { EditLieneupWrapper, type Formation } from "./lineup";
@@ -26,6 +25,9 @@ import {
 } from "./statistic";
 import { GameStatus } from "@prisma/client";
 import { PlayerInTeamLineup } from "~/server/lineups";
+import { getMappedGoals } from "~/server/goals";
+import { getSeasonsFromCompetition } from "~/server/seasons";
+import { getTeamsInSeasonAndCompetition } from "~/server/teams";
 
 const ColorPicker = (props: {
   control: (c: string) => void;
@@ -105,56 +107,7 @@ const formationOptions: Option[] = [
 
 const GoalsDisplay = () => {
   const goals: Resource<GoalsInGame | undefined> = createServerData$(
-    async ([, fg]) => {
-      const formGoals = fg as Goal[];
-
-      const playerIds = formGoals
-        .map((g) => [g.scorerId, g.assistentId])
-        .flat()
-        .filter((id) => id !== undefined);
-      console.log("playerIds", playerIds);
-      const players = await prisma.player.findMany({
-        where: {
-          id: {
-            in: playerIds as string[],
-          },
-        },
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-        },
-      });
-      console.log("players", players);
-
-      const mappedGoals: GoalsInGame = formGoals.map((g) => {
-        const scorer = players.find((p) => p.id === g.scorerId);
-        const assistent = players.find((p) => p.id === g.assistentId);
-
-        const goal: GetElementType<GoalsInGame> = {
-          isOwnGoal: g.isOwnGoal,
-          isPenalty: g.isPenalty,
-          scoredInMinute: g.scoredInMinute,
-          scoredInExtraMinute: g.scoredInExtraMinute ?? null,
-          scoredBy: {
-            firstName: scorer?.firstName ?? "",
-            lastName: scorer?.lastName ?? "",
-          },
-
-          assistedBy: null,
-          isHomeTeamGoal: g.isHomeTeamGoal,
-        };
-        if (assistent !== undefined) {
-          goal.assistedBy = {
-            firstName: assistent?.firstName ?? "",
-            lastName: assistent?.lastName ?? "",
-          };
-        }
-        return goal;
-      });
-
-      return mappedGoals;
-    },
+    async ([, fg]) => getMappedGoals(fg as Goal[]),
     { key: () => ["goal-info", gameFormGroup.goals] }
   );
 
@@ -183,8 +136,6 @@ const GoalsDisplay = () => {
     </Suspense>
   );
 };
-
-type GetElementType<T extends any[]> = T extends (infer U)[] ? U : never;
 
 const gameStatusOptions: Option[] = [
   { label: "Not started", value: "NOT_STARTED" },
@@ -237,29 +188,7 @@ export default (props: {
   });
 
   const seasons = createServerData$(
-    async ([, competition]) => {
-      if (!competition) {
-        return [];
-      }
-
-      return prisma.competitionInSeason
-        .findMany({
-          where: {
-            competitionId: competition,
-          },
-          select: {
-            season: {
-              select: {
-                id: true,
-                title: true,
-              },
-            },
-          },
-        })
-        .then((seasons) =>
-          seasons.map((s) => ({ label: s.season.title, value: s.season.id }))
-        );
-    },
+    async ([, competition]) => getSeasonsFromCompetition(competition),
     {
       key: () => ["seasons-for-competition", gameFormGroup.competition],
       initialValue: [],
@@ -267,30 +196,7 @@ export default (props: {
   );
 
   const teams = createServerData$(
-    ([, competitionId, seasonId]) => {
-      if (!competitionId || !seasonId) {
-        return [];
-      }
-
-      return prisma.teamInCompetition
-        .findMany({
-          where: {
-            seasonId,
-            competitionId,
-          },
-          select: {
-            team: {
-              select: {
-                id: true,
-                name: true,
-              },
-            },
-          },
-        })
-        .then((teams) =>
-          teams.map((t) => ({ label: t.team.name, value: t.team.id }))
-        );
-    },
+    ([, competitionId, seasonId]) => getTeamsInSeasonAndCompetition(seasonId, competitionId),
     {
       key: () => [
         "teams-in-season-competition",

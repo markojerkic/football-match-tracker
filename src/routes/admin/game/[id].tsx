@@ -1,5 +1,4 @@
-// @refresh reload
-import { ErrorBoundary, Resource, Show, createEffect } from "solid-js";
+import { ErrorBoundary, Resource, Show } from "solid-js";
 import { ErrorMessage, RouteDataArgs, Title, useRouteData } from "solid-start";
 import {
   HttpStatusCode,
