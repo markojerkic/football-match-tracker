@@ -1,4 +1,8 @@
+import { Player } from "@prisma/client";
+import { GameForm } from "~/components/game-edit";
 import { prisma } from "~/util/prisma";
+import { PlayerInTeamLineup } from "./lineups";
+import { CardEvent, Goal, SubstitutionEvent } from "~/components/events";
 
 export const getGames = async (selectedDate: string | undefined) => {
   const date = selectedDate !== undefined ? new Date(selectedDate) : undefined;
@@ -140,3 +144,141 @@ export const getGameGoalsById = async (gameId: string) => {
 };
 
 export type GoalsInGame = Awaited<ReturnType<typeof getGameGoalsById>>;
+
+export const getGameFormData = async (
+  gameId: string
+): Promise<GameForm | null> => {
+  const game: GameForm | null = await prisma.game
+    .findUnique({
+      where: {
+        id: gameId,
+      },
+      include: {
+        goals: {
+          select: {
+            id: true,
+            scoredInMinute: true,
+            scoredInExtraMinute: true,
+            isOwnGoal: true,
+            isHomeTeamGoal: true,
+            isPenalty: true,
+            scoredBy: {
+              select: {
+                id: true,
+                lastName: true,
+              },
+            },
+            assistedBy: {
+              select: {
+                id: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+
+        substitutions: {
+          include: {
+            playerIn: {
+              select: {
+                id: true,
+                lastName: true,
+              },
+            },
+            playerOut: {
+              select: {
+                id: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+
+        cardsAwarded: {
+          select: {
+            id: true,
+            cardType: true,
+            isHomeTeam: true,
+            player: {
+              select: {
+                id: true,
+                lastName: true,
+              },
+            },
+            minute: true,
+            extraTimeMinute: true,
+          },
+        },
+      },
+    })
+    .then((game) => {
+      if (game === null) return null;
+
+      if (!game.seasonId) return null;
+
+      const goals: Goal[] = game.goals.map(
+        (g) =>
+          ({
+            id: g.id,
+            isHomeTeamGoal: g.isHomeTeamGoal,
+            scorerId: g.scoredBy.id,
+            isOwnGoal: g.isOwnGoal,
+            isPenalty: g.isPenalty,
+            scoredInMinute: g.scoredInMinute,
+            scoredInExtraMinute: g.scoredInExtraMinute ?? undefined,
+            assistentId: g.assistedBy?.id ?? undefined,
+          } satisfies Goal)
+      );
+
+      const cards: CardEvent[] = game.cardsAwarded.map(
+        (c) =>
+          ({
+            id: c.id,
+            minute: c.minute,
+            extraTimeMinute: c.extraTimeMinute ?? undefined,
+            cardType: c.cardType,
+            playerId: c.player.id,
+            playerLastName: c.player.lastName,
+            isHomeTeam: c.isHomeTeam,
+          } satisfies CardEvent)
+      );
+
+      const substitutions: SubstitutionEvent[] = game.substitutions.map(
+        (sub) =>
+          ({
+            id: sub.id,
+            minute: sub.minute,
+            extraTimeMinute: sub.extraTimeMinute ?? undefined,
+            playerInId: sub.playerInId,
+            playerInName: sub.playerIn?.lastName ?? "",
+            playerOutId: sub.playerOutId,
+            playerOutName: sub.playerOut?.lastName ?? "",
+            isHomeTeam: sub.isHomeTeam,
+          } satisfies SubstitutionEvent)
+      );
+
+      return {
+        // FIXME: check if right formating
+        kickoffTime: game.kickoffTime.toJSON(),
+        competition: game.competitionId,
+        season: game.seasonId,
+        homeTeam: game.homeTeamId,
+        awayTeam: game.awayTeamId,
+        isGameOver: game.isOver,
+        hasGameStarted: game.hasStarted,
+        homeTeamShirtsColor: game.homeTeamShirtColor,
+        awayTeamShirtsColor: game.awayTeamShirtColor,
+        homeTeamGoalkeeperShirtsColor: game.homeTeamGoalkeeperShirtColor,
+        awayTeamGoalkeeperShirtsColor: game.awayTeamGoalkeeperShirtColor,
+        homeTeamLineup: game.homeTeamLineup as PlayerInTeamLineup[],
+        awayTeamLineup: game.awayTeamLineup as PlayerInTeamLineup[],
+        homeTeamFormation: "442",
+        awayTeamFormation: "442",
+        goals,
+        cards,
+        substitutions,
+      } satisfies GameForm;
+    });
+
+  return game;
+};

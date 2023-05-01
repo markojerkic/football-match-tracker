@@ -360,3 +360,4 @@ enum CompetitionType {
   GROUP_STAGE_AND_KNOCKOUTS
   TOURNAMENT
 }
+

@@ -19,6 +19,7 @@ import { gameFormGroupControls } from "./game-edit";
 import { CardType } from "@prisma/client";
 
 const goalSchema = z.object({
+  id: z.string().optional(),
   isHomeTeamGoal: z.boolean(),
   scorerId: z.string(),
   assistentId: z.string().optional(),
@@ -253,6 +254,7 @@ export const AddGoalEvent = (props: {
 };
 
 export type CardEvent = {
+  id?: string;
   playerId: string;
   minute: number;
   extraTimeMinute: number | undefined;
@@ -470,6 +472,7 @@ export const AddCardEvent = (props: {
 };
 
 export type SubstitutionEvent = {
+  id?: string;
   playerInId: string;
   playerInName: string;
   playerOutId: string;

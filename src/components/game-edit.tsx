@@ -42,7 +42,7 @@ const ColorPicker = (props: {
   );
 };
 
-type GameForm = {
+export type GameForm = {
   competition: string;
   season: string;
   homeTeam: string;
@@ -192,7 +192,11 @@ const GoalsDisplay = () => {
 
 type GetElementType<T extends any[]> = T extends (infer U)[] ? U : never;
 
-export default (props: { competitions: Option[] }) => {
+export default (props: {
+  competitions: Option[];
+  gameData?: GameForm;
+  statisticsData?: StatisticsForm;
+}) => {
   const [enrolling, { Form }] = createServerAction$(
     async (formData: FormData) => {
       const data = Object.fromEntries(formData.entries());
@@ -206,6 +210,20 @@ export default (props: { competitions: Option[] }) => {
       console.log("statistics", statistics);
     }
   );
+
+  createEffect(() => {
+    const gameData = props.gameData;
+    const stats = props.statisticsData;
+
+    if (gameData) {
+      gameFormGroupControls(gameData);
+    }
+
+    if (stats) {
+      console.log(stats);
+      setStatistics(stats);
+    }
+  });
 
   const [statistics, setStatistics] = createStore<StatisticsForm>(
     defaultStatisticsFrom()
@@ -394,7 +412,7 @@ export default (props: { competitions: Option[] }) => {
         type="datetime-local"
         control={{
           setValue: (val) => gameFormGroupControls({ kickoffTime: val }),
-          value: gameFormGroup.awayTeam,
+          value: gameFormGroup.kickoffTime.split(".")[0],
         }}
       />
 
