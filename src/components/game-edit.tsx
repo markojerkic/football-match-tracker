@@ -23,7 +23,6 @@ import {
   StatisticsForm,
   defaultStatisticsFrom,
 } from "./statistic";
-import { GameStatus } from "@prisma/client";
 import { PlayerInTeamLineup } from "~/server/lineups";
 import { getMappedGoals } from "~/server/goals";
 import { getSeasonsFromCompetition } from "~/server/seasons";
@@ -330,7 +329,7 @@ export default (props: {
         control={{
           value: gameFormGroup.status,
           setValue: (val) =>
-            gameFormGroupControls({ status: val as GameStatus }),
+            gameFormGroupControls({ status: val }),
         }}
         options={gameStatusOptions}
       />
