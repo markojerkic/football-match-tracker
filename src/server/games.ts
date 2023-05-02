@@ -4,7 +4,7 @@ import { PlayerInTeamLineup } from "./lineups";
 import { CardEvent, Goal, SubstitutionEvent } from "~/components/events";
 import { Formation } from "~/components/lineup";
 import { StatisticsForm } from "~/components/statistic";
-import { GameStatus } from "@prisma/client";
+import { CardType, GameStatus } from "@prisma/client";
 import { ServerError } from "solid-start";
 
 export const getGames = async (selectedDate: string | undefined) => {
@@ -81,7 +81,7 @@ export const getLastId = (lastGamesPage: Game[]) => {
   // let kickoffTime = undefined;
   if (lastGamesPage?.length ?? 0 > 0) {
     lastGameId = lastGamesPage[lastGamesPage.length - 1].id;
-    kickoffTime = lastGamesPage[lastGamesPage.length - 1].kickoffTime;
+    // kickoffTime = lastGamesPage[lastGamesPage.length - 1].kickoffTime;
   }
   return lastGameId;
 };
@@ -290,6 +290,10 @@ export const getGameFormData = async (
         homeTeam: game.homeTeamId,
         awayTeam: game.awayTeamId,
         status: game.status,
+
+        homeTeamManager: game.homeTeamManagerId,
+        awayTeamManager: game.awayTeamManagerId,
+
         homeTeamShirtsColor: game.homeTeamShirtColor,
         awayTeamShirtsColor: game.awayTeamShirtColor,
         homeTeamGoalkeeperShirtsColor: game.homeTeamGoalkeeperShirtColor,
@@ -323,6 +327,9 @@ export const updateOrSaveGame = async (
     awayTeamId: game.awayTeam,
     kickoffTime: game.kickoffTime,
 
+    homeTeamManagerId: game.homeTeamManager,
+    awayTeamManagerId: game.awayTeamManager,
+
     firstHalfEndedAferAdditionalTime: 0,
     secondHalfEndedAferAdditionalTime: 0,
     status: game.status as GameStatus,
@@ -345,7 +352,7 @@ export const updateOrSaveGame = async (
     cardsAwarded: {
       createMany: {
         data: game.cards.map((card) => ({
-          cardType: card.cardType,
+          cardType: card.cardType as CardType,
           playerId: card.playerId,
           minute: card.minute,
           extraTimeMinute: card.extraTimeMinute,

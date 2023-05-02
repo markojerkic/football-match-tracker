@@ -404,8 +404,7 @@ export const AddCardEvent = (props: {
                         label="Card type"
                         name="cardType"
                         control={{
-                          setValue: (val) =>
-                            setCard({ cardType: val }),
+                          setValue: (val) => setCard({ cardType: val }),
                           value: card.cardType,
                         }}
                         options={cardOptions}

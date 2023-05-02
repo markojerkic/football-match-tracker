@@ -27,6 +27,7 @@ import { PlayerInTeamLineup } from "~/server/lineups";
 import { getMappedGoals } from "~/server/goals";
 import { getSeasonsFromCompetition } from "~/server/seasons";
 import { getTeamsInSeasonAndCompetition } from "~/server/teams";
+import { getManagersForTeamInSeason } from "~/server/managers";
 
 const ColorPicker = (props: {
   control: (c: string) => void;
@@ -50,6 +51,8 @@ const ColorPicker = (props: {
 
 export type GameForm = {
   id: string | undefined;
+  homeTeamManager: string;
+  awayTeamManager: string;
   competition: string;
   season: string;
   homeTeam: string;
@@ -70,6 +73,8 @@ export type GameForm = {
 };
 export const [gameFormGroup, gameFormGroupControls] = createStore<GameForm>({
   id: undefined,
+  homeTeamManager: "",
+  awayTeamManager: "",
   competition: "",
   season: "",
   homeTeam: "",
@@ -231,6 +236,30 @@ export default (props: {
     }
   );
 
+  const homeTeamManagers = createServerData$(
+    ([, seasonId, teamId]) => getManagersForTeamInSeason(teamId, seasonId),
+    {
+      key: () => [
+        "managers-in-hometeam",
+        gameFormGroup.season,
+        gameFormGroup.homeTeam,
+      ],
+      initialValue: [],
+    }
+  );
+
+  const awayTeamManagers = createServerData$(
+    ([, seasonId, teamId]) => getManagersForTeamInSeason(teamId, seasonId),
+    {
+      key: () => [
+        "managers-in-awayteam",
+        gameFormGroup.season,
+        gameFormGroup.awayTeam,
+      ],
+      initialValue: [],
+    }
+  );
+
   const isFormValid = createMemo(() => {
     return (
       gameFormGroup.homeTeam !== gameFormGroup.awayTeam &&
@@ -299,7 +328,7 @@ export default (props: {
           />
         </Suspense>
 
-        <Suspense>
+        <Suspense fallback={<p>Loading...</p>}>
           <Select
             label="Away team"
             disabled={gameFormGroup.season === ""}
@@ -309,6 +338,36 @@ export default (props: {
               value: gameFormGroup.awayTeam,
             }}
             options={teams() ?? []}
+          />
+        </Suspense>
+      </span>
+
+      <span class="grid grid-flow-col justify-stretch gap-2">
+        <Suspense fallback={<p>Loading...</p>}>
+          <Select
+            label="Home team manager"
+            disabled={gameFormGroup.homeTeam === ""}
+            name="homeTeamManager"
+            control={{
+              setValue: (val) =>
+                gameFormGroupControls({ homeTeamManager: val }),
+              value: gameFormGroup.homeTeamManager,
+            }}
+            options={homeTeamManagers() ?? []}
+          />
+        </Suspense>
+
+        <Suspense fallback={<p>Loading...</p>}>
+          <Select
+            label="Away team manager"
+            disabled={gameFormGroup.awayTeam === ""}
+            name="awayTeam"
+            control={{
+              setValue: (val) =>
+                gameFormGroupControls({ awayTeamManager: val }),
+              value: gameFormGroup.awayTeamManager,
+            }}
+            options={awayTeamManagers() ?? []}
           />
         </Suspense>
       </span>
@@ -328,8 +387,7 @@ export default (props: {
         name="gameStatus"
         control={{
           value: gameFormGroup.status,
-          setValue: (val) =>
-            gameFormGroupControls({ status: val }),
+          setValue: (val) => gameFormGroupControls({ status: val }),
         }}
         options={gameStatusOptions}
       />

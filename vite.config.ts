@@ -9,8 +9,8 @@ export default defineConfig(({ command }) => ({
       ...(command === "serve"
         ? {}
         : {
-            adapter: vercel({}),
-          }),
+          adapter: vercel({}),
+        }),
     }),
     devtools(),
   ],
