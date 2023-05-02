@@ -36,6 +36,17 @@ export default () => {
             Games{" "}
           </A>
         </li>
+
+        <li>
+          <A
+            class="rounded-lg px-3 py-2"
+            activeClass="underline underline-offset-2"
+            href="/admin/game"
+          >
+            {" "}
+            New Game{" "}
+          </A>
+        </li>
       </ul>
     </nav>
   );
