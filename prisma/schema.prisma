@@ -85,6 +85,7 @@ model Player {
   cardAwarded        CardAwarded[]
   favouritedByUser   FavouritePlayer[]
   teams              PlayersTeamInSeason[]
+  currentTeam        Team?                 @relation(fields: [teamId], references: [id])
   substitutionsIn    Substitution[]        @relation("substitutionsIn")
   substitutionsOut   Substitution[]        @relation("substitutionsOut")
 }
@@ -146,6 +147,7 @@ model Team {
   groupId           String?
   primaryShirtColor String
   maganersInSeason  ManagerInTeamSeason[]
+  currentPlayers    Player[]
 }
 
 model HighlightedTeam {

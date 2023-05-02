@@ -29,8 +29,9 @@ const HighlightedTeam = (props: {
         "flex-row-reverse self-end": props.side === "right",
         "self-start": props.side !== "right",
       }}
-      class={`flex items-center justify-around space-x-4 border-t-2 border-${noBorderOnSide()}-2 border-b-2 p-4 rounded-${noBorderOnSide()}-xl mx-4 w-[65%] bg-gradient-to-r ${props.gradient
-        }`}
+      class={`flex items-center justify-around space-x-4 border-t-2 border-${noBorderOnSide()}-2 border-b-2 p-4 rounded-${noBorderOnSide()}-xl mx-4 w-[65%] bg-gradient-to-r ${
+        props.gradient
+      }`}
     >
       <img
         class="h-32 w-32 object-contain"
@@ -41,8 +42,9 @@ const HighlightedTeam = (props: {
       />
 
       <div
-        class={`flex flex-col ${shouldContract() ? "text-neutral-focus" : "text-base-100"
-          }`}
+        class={`flex flex-col ${
+          shouldContract() ? "text-neutral-focus" : "text-base-100"
+        }`}
       >
         <span class="text-3xl font-bold">{props.team.name}</span>
         <span class="text-xl font-bold">vs PSG</span>
@@ -51,12 +53,14 @@ const HighlightedTeam = (props: {
 
       <A
         href="/nema-još"
-        class={`btn-outline btn rounded-2xl border-2 border-${shouldContract() ? "black" : "white"
-          }`}
+        class={`btn-outline btn rounded-2xl border-2 border-${
+          shouldContract() ? "black" : "white"
+        }`}
       >
         <svg
-          class={`h-6 w-6 stroke-2 text-${shouldContract() ? "black" : "white"
-            } ${props.side === "right" && "rotate-180"}`}
+          class={`h-6 w-6 stroke-2 text-${
+            shouldContract() ? "black" : "white"
+          } ${props.side === "right" && "rotate-180"}`}
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           stroke-width="1.5"

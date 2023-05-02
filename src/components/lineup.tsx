@@ -13,7 +13,6 @@ import { A } from "solid-start";
 import { Lineups } from "~/server/lineups";
 import { gameFormGroup, gameFormGroupControls } from "./game-edit";
 import { PlayerInLineup } from "~/util/lineups-mapper";
-import { create } from "domain";
 
 const Divider = () => {
   return <span class="w-full border-t border-black" />;
@@ -51,7 +50,7 @@ const Shirt = (shirt: { shirtColor: string }) => (
 const PlayerRepresentation = (player: PlayerRepresentation) => {
   return (
     <A
-      href="/player/gigs"
+      href={`/player/${player.id}`}
       class="hover:z-1 group flex flex-col items-center justify-start p-2 hover:scale-125 hover:rounded-md hover:bg-green-700 md:max-w-md"
     >
       <span class="relative mx-auto flex flex-col justify-center">
@@ -75,6 +74,7 @@ const PlayerRepresentation = (player: PlayerRepresentation) => {
 };
 
 type PlayerRepresentation = {
+  id: string;
   lastName: string;
   shirtNumber: number;
   shirtColor: string;
@@ -83,7 +83,14 @@ const PlayerRow = (props: { players: PlayerRepresentation[] }) => {
   return (
     <div class="flex justify-around">
       <For each={props.players}>
-        {(player) => <PlayerRepresentation {...player} />}
+        {(player) => (
+          <PlayerRepresentation
+            shirtColor={player.shirtColor}
+            shirtNumber={player.shirtNumber}
+            lastName={player.lastName}
+            id={player.id}
+          />
+        )}
       </For>
     </div>
   );
@@ -112,6 +119,7 @@ const Side = (sideInfo: {
                   : sideInfo.shirtColor,
               lastName: player.lastName,
               shirtNumber: player.shirtNumber,
+              id: player.playerId,
             }))}
           />
         )}
