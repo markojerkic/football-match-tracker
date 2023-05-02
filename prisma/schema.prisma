@@ -37,13 +37,14 @@ model FavouritePlayer {
 }
 
 model Manager {
-  id            String                @id @default(cuid())
-  imageSlug     String?
-  firstName     String
-  lastName      String
-  currentTeam   Team?                 @relation(fields: [teamId], references: [id])
-  teamId        String?               @unique
-  teamsInSeason ManagerInTeamSeason[]
+  id                 String                @id @default(cuid())
+  imageSlug          String?
+  firstName          String
+  lastName           String
+  teamId             String?               @unique
+  teamsInSeason      ManagerInTeamSeason[]
+  managerForHomeTeam Game[]                @relation("homeTeamManager")
+  managerForawayTeam Game[]                @relation("awayTeamManager")
 }
 
 model ManagerInTeamSeason {
@@ -141,7 +142,6 @@ model Team {
   favouritedByUser  FavouriteTeam[]
   competitions      TeamInCompetition[]
   imageSlug         String?
-  currentManager    Manager?
   previousPlayers   PlayersTeamInSeason[]
   groupId           String?
   primaryShirtColor String
@@ -202,6 +202,11 @@ model Game {
   homeTeamLineup                    Json
   awayTeamLineup                    Json
   substitutions                     Substitution[]
+
+  homeTeamManager   Manager @relation("homeTeamManager", fields: [homeTeamManagerId], references: [id])
+  awayTeamManager   Manager @relation("awayTeamManager", fields: [awayTeamManagerId], references: [id])
+  homeTeamManagerId String
+  awayTeamManagerId String
 }
 
 model Goal {
