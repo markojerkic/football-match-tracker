@@ -18,7 +18,6 @@ model User {
   role             UserRole
   favouritePlayers FavouritePlayer[]
   favouriteTeams   FavouriteTeam[]
-  imageSlug        String?
 }
 
 model FavouriteTeam {
@@ -38,22 +37,23 @@ model FavouritePlayer {
 }
 
 model Manager {
-  id            String            @id @default(cuid())
+  id            String                @id @default(cuid())
+  imageSlug     String?
   firstName     String
   lastName      String
-  currentTeam   Team?             @relation(fields: [teamId], references: [id])
-  teamId        String?           @unique
-  previousClubs PreviousManager[]
+  currentTeam   Team?                 @relation(fields: [teamId], references: [id])
+  teamId        String?               @unique
+  teamsInSeason ManagerInTeamSeason[]
 }
 
-model PreviousManager {
-  id          String    @id @default(cuid())
-  manager     Manager   @relation(fields: [managerId], references: [id])
-  managerId   String
-  team        Team      @relation(fields: [teamId], references: [id])
-  teamId      String
-  tenureStart DateTime
-  tenureEnd   DateTime?
+model ManagerInTeamSeason {
+  id        String  @id @default(cuid())
+  team      Team    @relation(fields: [teamId], references: [id])
+  season    Season  @relation(fields: [seasonId], references: [id])
+  manager   Manager @relation(fields: [managerId], references: [id])
+  teamId    String
+  seasonId  String
+  managerId String
 }
 
 model PlayersTeamInSeason {
@@ -109,7 +109,6 @@ model Competition {
   imageSlug           String?
   type                CompetitionType
   competitionInSeason CompetitionInSeason[]
-  groups              Group[]
 }
 
 model CompetitionInSeason {
@@ -121,32 +120,14 @@ model CompetitionInSeason {
 }
 
 model Season {
-  id                  String                @id @default(cuid())
-  title               String                @unique
-  competitionInSeason CompetitionInSeason[]
-  games               Game[]
-  groups              Group[]
-  teamsInCompetitions TeamInCompetition[]
-  playersTeamInSeason PlayersTeamInSeason[]
-  isCurrent           Boolean
-}
-
-model Group {
-  id            String        @id @default(cuid())
-  name          String
-  competition   Competition   @relation(fields: [competitionId], references: [id])
-  season        Season        @relation(fields: [seasonId], references: [id])
-  teams         TeamInGroup[]
-  competitionId String
-  seasonId      String
-}
-
-model TeamInGroup {
-  id      String @id @default(cuid())
-  group   Group  @relation(fields: [groupId], references: [id])
-  team    Team   @relation(fields: [teamId], references: [id])
-  groupId String
-  teamId  String
+  id                   String                @id @default(cuid())
+  title                String                @unique
+  competitionInSeason  CompetitionInSeason[]
+  games                Game[]
+  teamsInCompetitions  TeamInCompetition[]
+  playersTeamInSeason  PlayersTeamInSeason[]
+  isCurrent            Boolean
+  managersInTeamSeason ManagerInTeamSeason[]
 }
 
 model Team {
@@ -161,11 +142,10 @@ model Team {
   competitions      TeamInCompetition[]
   imageSlug         String?
   currentManager    Manager?
-  previousManagers  PreviousManager[]
   previousPlayers   PlayersTeamInSeason[]
   groupId           String?
-  groups            TeamInGroup[]
   primaryShirtColor String
+  maganersInSeason  ManagerInTeamSeason[]
 }
 
 model HighlightedTeam {
@@ -175,12 +155,12 @@ model HighlightedTeam {
 }
 
 model Country {
-  id          String        @id @default(cuid())
-  name        String        @unique
-  players     Player[]
-  team        Team[]
-  competition Competition[]
-  imageSlug   String?
+  id           String        @id @default(cuid())
+  name         String        @unique
+  players      Player[]
+  team         Team[]
+  competitions Competition[]
+  imageSlug    String?
 }
 
 model Substitution {
@@ -190,7 +170,6 @@ model Substitution {
   minute          Int
   extraTimeMinute Int?
   game            Game    @relation(fields: [gameId], references: [id])
-  // FIXME: to awoid unnecesarry calculations
   isHomeTeam      Boolean
 
   playerInId  String
@@ -199,22 +178,22 @@ model Substitution {
 }
 
 model Game {
-  id                                String               @id @default(cuid())
-  competition                       Competition          @relation(fields: [competitionId], references: [id])
+  id                                String          @id @default(cuid())
+  competition                       Competition     @relation(fields: [competitionId], references: [id])
   competitionId                     String
-  homeTeam                          Team                 @relation("homeGames", fields: [homeTeamId], references: [id])
-  homeTeamId                        String               @map("homeTeamId")
-  awayTeam                          Team                 @relation("awayGames", fields: [awayTeamId], references: [id])
-  awayTeamId                        String               @map("awayTeamId")
+  homeTeam                          Team            @relation("homeGames", fields: [homeTeamId], references: [id])
+  homeTeamId                        String          @map("homeTeamId")
+  awayTeam                          Team            @relation("awayGames", fields: [awayTeamId], references: [id])
+  awayTeamId                        String          @map("awayTeamId")
   statistics                        GameStatistics?
   gameStatisticsId                  String?
   cardsAwarded                      CardAwarded[]
   kickoffTime                       DateTime
   firstHalfEndedAferAdditionalTime  Int
   secondHalfEndedAferAdditionalTime Int
-  status                            GameStatus           @default(OVER)
+  status                            GameStatus      @default(OVER)
   goals                             Goal[]
-  season                            Season?              @relation(fields: [seasonId], references: [id])
+  season                            Season?         @relation(fields: [seasonId], references: [id])
   seasonId                          String?
   homeTeamShirtColor                String
   homeTeamGoalkeeperShirtColor      String
@@ -234,7 +213,6 @@ model Goal {
   scoredInMinute      Int
   scoredInExtraMinute Int?
   isHomeTeamGoal      Boolean
-  // scoredInHalftime    Halftime
   assistedBy          Player? @relation("assists", fields: [assistentId], references: [id])
   assistentId         String?
   inGame              Game    @relation(fields: [gameId], references: [id])
@@ -282,7 +260,6 @@ model CardAwarded {
   gameId          String
   minute          Int
   extraTimeMinute Int?
-  // FIXME: to awoid unnecesarry calculations
   isHomeTeam      Boolean
 }
 
