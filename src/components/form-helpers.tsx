@@ -2,8 +2,13 @@ import { For } from "solid-js";
 
 const HiddenOption = () => <option class="hidden" disabled selected />;
 export type Option = { label: string; value: string | number };
+export type Control = {
+  setValue: (value: string) => void;
+  value: string | undefined;
+};
+
 export const Select = (props: {
-  control: { setValue: (value: string) => void; value: string };
+  control: Control;
   required: boolean;
   disabled?: boolean;
   name: string;
@@ -33,7 +38,7 @@ export const Select = (props: {
 };
 
 export const TextInput = (props: {
-  control: { setValue: (value: string) => void; value: string };
+  control: Control;
   disabled?: boolean;
   name: string;
   label: string;
@@ -49,7 +54,7 @@ export const TextInput = (props: {
         name={props.name}
         required={props.required}
         disabled={props.disabled ?? false}
-        value={props.control.value}
+        value={props.control.value ?? ""}
         onInput={(e) => props.control.setValue(e.currentTarget.value)}
       />
     </span>

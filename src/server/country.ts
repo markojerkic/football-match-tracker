@@ -5,6 +5,9 @@ export type OptionWithImage = Option & { imageSlug: string | undefined };
 export const getCountries = async (): Promise<OptionWithImage[]> => {
   return prisma.country
     .findMany({
+      orderBy: {
+        name: "asc",
+      },
       select: {
         id: true,
         name: true,

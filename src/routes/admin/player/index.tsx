@@ -5,17 +5,8 @@ import { createServerAction$, createServerData$ } from "solid-start/server";
 import { type Option } from "~/components/form-helpers";
 import { ImageOrDefaultAvater, PlayerInfoForm } from "~/components/player";
 import { OptionWithImage, getCountries } from "~/server/country";
+import { PlayerForm, saveOrUpdatePlayer } from "~/server/players";
 import { getAllTeams } from "~/server/teams";
-
-export type PlayerForm = {
-  id: string | undefined;
-  firstName: string;
-  lastName: string;
-  dateOfBirth: Date;
-  nationality: string;
-  imageSlug: string | undefined;
-  currentTeam: string | undefined;
-};
 
 export default () => {
   const [player, setPlayer] = createStore<PlayerForm>({
@@ -30,7 +21,8 @@ export default () => {
 
   const [, { Form }] = createServerAction$(async (formData: FormData) => {
     const playerInfo = Object.fromEntries(formData.entries());
-    console.log(playerInfo);
+
+    return saveOrUpdatePlayer(playerInfo);
   });
 
   const teams: Resource<Option[]> = createServerData$(() => getAllTeams(), {

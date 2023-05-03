@@ -1,8 +1,9 @@
 import { Match, Show, Switch, createEffect, createSignal } from "solid-js";
 import { TextInput, type Option, Select, DateSelector } from "./form-helpers";
-import { PlayerForm } from "~/routes/admin/player";
 import { SetStoreFunction } from "solid-js/store";
 import { OptionWithImage } from "~/server/country";
+import { PlayerForm } from "~/server/players";
+import { warn } from "console";
 
 const PerssonIcon = () => (
   <svg
@@ -63,12 +64,18 @@ export const PlayerInfoForm = (props: {
   setPlayer: SetStoreFunction<PlayerForm>;
   countries: OptionWithImage[];
 }) => {
-  const formSafeDateOfBirth = () =>
-    props.player.dateOfBirth.toJSON().split("T")[0];
+  const formSafeDateOfBirth = () => {
+    try {
+      return props.player.dateOfBirth.toJSON().split("T")[0];
+    } catch (e) {
+      return new Date().toJSON().split("T")[0];
+    }
+  };
 
   return (
     <>
       <span class="grid grid-cols-2 gap-2">
+        <input type="hidden" name="id" value={props.player.id ?? ""} />
         <TextInput
           required
           name="firstName"
@@ -90,13 +97,13 @@ export const PlayerInfoForm = (props: {
         />
 
         <TextInput
-          required
+          required={false}
           name="imageSlug"
           label="Image URL"
           type="url"
           control={{
             setValue: (val) => props.setPlayer({ imageSlug: val }),
-            value: props.player.imageSlug ?? "",
+            value: props.player.imageSlug,
           }}
         />
       </span>
@@ -132,7 +139,7 @@ export const PlayerInfoForm = (props: {
           options={props.teams}
           required={false}
           control={{
-            value: props.player.currentTeam ?? "",
+            value: props.player.currentTeam,
             setValue: (val) => props.setPlayer({ currentTeam: val }),
           }}
         />
@@ -151,12 +158,12 @@ export const PlayerDetail = (detail: {
   lastName: string;
   imageSlug: string | undefined;
   currentTeam:
-    | {
-        id: string;
-        name: string;
-        imageSlug: string | null;
-      }
-    | undefined;
+  | {
+    id: string;
+    name: string;
+    imageSlug: string | null;
+  }
+  | undefined;
 }) => {
   return (
     <article class="mx-auto flex w-[90%] flex-col justify-center space-y-4 border-2 border-black p-4 md:w-[50%]">
