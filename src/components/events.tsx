@@ -97,6 +97,7 @@ const AddGoal = (props: {
       <Select
         label="Scored by"
         name="scorerId"
+        required
         control={{
           setValue: (val) => setGoal({ scorerId: val }),
           value: goal.scorerId,
@@ -107,6 +108,7 @@ const AddGoal = (props: {
       <Select
         label="Assisted by"
         name="assistentId"
+        required
         control={{
           setValue: (val) => setGoal({ assistentId: val }),
           value: goal.assistentId ?? "",
@@ -393,6 +395,7 @@ export const AddCardEvent = (props: {
                       <Select
                         label="Awarded to player"
                         name="playerId"
+                        required
                         control={{
                           setValue: (val) => setCard({ playerId: val }),
                           value: card.playerId,
@@ -403,6 +406,7 @@ export const AddCardEvent = (props: {
                       <Select
                         label="Card type"
                         name="cardType"
+                        required
                         control={{
                           setValue: (val) => setCard({ cardType: val }),
                           value: card.cardType,
@@ -625,6 +629,7 @@ export const AddSubstitutionEvent = (props: {
                       <Select
                         label="Player goes in"
                         name="playerInId"
+                        required
                         control={{
                           setValue: (val) =>
                             setSubstitution({ playerInId: val }),
@@ -636,6 +641,7 @@ export const AddSubstitutionEvent = (props: {
                       <Select
                         label="Player goes out"
                         name="playerOutId"
+                        required
                         control={{
                           setValue: (val) =>
                             setSubstitution({ playerOutId: val }),

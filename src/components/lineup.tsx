@@ -423,6 +423,7 @@ export const EditablePlayerRepresentation = (info: {
                     <Select
                       label="Player"
                       name="player"
+                      required
                       control={{
                         setValue: (val) => {
                           setSelectedPlayer(val);

@@ -5,7 +5,7 @@ import {
   redirect,
 } from "solid-start/server";
 import { getPlayersInTeamAndSeason } from "~/server/players";
-import { Select, type Option, Date } from "./form-helpers";
+import { Select, type Option, DateSelector } from "./form-helpers";
 import { createStore } from "solid-js/store";
 import { EditLieneupWrapper, type Formation } from "./lineup";
 import {
@@ -292,6 +292,7 @@ export default (props: {
           <Select
             label="Competition"
             name="competition"
+            required
             control={{
               setValue: (val) => gameFormGroupControls({ competition: val }),
               value: gameFormGroup.competition,
@@ -305,6 +306,7 @@ export default (props: {
             label="Season"
             disabled={gameFormGroup.competition === ""}
             name="season"
+            required
             control={{
               setValue: (val) => gameFormGroupControls({ season: val }),
               value: gameFormGroup.season,
@@ -320,6 +322,7 @@ export default (props: {
             label="Home team"
             disabled={gameFormGroup.season === ""}
             name="homeTeam"
+            required
             control={{
               setValue: (val) => gameFormGroupControls({ homeTeam: val }),
               value: gameFormGroup.homeTeam,
@@ -333,6 +336,7 @@ export default (props: {
             label="Away team"
             disabled={gameFormGroup.season === ""}
             name="awayTeam"
+            required
             control={{
               setValue: (val) => gameFormGroupControls({ awayTeam: val }),
               value: gameFormGroup.awayTeam,
@@ -348,6 +352,7 @@ export default (props: {
             label="Home team manager"
             disabled={gameFormGroup.homeTeam === ""}
             name="homeTeamManager"
+            required
             control={{
               setValue: (val) =>
                 gameFormGroupControls({ homeTeamManager: val }),
@@ -362,6 +367,7 @@ export default (props: {
             label="Away team manager"
             disabled={gameFormGroup.awayTeam === ""}
             name="awayTeam"
+            required
             control={{
               setValue: (val) =>
                 gameFormGroupControls({ awayTeamManager: val }),
@@ -372,7 +378,7 @@ export default (props: {
         </Suspense>
       </span>
 
-      <Date
+      <DateSelector
         label="Kickoff time"
         name="kickoffTime"
         type="datetime-local"
@@ -385,6 +391,7 @@ export default (props: {
       <Select
         label="Game status"
         name="gameStatus"
+        required
         control={{
           value: gameFormGroup.status,
           setValue: (val) => gameFormGroupControls({ status: val }),
@@ -447,6 +454,7 @@ export default (props: {
             options={formationOptions}
             label="Home team formation"
             name="homeTeamFormation"
+            required
             control={{
               setValue: (val) =>
                 gameFormGroupControls({ homeTeamFormation: val as Formation }),
@@ -475,6 +483,7 @@ export default (props: {
             options={formationOptions}
             label="Away team formation"
             name="awayTeamFormation"
+            required
             control={{
               setValue: (val) =>
                 gameFormGroupControls({ awayTeamFormation: val as Formation }),

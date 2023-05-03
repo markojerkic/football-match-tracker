@@ -4,6 +4,7 @@ const HiddenOption = () => <option class="hidden" disabled selected />;
 export type Option = { label: string; value: string | number };
 export const Select = (props: {
   control: { setValue: (value: string) => void; value: string };
+  required: boolean;
   disabled?: boolean;
   name: string;
   label: string;
@@ -11,11 +12,11 @@ export const Select = (props: {
 }) => {
   return (
     <span class="flex flex-col">
-      <label for="competition">{props.label}</label>
+      <label for={props.name}>{props.label}</label>
       <select
         class="select-bordered select w-full"
         name={props.name}
-        required
+        required={props.required}
         disabled={props.disabled ?? false}
         value={props.control.value}
         onInput={(e) => {
@@ -31,7 +32,30 @@ export const Select = (props: {
   );
 };
 
-export const Date = (props: {
+export const TextInput = (props: {
+  control: { setValue: (value: string) => void; value: string };
+  disabled?: boolean;
+  name: string;
+  label: string;
+  required: boolean;
+  type?: string;
+}
+) => {
+  return (
+    <span class="flex flex-col">
+      <label for={props.name}>{props.label}</label>
+      <input type={props.type ?? "text"}
+        class="input input-bordered w-full invalid:input-error"
+        name={props.name}
+        required={props.required}
+        disabled={props.disabled ?? false}
+        value={props.control.value}
+      />
+    </span>
+  )
+}
+
+export const DateSelector = (props: {
   control: { setValue: (value: string) => void; value: string };
   disabled?: boolean;
   name: string;
@@ -40,7 +64,7 @@ export const Date = (props: {
 }) => {
   return (
     <span class="flex flex-col">
-      <label for="kickoffTime">{props.label}</label>
+      <label for={props.name}>{props.label}</label>
       <input
         name={props.name}
         type={props.type}
