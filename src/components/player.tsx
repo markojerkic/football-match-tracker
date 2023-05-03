@@ -4,6 +4,7 @@ import { SetStoreFunction } from "solid-js/store";
 import { OptionWithImage } from "~/server/country";
 import { PlayerForm } from "~/server/players";
 import { A } from "solid-start";
+import { Outlet } from "solid-start/router";
 
 const PerssonIcon = () => (
   <svg
@@ -158,12 +159,12 @@ export const PlayerDetail = (detail: {
   lastName: string;
   imageSlug: string | undefined;
   currentTeam:
-    | {
-        id: string;
-        name: string;
-        imageSlug: string | null;
-      }
-    | undefined;
+  | {
+    id: string;
+    name: string;
+    imageSlug: string | null;
+  }
+  | undefined;
 }) => {
   return (
     <article class="mx-auto flex w-[90%] flex-col justify-center space-y-4 border-2 border-black p-4 md:w-[50%]">
@@ -228,6 +229,8 @@ const CurrentTeam = (team: {
           class="avatar h-16 object-cover"
         />
         <span class="font-semibold">{team.name}</span>
+
+        <Outlet />
       </A>
     </div>
   );
