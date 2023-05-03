@@ -39,21 +39,22 @@ export const TextInput = (props: {
   label: string;
   required: boolean;
   type?: string;
-}
-) => {
+}) => {
   return (
     <span class="flex flex-col">
       <label for={props.name}>{props.label}</label>
-      <input type={props.type ?? "text"}
-        class="input input-bordered w-full invalid:input-error"
+      <input
+        type={props.type ?? "text"}
+        class="input-bordered input w-full invalid:input-error"
         name={props.name}
         required={props.required}
         disabled={props.disabled ?? false}
         value={props.control.value}
+        onInput={(e) => props.control.setValue(e.currentTarget.value)}
       />
     </span>
-  )
-}
+  );
+};
 
 export const DateSelector = (props: {
   control: { setValue: (value: string) => void; value: string };

@@ -11,6 +11,7 @@ export const getPlayerById = async (id: string) => {
         id: true,
         firstName: true,
         lastName: true,
+        imageSlug: true,
 
         currentTeam: {
           select: {

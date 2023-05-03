@@ -42,6 +42,7 @@ export default () => {
               id={player.id}
               firstName={player.firstName}
               lastName={player.lastName}
+              imageSlug={player.imageSlug ?? undefined}
               currentTeam={currentTeam()}
             />
           </>

@@ -1,4 +1,8 @@
-import { Match, Switch } from "solid-js";
+import { Match, Show, Switch, createEffect, createSignal } from "solid-js";
+import { TextInput, type Option, Select, DateSelector } from "./form-helpers";
+import { PlayerForm } from "~/routes/admin/player";
+import { SetStoreFunction } from "solid-js/store";
+import { OptionWithImage } from "~/server/country";
 
 const PerssonIcon = () => (
   <svg
@@ -17,10 +21,135 @@ const PerssonIcon = () => (
   </svg>
 );
 
+const WrappedNoIcon = () => {
+  return (
+    <div class="avatar mx-auto h-20 rounded-full bg-gray-400 p-4 ring ring-black ring-offset-2">
+      <PerssonIcon />
+    </div>
+  );
+};
+export const ImageOrDefaultAvater = (props: {
+  imageSlug: string | undefined;
+}) => {
+  const [isError, setIsError] = createSignal(false);
+
+  createEffect(() => {
+    console.log("Url", props.imageSlug);
+    setIsError(false);
+  });
+
+  return (
+    <Show
+      when={!isError() && props.imageSlug}
+      fallback={<WrappedNoIcon />}
+      keyed
+    >
+      {(img) => (
+        <div class="avatar mx-auto h-20 w-20 rounded-full ring ring-black ring-offset-2">
+          <img
+            src={img}
+            class="avatar rounded-full object-fill"
+            onError={() => setIsError(true)}
+          />
+        </div>
+      )}
+    </Show>
+  );
+};
+
+export const PlayerInfoForm = (props: {
+  teams: Option[];
+  player: PlayerForm;
+  setPlayer: SetStoreFunction<PlayerForm>;
+  countries: OptionWithImage[];
+}) => {
+  const formSafeDateOfBirth = () =>
+    props.player.dateOfBirth.toJSON().split("T")[0];
+
+  return (
+    <>
+      <span class="grid grid-cols-2 gap-2">
+        <TextInput
+          required
+          name="firstName"
+          label="First name"
+          control={{
+            setValue: (val) => props.setPlayer({ firstName: val }),
+            value: props.player.firstName,
+          }}
+        />
+
+        <TextInput
+          required
+          name="lastName"
+          label="Last name"
+          control={{
+            setValue: (val) => props.setPlayer({ lastName: val }),
+            value: props.player.lastName,
+          }}
+        />
+
+        <TextInput
+          required
+          name="imageSlug"
+          label="Image URL"
+          type="url"
+          control={{
+            setValue: (val) => props.setPlayer({ imageSlug: val }),
+            value: props.player.imageSlug ?? "",
+          }}
+        />
+      </span>
+
+      <DateSelector
+        name="dateOfBirth"
+        label="Date of birth"
+        control={{
+          setValue: (val) =>
+            props.setPlayer({
+              dateOfBirth: new Date(val as string),
+            }),
+          value: formSafeDateOfBirth(),
+        }}
+        type="date"
+      />
+
+      <span class="grid grid-cols-2 gap-2">
+        <Select
+          name="nationality"
+          label="Nationality"
+          options={props.countries}
+          required
+          control={{
+            value: props.player.nationality,
+            setValue: (val) => props.setPlayer({ nationality: val }),
+          }}
+        />
+
+        <Select
+          name="currentTeam"
+          label="Current team"
+          options={props.teams}
+          required={false}
+          control={{
+            value: props.player.currentTeam ?? "",
+            setValue: (val) => props.setPlayer({ currentTeam: val }),
+          }}
+        />
+      </span>
+
+      <button class="btn group-invalid:btn-disabled" type="submit">
+        Save
+      </button>
+    </>
+  );
+};
+
 export const PlayerDetail = (detail: {
   id: string;
   firstName: string;
   lastName: string;
+  imageSlug: string | undefined;
   currentTeam:
     | {
         id: string;
@@ -31,9 +160,7 @@ export const PlayerDetail = (detail: {
 }) => {
   return (
     <article class="mx-auto flex w-[90%] flex-col justify-center space-y-4 border-2 border-black p-4 md:w-[50%]">
-      <div class="avatar mx-auto h-20 rounded-full bg-gray-400 p-4 ring ring-black ring-offset-2">
-        <PerssonIcon />
-      </div>
+      <ImageOrDefaultAvater imageSlug={detail.imageSlug} />
       <h3 class="text-center text-3xl font-semibold">{`${detail.firstName} ${detail.lastName}`}</h3>
 
       <span class="divider" />
