@@ -1,10 +1,11 @@
-import { Match, Show, Switch, createEffect, createSignal } from "solid-js";
+import { Match, Show, Suspense, Switch, createEffect, createSignal } from "solid-js";
 import { TextInput, type Option, Select, DateSelector } from "./form-helpers";
 import { SetStoreFunction } from "solid-js/store";
 import { OptionWithImage } from "~/server/country";
 import { PlayerForm } from "~/server/players";
 import { A } from "solid-start";
 import { Outlet } from "solid-start/router";
+import { activeStyle, inactiveStyle } from "./games";
 
 const PerssonIcon = () => (
   <svg
@@ -211,9 +212,45 @@ export const PlayerDetail = (detail: {
       </div>
 
       <span class="divider" />
+
+      <TabSelector playerId={detail.id} />
+
+      <Suspense fallback={<>Loading...</>}>
+        <Outlet />
+      </Suspense>
+
     </article>
   );
 };
+
+const TabSelector = (props: { playerId: string }) => {
+  return (
+    <div class="flex flex-col space-y-4">
+      <div class="flex border-b border-gray-400 text-center">
+
+        <Tab route="teams" label="Tems per season" id={props.playerId} />
+        <Tab route="games" label="Games" id={props.playerId} />
+
+      </div>
+    </div>
+  );
+}
+
+const Tab = (props: { label: string, id: string, route: string }) => {
+  return (
+    <span class="flex-1">
+      <A
+        end={true}
+        href={`/player/${props.id}/${props.route}`}
+        activeClass={activeStyle}
+        inactiveClass={inactiveStyle}
+      >
+        <span class="absolute inset-x-0 -bottom-px h-px w-full bg-white"></span>
+        {props.label}
+      </A>
+    </span>
+  );
+}
 
 const CurrentTeam = (team: {
   name: string;
@@ -230,7 +267,6 @@ const CurrentTeam = (team: {
         />
         <span class="font-semibold">{team.name}</span>
 
-        <Outlet />
       </A>
     </div>
   );

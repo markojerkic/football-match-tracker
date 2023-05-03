@@ -51,8 +51,8 @@ const Game = (game: {
   );
 };
 
-const inactiveStyle = "block p-4 text-sm font-medium text-black";
-const activeStyle =
+export const inactiveStyle = "block p-4 text-sm font-medium text-black";
+export const activeStyle =
   "relative block border-t border-l border-r border-gray-400 bg-white p-4 text-sm font-medium";
 
 export const GameDetailWrapper: ParentComponent<{
