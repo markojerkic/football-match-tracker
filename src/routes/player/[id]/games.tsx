@@ -1,7 +1,12 @@
 export default () => {
   return (
-    <div>
-    games
+    <div class="flex justify-between">
+      <span>
+        games
+      </span>
+      <span>
+        games
+      </span>
     </div>
   )
 }

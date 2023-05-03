@@ -215,9 +215,11 @@ export const PlayerDetail = (detail: {
 
       <TabSelector playerId={detail.id} />
 
-      <Suspense fallback={<>Loading...</>}>
-        <Outlet />
-      </Suspense>
+      <div class="w-full px-4">
+        <Suspense fallback={<>Loading...</>}>
+          <Outlet />
+        </Suspense>
+      </div>
 
     </article>
   );
