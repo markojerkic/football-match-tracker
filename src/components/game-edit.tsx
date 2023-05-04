@@ -399,14 +399,6 @@ export default (props: {
         options={gameStatusOptions}
       />
 
-      <pre>
-        {gameFormGroup.homeTeam}-{gameFormGroup.awayTeam}-
-        {gameFormGroup.homeTeamLineup.length}-
-        {gameFormGroup.awayTeamLineup.length}-
-        {noDuplicatePlayers(gameFormGroup.homeTeamLineup) ? "tr" : "falc"}-
-        {noDuplicatePlayers(gameFormGroup.awayTeamLineup) ? "tr" : "falc"}
-      </pre>
-
       <Show when={import.meta.env.DEV}>
         <pre>{JSON.stringify(gameFormGroup, null, 2)}</pre>
       </Show>

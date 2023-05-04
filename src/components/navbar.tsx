@@ -47,6 +47,29 @@ export default () => {
             New Game{" "}
           </A>
         </li>
+
+        <li>
+          <A
+            class="rounded-lg px-3 py-2"
+            activeClass="underline underline-offset-2"
+            href="/admin/player"
+          >
+            {" "}
+            New Player{" "}
+          </A>
+        </li>
+
+
+        <li>
+          <A
+            class="rounded-lg px-3 py-2"
+            activeClass="underline underline-offset-2"
+            href="/admin/manager"
+          >
+            {" "}
+            New Manager{" "}
+          </A>
+        </li>
       </ul>
     </nav>
   );
