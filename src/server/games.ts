@@ -7,6 +7,62 @@ import { StatisticsForm } from "~/components/statistic";
 import { CardType, GameStatus } from "@prisma/client";
 import { ServerError } from "solid-start";
 
+export const getGamesForPlayer = async (playerId: string) => {
+  const games = await prisma.game.findMany({
+    where: {
+
+      OR: [
+
+        {
+          homeTeamLineup: {
+            // path: ["playerId"],
+            array_contains: playerId,
+          }
+        },
+
+        {
+          awayTeamLineup: {
+            // path: ["playerId"],
+            array_contains: playerId,
+          }
+        }
+
+
+      ]
+
+    },
+
+    select: {
+      id: true,
+
+      kickoffTime: true,
+
+      homeTeam: {
+        select: {
+          id: true,
+          name: true,
+          imageSlug: true
+        }
+      },
+
+      awayTeam: {
+        select: {
+          id: true,
+          name: true,
+          imageSlug: true
+        }
+      }
+
+    }
+
+  });
+
+  console.log(games)
+
+  return games;
+
+}
+
 export const getGames = async (selectedDate: string | undefined) => {
   const date = selectedDate !== undefined ? new Date(selectedDate) : undefined;
   const dayDate = date?.getDate();
@@ -26,11 +82,11 @@ export const getGames = async (selectedDate: string | undefined) => {
       where: {
         ...(lte !== undefined && gte !== undefined
           ? {
-              kickoffTime: {
-                gte,
-                lte,
-              },
-            }
+            kickoffTime: {
+              gte,
+              lte,
+            },
+          }
           : {}),
       },
       select: {
@@ -242,43 +298,43 @@ export const getGameFormData = async (
 
       const goals: Goal[] = game.goals.map(
         (g) =>
-          ({
-            id: g.id,
-            isHomeTeamGoal: g.isHomeTeamGoal,
-            scorerId: g.scoredBy.id,
-            isOwnGoal: g.isOwnGoal,
-            isPenalty: g.isPenalty,
-            scoredInMinute: g.scoredInMinute,
-            scoredInExtraMinute: g.scoredInExtraMinute ?? undefined,
-            assistentId: g.assistedBy?.id ?? undefined,
-          } satisfies Goal)
+        ({
+          id: g.id,
+          isHomeTeamGoal: g.isHomeTeamGoal,
+          scorerId: g.scoredBy.id,
+          isOwnGoal: g.isOwnGoal,
+          isPenalty: g.isPenalty,
+          scoredInMinute: g.scoredInMinute,
+          scoredInExtraMinute: g.scoredInExtraMinute ?? undefined,
+          assistentId: g.assistedBy?.id ?? undefined,
+        } satisfies Goal)
       );
 
       const cards: CardEvent[] = game.cardsAwarded.map(
         (c) =>
-          ({
-            id: c.id,
-            minute: c.minute,
-            extraTimeMinute: c.extraTimeMinute ?? undefined,
-            cardType: c.cardType,
-            playerId: c.player.id,
-            playerLastName: c.player.lastName,
-            isHomeTeam: c.isHomeTeam,
-          } satisfies CardEvent)
+        ({
+          id: c.id,
+          minute: c.minute,
+          extraTimeMinute: c.extraTimeMinute ?? undefined,
+          cardType: c.cardType,
+          playerId: c.player.id,
+          playerLastName: c.player.lastName,
+          isHomeTeam: c.isHomeTeam,
+        } satisfies CardEvent)
       );
 
       const substitutions: SubstitutionEvent[] = game.substitutions.map(
         (sub) =>
-          ({
-            id: sub.id,
-            minute: sub.minute,
-            extraTimeMinute: sub.extraTimeMinute ?? undefined,
-            playerInId: sub.playerInId,
-            playerInName: sub.playerIn?.lastName ?? "",
-            playerOutId: sub.playerOutId,
-            playerOutName: sub.playerOut?.lastName ?? "",
-            isHomeTeam: sub.isHomeTeam,
-          } satisfies SubstitutionEvent)
+        ({
+          id: sub.id,
+          minute: sub.minute,
+          extraTimeMinute: sub.extraTimeMinute ?? undefined,
+          playerInId: sub.playerInId,
+          playerInName: sub.playerIn?.lastName ?? "",
+          playerOutId: sub.playerOutId,
+          playerOutName: sub.playerOut?.lastName ?? "",
+          isHomeTeam: sub.isHomeTeam,
+        } satisfies SubstitutionEvent)
       );
 
       return {
