@@ -13,7 +13,7 @@ const Team = (team: { teamName: string; goalCount: number }) => {
   );
 };
 
-const Game = (game: {
+export const GamePreview = (game: {
   homeTeam: string;
   awayTeam: string;
   homeTeamGoalCount: number;
@@ -122,7 +122,7 @@ export default function GamesList(props: { games: Game[] }) {
         {(data) => (
           <For each={data}>
             {(game) => (
-              <Game
+              <GamePreview
                 awayTeam={game.awayTeam.name}
                 homeTeam={game.homeTeam.name}
                 homeTeamGoalCount={game.homeTeamGoalCount}

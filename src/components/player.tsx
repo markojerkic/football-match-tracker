@@ -1,4 +1,11 @@
-import { Match, Show, Suspense, Switch, createEffect, createSignal } from "solid-js";
+import {
+  Match,
+  Show,
+  Suspense,
+  Switch,
+  createEffect,
+  createSignal,
+} from "solid-js";
 import { TextInput, type Option, Select, DateSelector } from "./form-helpers";
 import { SetStoreFunction } from "solid-js/store";
 import { OptionWithImage } from "~/server/country";
@@ -160,12 +167,12 @@ export const PlayerDetail = (detail: {
   lastName: string;
   imageSlug: string | undefined;
   currentTeam:
-  | {
-    id: string;
-    name: string;
-    imageSlug: string | null;
-  }
-  | undefined;
+    | {
+        id: string;
+        name: string;
+        imageSlug: string | null;
+      }
+    | undefined;
 }) => {
   return (
     <article class="mx-auto flex w-[90%] flex-col justify-center space-y-4 border-2 border-black p-4 md:w-[50%]">
@@ -220,7 +227,6 @@ export const PlayerDetail = (detail: {
           <Outlet />
         </Suspense>
       </div>
-
     </article>
   );
 };
@@ -229,16 +235,14 @@ const TabSelector = (props: { playerId: string }) => {
   return (
     <div class="flex flex-col space-y-4">
       <div class="flex border-b border-gray-400 text-center">
-
         <Tab route="teams" label="Tems per season" id={props.playerId} />
         <Tab route="games" label="Games" id={props.playerId} />
-
       </div>
     </div>
   );
-}
+};
 
-const Tab = (props: { label: string, id: string, route: string }) => {
+const Tab = (props: { label: string; id: string; route: string }) => {
   return (
     <span class="flex-1">
       <A
@@ -252,7 +256,7 @@ const Tab = (props: { label: string, id: string, route: string }) => {
       </A>
     </span>
   );
-}
+};
 
 const CurrentTeam = (team: {
   name: string;
@@ -268,7 +272,6 @@ const CurrentTeam = (team: {
           class="avatar h-16 object-cover"
         />
         <span class="font-semibold">{team.name}</span>
-
       </A>
     </div>
   );

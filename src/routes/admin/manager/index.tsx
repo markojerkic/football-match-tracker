@@ -3,7 +3,10 @@ import { createStore } from "solid-js/store";
 import { Title } from "solid-start";
 import { createServerAction$, createServerData$ } from "solid-start/server";
 import { type Option } from "~/components/form-helpers";
-import { ImageOrDefaultAvater, PlayerInfoForm as PlayerManagerInfoForm } from "~/components/player";
+import {
+  ImageOrDefaultAvater,
+  PlayerInfoForm as PlayerManagerInfoForm,
+} from "~/components/player";
 import { OptionWithImage, getCountries } from "~/server/country";
 import { saveOrUpdateManager } from "~/server/managers";
 import { PlayerManagerForm } from "~/server/players";

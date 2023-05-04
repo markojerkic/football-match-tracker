@@ -74,7 +74,9 @@ export const saveOrUpdatePlayer = async (formData: any) => {
   return redirect(`/player/${savedPlayer.id}`);
 };
 
-export const getPlayerFormData = async (id: string): Promise<PlayerManagerForm> => {
+export const getPlayerFormData = async (
+  id: string
+): Promise<PlayerManagerForm> => {
   const player = await prisma.player.findUnique({
     where: {
       id,

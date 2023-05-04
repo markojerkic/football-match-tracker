@@ -7,61 +7,58 @@ import { StatisticsForm } from "~/components/statistic";
 import { CardType, GameStatus } from "@prisma/client";
 import { ServerError } from "solid-start";
 
-export const getGamesForPlayer = async (playerId: string) => {
-  const games = await prisma.game.findMany({
+export const getGoalCountForGame = async (gameId: string) => {
+  const goals = await prisma.goal.findMany({
     where: {
-
-      OR: [
-
-        {
-          homeTeamLineup: {
-            // path: ["playerId"],
-            array_contains: playerId,
-          }
-        },
-
-        {
-          awayTeamLineup: {
-            // path: ["playerId"],
-            array_contains: playerId,
-          }
-        }
-
-
-      ]
-
+      gameId,
     },
-
     select: {
-      id: true,
-
-      kickoffTime: true,
-
-      homeTeam: {
-        select: {
-          id: true,
-          name: true,
-          imageSlug: true
-        }
-      },
-
-      awayTeam: {
-        select: {
-          id: true,
-          name: true,
-          imageSlug: true
-        }
-      }
-
-    }
-
+      isHomeTeamGoal: true,
+    },
   });
 
-  console.log(games)
+  return countGoals({ goals });
+};
 
+export const getGamesForPlayer = async (playerId: string) => {
+  const games: {
+    gameid: string;
+    homeTeamId: string;
+    awayTeamId: string;
+    kickoffTime: Date;
+    hometeamname: string | null;
+    awayteamname: string | null;
+    hometeamimageslug: string | null;
+    awayteamimageslug: string | null;
+    hometeamgoalcount: number | null;
+    awayteamgoalcount: number | null;
+  }[] = await prisma.$queryRaw`
+select "Game".id                       as gameId,
+       "homeTeamId",
+       "awayTeamId",
+       "kickoffTime",
+       homeTeam.name                   as homeTeamName,
+       homeTeam."imageSlug"            as homeTeamImageSlug,
+       awayTeam.name                   as awayTeamName,
+       awayTeam."imageSlug"            as awayTeamImageSlug,
+       count(distinct homeTeamGoal.id) as hometeamgoalcount,
+       count(distinct awayTeamGoal.id) as awayteamgoalcount
+from "Game"
+         cross join lateral json_array_elements("homeTeamLineup"::json) as hl
+         cross join lateral json_array_elements("awayTeamLineup"::json) as al
+         join "Team" as homeTeam on homeTeam.id = "Game"."homeTeamId"
+         join "Team" as awayTeam on awayTeam.id = "Game"."awayTeamId"
+         left join "Goal" as homeTeamGoal on "Game".id = homeTeamGoal."gameId" and homeTeamGoal."isHomeTeamGoal" = true
+         left join "Goal" as awayTeamGoal on "Game".id = awayTeamGoal."gameId" and awayTeamGoal."isHomeTeamGoal" = false
+where hl ->> 'playerId' = 'clfqiqduu004luvwmslyneawj'
+   or al ->> 'playerId' = 'clfqiqduu004luvwmslyneawj'
+group by "Game".id, homeTeam.id, awayTeam.id;
+
+  `;
+
+  console.log(games);
   return games;
-
-}
+};
 
 export const getGames = async (selectedDate: string | undefined) => {
   const date = selectedDate !== undefined ? new Date(selectedDate) : undefined;
@@ -82,11 +79,11 @@ export const getGames = async (selectedDate: string | undefined) => {
       where: {
         ...(lte !== undefined && gte !== undefined
           ? {
-            kickoffTime: {
-              gte,
-              lte,
-            },
-          }
+              kickoffTime: {
+                gte,
+                lte,
+              },
+            }
           : {}),
       },
       select: {
@@ -110,37 +107,29 @@ export const getGames = async (selectedDate: string | undefined) => {
       },
     })
     .then((games) => {
-      return games.map((game) => {
-        let homeTeamGoalCount = 0;
-        let awayTeamGoalCount = 0;
-
-        for (let goal of game.goals) {
-          if (goal.isHomeTeamGoal) {
-            homeTeamGoalCount++;
-            continue;
-          }
-          awayTeamGoalCount++;
-        }
-        return { ...game, homeTeamGoalCount, awayTeamGoalCount };
-      });
+      return games.map((game) => countGoals(game));
     });
 
   return games;
 };
 
+const countGoals = (game: { goals: { isHomeTeamGoal: boolean }[] }) => {
+  let homeTeamGoalCount = 0;
+  let awayTeamGoalCount = 0;
+
+  for (let goal of game.goals) {
+    if (goal.isHomeTeamGoal) {
+      homeTeamGoalCount++;
+      continue;
+    }
+    awayTeamGoalCount++;
+  }
+  return { ...game, homeTeamGoalCount, awayTeamGoalCount };
+};
+
 export type ArrayElement<ArrayType extends readonly unknown[]> =
   ArrayType extends readonly (infer ElementType)[] ? ElementType : never;
 export type Game = ArrayElement<Awaited<ReturnType<typeof getGames>>>;
-
-export const getLastId = (lastGamesPage: Game[]) => {
-  let lastGameId = undefined;
-  // let kickoffTime = undefined;
-  if (lastGamesPage?.length ?? 0 > 0) {
-    lastGameId = lastGamesPage[lastGamesPage.length - 1].id;
-    // kickoffTime = lastGamesPage[lastGamesPage.length - 1].kickoffTime;
-  }
-  return lastGameId;
-};
 
 export const getGameDataById = async (id: string) => {
   return await prisma.game.findUniqueOrThrow({
@@ -298,43 +287,43 @@ export const getGameFormData = async (
 
       const goals: Goal[] = game.goals.map(
         (g) =>
-        ({
-          id: g.id,
-          isHomeTeamGoal: g.isHomeTeamGoal,
-          scorerId: g.scoredBy.id,
-          isOwnGoal: g.isOwnGoal,
-          isPenalty: g.isPenalty,
-          scoredInMinute: g.scoredInMinute,
-          scoredInExtraMinute: g.scoredInExtraMinute ?? undefined,
-          assistentId: g.assistedBy?.id ?? undefined,
-        } satisfies Goal)
+          ({
+            id: g.id,
+            isHomeTeamGoal: g.isHomeTeamGoal,
+            scorerId: g.scoredBy.id,
+            isOwnGoal: g.isOwnGoal,
+            isPenalty: g.isPenalty,
+            scoredInMinute: g.scoredInMinute,
+            scoredInExtraMinute: g.scoredInExtraMinute ?? undefined,
+            assistentId: g.assistedBy?.id ?? undefined,
+          } satisfies Goal)
       );
 
       const cards: CardEvent[] = game.cardsAwarded.map(
         (c) =>
-        ({
-          id: c.id,
-          minute: c.minute,
-          extraTimeMinute: c.extraTimeMinute ?? undefined,
-          cardType: c.cardType,
-          playerId: c.player.id,
-          playerLastName: c.player.lastName,
-          isHomeTeam: c.isHomeTeam,
-        } satisfies CardEvent)
+          ({
+            id: c.id,
+            minute: c.minute,
+            extraTimeMinute: c.extraTimeMinute ?? undefined,
+            cardType: c.cardType,
+            playerId: c.player.id,
+            playerLastName: c.player.lastName,
+            isHomeTeam: c.isHomeTeam,
+          } satisfies CardEvent)
       );
 
       const substitutions: SubstitutionEvent[] = game.substitutions.map(
         (sub) =>
-        ({
-          id: sub.id,
-          minute: sub.minute,
-          extraTimeMinute: sub.extraTimeMinute ?? undefined,
-          playerInId: sub.playerInId,
-          playerInName: sub.playerIn?.lastName ?? "",
-          playerOutId: sub.playerOutId,
-          playerOutName: sub.playerOut?.lastName ?? "",
-          isHomeTeam: sub.isHomeTeam,
-        } satisfies SubstitutionEvent)
+          ({
+            id: sub.id,
+            minute: sub.minute,
+            extraTimeMinute: sub.extraTimeMinute ?? undefined,
+            playerInId: sub.playerInId,
+            playerInName: sub.playerIn?.lastName ?? "",
+            playerOutId: sub.playerOutId,
+            playerOutName: sub.playerOut?.lastName ?? "",
+            isHomeTeam: sub.isHomeTeam,
+          } satisfies SubstitutionEvent)
       );
 
       return {
