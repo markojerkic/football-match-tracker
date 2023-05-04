@@ -10,7 +10,7 @@ import { Option } from "~/components/form-helpers";
 import { ImageOrDefaultAvater, PlayerInfoForm } from "~/components/player";
 import { OptionWithImage, getCountries } from "~/server/country";
 import {
-  PlayerForm,
+  PlayerManagerForm,
   getPlayerFormData,
   saveOrUpdatePlayer,
 } from "~/server/players";
@@ -25,7 +25,7 @@ export const routeData = ({ params }: RouteDataArgs<{ id: string }>) => {
 export default () => {
   const playerData = useRouteData<typeof routeData>();
 
-  const [player, setPlayer] = createStore<PlayerForm>({
+  const [player, setPlayer] = createStore<PlayerManagerForm>({
     id: undefined,
     nationality: "",
     firstName: "",

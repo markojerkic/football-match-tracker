@@ -12,7 +12,7 @@ const optionalString = z
     return v;
   });
 
-const playerFormSchema = z.object({
+export const playerManagerFormSchema = z.object({
   id: optionalString,
   firstName: z.string(),
   lastName: z.string(),
@@ -26,10 +26,10 @@ const playerFormSchema = z.object({
   imageSlug: optionalString,
   currentTeam: optionalString,
 });
-export type PlayerForm = z.infer<typeof playerFormSchema>;
+export type PlayerManagerForm = z.infer<typeof playerManagerFormSchema>;
 
 export const saveOrUpdatePlayer = async (formData: any) => {
-  const parsed = playerFormSchema.safeParse(formData);
+  const parsed = playerManagerFormSchema.safeParse(formData);
   if (!parsed.success) {
     console.error(parsed.error);
     throw new ServerError("Player data not valid", {
@@ -74,7 +74,7 @@ export const saveOrUpdatePlayer = async (formData: any) => {
   return redirect(`/player/${savedPlayer.id}`);
 };
 
-export const getPlayerFormData = async (id: string): Promise<PlayerForm> => {
+export const getPlayerFormData = async (id: string): Promise<PlayerManagerForm> => {
   const player = await prisma.player.findUnique({
     where: {
       id,

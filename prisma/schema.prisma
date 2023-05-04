@@ -42,9 +42,11 @@ model Manager {
   firstName          String
   lastName           String
   teamId             String?               @unique
+  nationality        Country               @relation(fields: [countryId], references: [id])
   teamsInSeason      ManagerInTeamSeason[]
   managerForHomeTeam Game[]                @relation("homeTeamManager")
   managerForawayTeam Game[]                @relation("awayTeamManager")
+  countryId          String // @default("clfqiqd1i0000uvwm2lh15gov")
 }
 
 model ManagerInTeamSeason {
@@ -163,6 +165,7 @@ model Country {
   team         Team[]
   competitions Competition[]
   imageSlug    String?
+  Manager      Manager[]
 }
 
 model Substitution {

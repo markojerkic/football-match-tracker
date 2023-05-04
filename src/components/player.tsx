@@ -2,7 +2,7 @@ import { Match, Show, Suspense, Switch, createEffect, createSignal } from "solid
 import { TextInput, type Option, Select, DateSelector } from "./form-helpers";
 import { SetStoreFunction } from "solid-js/store";
 import { OptionWithImage } from "~/server/country";
-import { PlayerForm } from "~/server/players";
+import { PlayerManagerForm } from "~/server/players";
 import { A } from "solid-start";
 import { Outlet } from "solid-start/router";
 import { activeStyle, inactiveStyle } from "./games";
@@ -62,8 +62,8 @@ export const ImageOrDefaultAvater = (props: {
 
 export const PlayerInfoForm = (props: {
   teams: Option[];
-  player: PlayerForm;
-  setPlayer: SetStoreFunction<PlayerForm>;
+  player: PlayerManagerForm;
+  setPlayer: SetStoreFunction<PlayerManagerForm>;
   countries: OptionWithImage[];
 }) => {
   const formSafeDateOfBirth = () => {
