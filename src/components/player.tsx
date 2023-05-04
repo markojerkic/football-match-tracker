@@ -167,12 +167,12 @@ export const PlayerDetail = (detail: {
   lastName: string;
   imageSlug: string | undefined;
   currentTeam:
-    | {
-        id: string;
-        name: string;
-        imageSlug: string | null;
-      }
-    | undefined;
+  | {
+    id: string;
+    name: string;
+    imageSlug: string | null;
+  }
+  | undefined;
 }) => {
   return (
     <article class="mx-auto flex w-[90%] flex-col justify-center space-y-4 border-2 border-black p-4 md:w-[50%]">
@@ -205,17 +205,21 @@ export const PlayerDetail = (detail: {
       <span class="divider" />
 
       <div>
-        <Switch>
-          <Match when={detail.currentTeam} keyed>
-            {(currentTeam) => (
-              <CurrentTeam
-                name={currentTeam.name}
-                id={currentTeam.id}
-                imageSlug={currentTeam.imageSlug}
-              />
-            )}
-          </Match>
-        </Switch>
+        <Show when={detail.currentTeam} fallback={
+          <CurrentTeam
+            name={"Unkown"}
+            id={null}
+            imageSlug={null}
+          />
+        } keyed>
+          {(currentTeam) => (
+            <CurrentTeam
+              name={currentTeam.name}
+              id={currentTeam.id}
+              imageSlug={currentTeam.imageSlug}
+            />
+          )}
+        </Show>
       </div>
 
       <span class="divider" />
@@ -259,8 +263,8 @@ const Tab = (props: { label: string; id: string; route: string }) => {
 };
 
 const CurrentTeam = (team: {
-  name: string;
-  id: string;
+  name: string | null;
+  id: string | null;
   imageSlug: string | null;
 }) => {
   return (

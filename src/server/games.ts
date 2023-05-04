@@ -113,7 +113,7 @@ export const getGames = async (selectedDate: string | undefined) => {
   return games;
 };
 
-const countGoals = (game: { goals: { isHomeTeamGoal: boolean }[] }) => {
+const countGoals = <T,>(game: T & { goals: { isHomeTeamGoal: boolean }[] }) => {
   let homeTeamGoalCount = 0;
   let awayTeamGoalCount = 0;
 
