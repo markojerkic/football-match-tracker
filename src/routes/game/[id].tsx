@@ -49,7 +49,7 @@ const GameInfo = (gameData: GameDataById) => {
             <span class="flex flex-col space-y-2">
               <A
                 class="hover:link"
-                href={`/competition/${gameData.competition?.id}`}
+                href={`/competition/${gameData.competition?.id}/table/${gameData.season?.id}`}
               >
                 {gameData.competition?.name} - {gameData.season?.title}
               </A>

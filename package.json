@@ -34,6 +34,7 @@
     "@tanstack/solid-query": "^4.29.5",
     "daisyui": "^2.51.6",
     "dayjs": "^1.11.7",
+    "nprogress": "^0.2.0",
     "solid-forms": "^0.4.8",
     "solid-headless": "^0.13.1",
     "solid-js": "^1.7.4",

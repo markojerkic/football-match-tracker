@@ -1,8 +1,7 @@
 // @refresh reload
-import { Suspense } from "solid-js";
+import "nprogress/nprogress.css";
+import { Suspense, createEffect } from "solid-js";
 import {
-  useLocation,
-  A,
   Body,
   ErrorBoundary,
   FileRoutes,
@@ -12,18 +11,23 @@ import {
   Routes,
   Scripts,
   Title,
+  useIsRouting,
 } from "solid-start";
 import "./root.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
 import Navbar from "~/components/navbar";
+// @ts-expect-error importing
+import Nprogress from "nprogress";
 
 export default function Root() {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: 0,
-      },
-    },
+  const isRouting = useIsRouting();
+
+  createEffect(() => {
+    const routing = isRouting();
+    if (routing) {
+      Nprogress.start();
+    } else {
+      Nprogress.done();
+    }
   });
 
   return (
@@ -34,16 +38,14 @@ export default function Root() {
         <Meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <Body class="flex flex-col space-y-4 py-4">
-        <QueryClientProvider client={queryClient}>
-          <ErrorBoundary>
-            <Navbar />
-            <Suspense fallback={<div>Loading...</div>}>
-              <Routes>
-                <FileRoutes />
-              </Routes>
-            </Suspense>
-          </ErrorBoundary>
-        </QueryClientProvider>
+        <ErrorBoundary>
+          <Navbar />
+          <Suspense fallback={<div>Loading...</div>}>
+            <Routes>
+              <FileRoutes />
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
         <Scripts />
       </Body>
     </Html>
