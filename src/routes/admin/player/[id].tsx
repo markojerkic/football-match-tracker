@@ -76,7 +76,7 @@ export default () => {
           <Title>Player not found</Title>
           <div class="mx-auto max-w-screen-md rounded-md bg-error p-4 text-white">
             <span>
-              Player with the given id was not fuond. Please try another id.{" "}
+              Player with the given id was not found. Please try another id.{" "}
               {e.message}
             </span>
           </div>

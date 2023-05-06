@@ -98,7 +98,7 @@ export default () => {
           <Title>Manager not found</Title>
           <div class="mx-auto max-w-screen-md rounded-md bg-error p-4 text-white">
             <span>
-              Manager with the given id was not fuond. Please try another id.{" "}
+              Manager with the given id was not found. Please try another id.{" "}
               {e.message}
             </span>
           </div>

@@ -80,7 +80,7 @@ export default () => {
             <Title>Competition not found</Title>
             <div class="mx-auto max-w-screen-md rounded-md bg-error p-4 text-white">
               <span>
-                Competition with the given id was not fuond. Please try another
+                Competition with the given id was not found. Please try another
                 id. <span class="divider" />
                 {e.message}
               </span>
