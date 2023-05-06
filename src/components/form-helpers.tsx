@@ -13,6 +13,7 @@ export const Select = (props: {
   disabled?: boolean;
   name: string;
   label: string;
+  id?: string;
   options: Option[];
 }) => {
   return (
@@ -21,6 +22,7 @@ export const Select = (props: {
       <select
         class="select-bordered select w-full"
         name={props.name}
+        id={props.id}
         required={props.required}
         disabled={props.disabled ?? false}
         value={props.control.value}

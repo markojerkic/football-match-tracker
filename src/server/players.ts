@@ -1,6 +1,7 @@
 import { Position } from "@prisma/client";
 import { ServerError, redirect } from "solid-start";
 import { z } from "zod";
+import { PlayerTeamsForm } from "~/routes/admin/player-season/[id]";
 import { prisma } from "~/util/prisma";
 
 const optionalString = z
@@ -167,3 +168,39 @@ export const getPlayersInTeamAndSeason = async (
       }))
     );
 };
+
+
+export const savePlayerTeams = async (teams: PlayerTeamsForm) => {
+
+  if (teams.teamsToDelete.length > 0) {
+    await prisma.playersTeamInSeason.deleteMany({
+      where: {
+        id: {
+          in: teams.teamsToDelete
+        }
+      }
+    })
+  }
+
+
+  const update = teams.team.filter(team => team.id !== undefined);
+
+  await Promise.all(update.map(async (teamToUpdate) => {
+    return prisma.playersTeamInSeason.update({
+      where: {
+        id: teamToUpdate.id
+      },
+      data: teamToUpdate
+    })
+  }))
+
+  const create = teams.team.filter(team => team.id === undefined);
+  await prisma.playersTeamInSeason.createMany({
+    data: create.map(team => ({
+      ...team,
+      playerId: teams.playerId
+    }))
+  });
+
+  return redirect(`/player/${teams.playerId}`);
+}

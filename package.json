@@ -41,7 +41,8 @@
     "solid-start-vercel": "^0.2.26",
     "tailwind-merge": "^1.12.0",
     "undici": "^5.22.0",
-    "zod": "^3.21.4"
+    "zod": "^3.21.4",
+    "zod-form-data": "^2.0.1"
   },
   "engines": {
     "node": ">=16"
