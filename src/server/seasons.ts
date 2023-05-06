@@ -1,6 +1,42 @@
 import { prisma } from "~/util/prisma";
 import { type Option } from "~/components/form-helpers";
 
+export const getCompetitionSeasons = async (teamId: string): Promise<Option[]> => {
+  return prisma.teamInCompetition.findMany({
+    where: {
+      teamId
+    },
+
+    orderBy: {
+      season: {
+        title: "desc"
+      },
+    },
+
+    select: {
+      id: true,
+
+      season: {
+        select: {
+          title: true
+        }
+      },
+
+
+      compatition: {
+        select: {
+          name: true
+        }
+      }
+
+    },
+
+  }).then(competitionSeasons => competitionSeasons.map(cs => ({
+    label: `${cs.compatition.name} - ${cs.season.title}`,
+    value: cs.id
+  } satisfies Option)));
+}
+
 export const getAllSeasons = async (): Promise<Option[]> => {
   return prisma.season
     .findMany({
@@ -12,10 +48,10 @@ export const getAllSeasons = async (): Promise<Option[]> => {
     .then((seasons) =>
       seasons.map(
         (s) =>
-          ({
-            label: s.title,
-            value: s.id,
-          } satisfies Option)
+        ({
+          label: s.title,
+          value: s.id,
+        } satisfies Option)
       )
     );
 };

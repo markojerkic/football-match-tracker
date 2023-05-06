@@ -22,7 +22,7 @@ export const getGoalCountForGame = async (gameId: string) => {
 
 // Monkey path
 // @ts-expect-error
-BigInt.prototype.toJSON = function () {
+BigInt.prototype.toJSON = function() {
   return this.toString();
 };
 export type GameForPlayerOrManagerInSeason = {
@@ -242,11 +242,11 @@ export const getGames = async (selectedDate: string | undefined) => {
       where: {
         ...(lte !== undefined && gte !== undefined
           ? {
-              kickoffTime: {
-                gte,
-                lte,
-              },
-            }
+            kickoffTime: {
+              gte,
+              lte,
+            },
+          }
           : {}),
       },
       select: {
@@ -469,43 +469,43 @@ export const getGameFormData = async (
 
       const goals: Goal[] = game.goals.map(
         (g) =>
-          ({
-            id: g.id,
-            isHomeTeamGoal: g.isHomeTeamGoal,
-            scorerId: g.scoredBy.id,
-            isOwnGoal: g.isOwnGoal,
-            isPenalty: g.isPenalty,
-            scoredInMinute: g.scoredInMinute,
-            scoredInExtraMinute: g.scoredInExtraMinute ?? undefined,
-            assistentId: g.assistedBy?.id ?? undefined,
-          } satisfies Goal)
+        ({
+          id: g.id,
+          isHomeTeamGoal: g.isHomeTeamGoal,
+          scorerId: g.scoredBy.id,
+          isOwnGoal: g.isOwnGoal,
+          isPenalty: g.isPenalty,
+          scoredInMinute: g.scoredInMinute,
+          scoredInExtraMinute: g.scoredInExtraMinute ?? undefined,
+          assistentId: g.assistedBy?.id ?? undefined,
+        } satisfies Goal)
       );
 
       const cards: CardEvent[] = game.cardsAwarded.map(
         (c) =>
-          ({
-            id: c.id,
-            minute: c.minute,
-            extraTimeMinute: c.extraTimeMinute ?? undefined,
-            cardType: c.cardType,
-            playerId: c.player.id,
-            playerLastName: c.player.lastName,
-            isHomeTeam: c.isHomeTeam,
-          } satisfies CardEvent)
+        ({
+          id: c.id,
+          minute: c.minute,
+          extraTimeMinute: c.extraTimeMinute ?? undefined,
+          cardType: c.cardType,
+          playerId: c.player.id,
+          playerLastName: c.player.lastName,
+          isHomeTeam: c.isHomeTeam,
+        } satisfies CardEvent)
       );
 
       const substitutions: SubstitutionEvent[] = game.substitutions.map(
         (sub) =>
-          ({
-            id: sub.id,
-            minute: sub.minute,
-            extraTimeMinute: sub.extraTimeMinute ?? undefined,
-            playerInId: sub.playerInId,
-            playerInName: sub.playerIn?.lastName ?? "",
-            playerOutId: sub.playerOutId,
-            playerOutName: sub.playerOut?.lastName ?? "",
-            isHomeTeam: sub.isHomeTeam,
-          } satisfies SubstitutionEvent)
+        ({
+          id: sub.id,
+          minute: sub.minute,
+          extraTimeMinute: sub.extraTimeMinute ?? undefined,
+          playerInId: sub.playerInId,
+          playerInName: sub.playerIn?.lastName ?? "",
+          playerOutId: sub.playerOutId,
+          playerOutName: sub.playerOut?.lastName ?? "",
+          isHomeTeam: sub.isHomeTeam,
+        } satisfies SubstitutionEvent)
       );
 
       return {
@@ -679,4 +679,97 @@ export const updateOrSaveGame = async (
   }
 
   return gameId;
+};
+
+
+export const getGamesForCompetitionSeason = async (
+  competitionSeasonId: string
+): Promise<GameForPlayerOrManagerInSeason[]> => {
+  console.log(competitionSeasonId);
+  const season = await prisma.teamInCompetition.findUniqueOrThrow({
+    where: {
+      id: competitionSeasonId
+    },
+
+    select: {
+      id: true,
+      seasonId: true,
+      competitionId: true,
+      teamId: true
+    }
+
+  });
+
+  console.log(season);
+
+  return prisma.game
+    .findMany({
+      where: {
+        seasonId: season.seasonId,
+        competitionId: season.competitionId,
+        OR: [
+          { homeTeamId: season.teamId },
+          { awayTeamId: season.teamId },
+
+        ]
+      },
+
+      orderBy: {
+        kickoffTime: "desc",
+      },
+
+      select: {
+        id: true,
+        kickoffTime: true,
+
+        homeTeam: {
+          select: {
+            id: true,
+            name: true,
+            imageSlug: true,
+          },
+        },
+        awayTeam: {
+          select: {
+            id: true,
+            name: true,
+            imageSlug: true,
+          },
+        },
+
+        goals: {
+          select: {
+            id: true,
+            isHomeTeamGoal: true,
+          },
+        },
+      },
+    })
+    .then((games) => {
+      return games.map((game) => {
+        let hometeamgoalcount = 0;
+        let awayteamgoalcount = 0;
+
+        game.goals.forEach((goal) => {
+          if (goal.isHomeTeamGoal) {
+            hometeamgoalcount++;
+          } else {
+            awayteamgoalcount++;
+          }
+        });
+
+        return {
+          gameid: game.id,
+          hometeamgoalcount,
+          awayteamgoalcount,
+          homeTeamId: game.homeTeam.id,
+          awayTeamId: game.awayTeam.id,
+          kickoffTime: game.kickoffTime,
+          hometeamname: game.homeTeam.name,
+          awayteamname: game.awayTeam.name,
+          hometeamimageslug: game.homeTeam.imageSlug,
+          awayteamimageslug: game.awayTeam.imageSlug,
+        } satisfies GameForPlayerOrManagerInSeason;
+      });
+    });
 };

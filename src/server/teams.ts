@@ -2,6 +2,21 @@ import { prisma } from "~/util/prisma";
 import { type Option } from "~/components/form-helpers";
 import { PlayersTeamInSeason } from "~/routes/admin/player-season/[id]";
 
+export const getLatestSeasonCompetitionForTeam = async (teamId: string) => {
+  return prisma.teamInCompetition.findFirstOrThrow({
+    where: {
+      teamId,
+    },
+
+    orderBy: {
+      season: {
+        title: "desc"
+      }
+    }
+
+  });
+}
+
 export const getTeamById = async (id: string) => {
   return prisma.team.findUniqueOrThrow({
     where: {
