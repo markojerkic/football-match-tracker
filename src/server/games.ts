@@ -317,12 +317,16 @@ export const getGameDataById = async (id: string) => {
       kickoffTime: true,
       homeTeam: {
         select: {
+          id: true,
           name: true,
+          imageSlug: true
         },
       },
       awayTeam: {
         select: {
+          id: true,
           name: true,
+          imageSlug: true
         },
       },
       goals: {

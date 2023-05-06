@@ -84,9 +84,28 @@ const GameInfo = (gameData: GameDataById) => {
           </span>
           <span class="flex w-full flex-col">
             <span class="flex w-full justify-center space-x-4">
-              <span class="text-lg font-bold">{gameData.homeTeam.name}</span>
-              <span>{result()}</span>
-              <span class="text-lg font-bold">{gameData.awayTeam.name}</span>
+              <A
+                href={`/team/${gameData.homeTeam.id}`}
+                class="flex items-center space-x-4 text-lg font-bold hover:link"
+              >
+                <img
+                  src={gameData.homeTeam.imageSlug ?? "/shield.svg"}
+                  class="avatar h-10 object-cover"
+                />
+                <span>{gameData.homeTeam.name}</span>
+              </A>
+
+              <span class="text-lg font-semibold self-center">{result()}</span>
+              <A
+                href={`/team/${gameData.awayTeam.id}`}
+                class="flex items-center space-x-4 text-lg font-bold hover:link"
+              >
+                <span>{gameData.awayTeam.name}</span>
+                <img
+                  src={gameData.homeTeam.imageSlug ?? "/shield.svg"}
+                  class="avatar h-10 object-cover"
+                />
+              </A>
             </span>
           </span>
         </div>
@@ -127,11 +146,9 @@ export default () => {
               </Title>
               <Meta
                 name="description"
-                content={`On ${gameData.kickoffTime.toLocaleString()}, ${
-                  gameData.homeTeam.name
-                } and ${
-                  gameData.homeTeam.name
-                } took each other on in a football game.`}
+                content={`On ${gameData.kickoffTime.toLocaleString()}, ${gameData.homeTeam.name
+                  } and ${gameData.homeTeam.name
+                  } took each other on in a football game.`}
               />
               <GameInfo {...gameData} />
             </>
