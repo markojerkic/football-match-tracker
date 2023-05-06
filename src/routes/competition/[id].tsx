@@ -21,7 +21,7 @@ export const routeData = ({ params }: RouteDataArgs) => {
   return competitionDetail;
 };
 
-const Flag = () => (
+export const Flag = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"

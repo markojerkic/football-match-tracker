@@ -152,7 +152,7 @@ model Team {
   primaryShirtColor String
   maganersInSeason  ManagerInTeamSeason[]
   currentPlayers    Player[]
-  currentManagers   Manager[]
+  currentManager    Manager?
 }
 
 model HighlightedTeam {

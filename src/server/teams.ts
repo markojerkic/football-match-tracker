@@ -2,6 +2,38 @@ import { prisma } from "~/util/prisma";
 import { type Option } from "~/components/form-helpers";
 import { PlayersTeamInSeason } from "~/routes/admin/player-season/[id]";
 
+export const getTeamById = async (id: string) => {
+  return prisma.team.findUniqueOrThrow({
+    where: {
+      id
+    },
+
+
+    select: {
+      name: true,
+      imageSlug: true,
+
+      currentManager: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          imageSlug: true
+        }
+      },
+
+      country: {
+        select: {
+          name: true,
+          imageSlug: true
+        }
+      }
+    }
+
+  });
+}
+
+
 export const getTeamsInCompetitionSeason = async (
   competitionId: string,
   seasonId: string
