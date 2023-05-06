@@ -38,6 +38,74 @@ export type GameForPlayerOrManagerInSeason = {
   awayteamgoalcount: number | null;
 };
 
+export const getGamesForCompetitionInSeason = async (competitionId: string, seasonId: string) : Promise<GameForPlayerOrManagerInSeason[]> => {
+  return prisma.game
+    .findMany({
+      where: {
+        seasonId,
+        competitionId
+      },
+
+      orderBy: {
+        kickoffTime: "desc",
+      },
+
+      select: {
+        id: true,
+        kickoffTime: true,
+
+        homeTeam: {
+          select: {
+            id: true,
+            name: true,
+            imageSlug: true,
+          },
+        },
+        awayTeam: {
+          select: {
+            id: true,
+            name: true,
+            imageSlug: true,
+          },
+        },
+
+        goals: {
+          select: {
+            id: true,
+            isHomeTeamGoal: true,
+          },
+        },
+      },
+    })
+    .then((games) => {
+      return games.map((game) => {
+        let hometeamgoalcount = 0;
+        let awayteamgoalcount = 0;
+
+        game.goals.forEach((goal) => {
+          if (goal.isHomeTeamGoal) {
+            hometeamgoalcount++;
+          } else {
+            awayteamgoalcount++;
+          }
+        });
+
+        return {
+          gameid: game.id,
+          hometeamgoalcount,
+          awayteamgoalcount,
+          homeTeamId: game.homeTeam.id,
+          awayTeamId: game.awayTeam.id,
+          kickoffTime: game.kickoffTime,
+          hometeamname: game.homeTeam.name,
+          awayteamname: game.awayTeam.name,
+          hometeamimageslug: game.homeTeam.imageSlug,
+          awayteamimageslug: game.awayTeam.imageSlug,
+        } satisfies GameForPlayerOrManagerInSeason;
+      });
+    });
+}
+
 export const getGamesForManager = async (
   managerId: string,
   seasonId: string | undefined
