@@ -2,6 +2,26 @@ import { prisma } from "~/util/prisma";
 import { type Option } from "~/components/form-helpers";
 import { PlayersTeamInSeason } from "~/routes/admin/player-season/[id]";
 
+export const getTeamForManagerForm = async (managerId: string) => {
+  return prisma.managerInTeamSeason.findMany({
+    where: {
+      managerId,
+    },
+
+    orderBy: {
+      season: {
+        title: "asc",
+      },
+    },
+
+    select: {
+      id: true,
+      teamId: true,
+      seasonId: true,
+    },
+  })
+}
+
 export const getTeamForPlayerForm = async (
   playerId: string
 ): Promise<PlayersTeamInSeason[]> => {
@@ -22,6 +42,50 @@ export const getTeamForPlayerForm = async (
       seasonId: true,
     },
   });
+};
+
+export const getTeamsForManager = async (managerId: string) => {
+  const teams = await prisma.managerInTeamSeason
+    .findMany({
+      where: {
+        managerId
+      },
+
+      orderBy: {
+        season: {
+          title: "asc",
+        },
+      },
+
+      select: {
+        id: true,
+        team: {
+          select: {
+            id: true,
+            name: true,
+            imageSlug: true,
+          },
+        },
+
+        season: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+    })
+    .then((teams) =>
+      teams.map((t) => ({
+        teamId: t.team.id,
+        teamName: t.team.name,
+        teamImageSlug: t.team.imageSlug,
+        seasonId: t.season.id,
+        seasonName: t.season.title,
+      }))
+    );
+
+  return teams;
 };
 
 export const getTeamsForPlayer = async (playerId: string) => {

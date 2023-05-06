@@ -260,7 +260,7 @@ const Tab = (props: { label: string; id: string; route: string }) => {
   );
 };
 
-const CurrentTeam = (team: {
+export const CurrentTeam = (team: {
   name: string | null;
   id: string | null;
   imageSlug: string | null;

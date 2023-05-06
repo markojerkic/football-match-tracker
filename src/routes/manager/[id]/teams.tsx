@@ -2,11 +2,11 @@ import { For } from "solid-js";
 import { A, RouteDataArgs, useParams, useRouteData } from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import { TeamPreview } from "~/components/teams";
-import { getTeamsForPlayer } from "~/server/teams";
+import { getTeamsForManager } from "~/server/teams";
 
 export const routeData = ({ params }: RouteDataArgs) => {
-  const teams = createServerData$(([, id]) => getTeamsForPlayer(id), {
-    key: () => ["teams-for-player-in-seasson", params.id],
+  const teams = createServerData$(([, id]) => getTeamsForManager(id), {
+    key: () => ["teams-for-manager-in-seasson", params.id],
     initialValue: [],
   });
 
@@ -15,14 +15,14 @@ export const routeData = ({ params }: RouteDataArgs) => {
 
 export default () => {
   const teams = useRouteData<typeof routeData>();
-  const playerId = useParams().id;
+  const managerId = useParams().id;
 
   return (
     <div class="flex flex-col justify-center space-y-4">
       {/* FIXME: only admins can see this */}
       <div class="flex grow justify-end">
         <A
-          href={`/admin/player-season/${playerId}`}
+          href={`/admin/manager-season/${managerId}`}
           class="btn-outline btn-circle btn justify-self-end"
         >
           <svg

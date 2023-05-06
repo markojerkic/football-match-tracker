@@ -43,10 +43,12 @@ model Manager {
   lastName           String
   teamId             String?               @unique
   nationality        Country               @relation(fields: [countryId], references: [id])
+  dateOfBirth        DateTime              @default(now())
   teamsInSeason      ManagerInTeamSeason[]
   managerForHomeTeam Game[]                @relation("homeTeamManager")
   managerForawayTeam Game[]                @relation("awayTeamManager")
   countryId          String // @default("clfqiqd1i0000uvwm2lh15gov")
+  currentTeam        Team?                 @relation(fields: [teamId], references: [id])
 }
 
 model ManagerInTeamSeason {
@@ -150,6 +152,7 @@ model Team {
   primaryShirtColor String
   maganersInSeason  ManagerInTeamSeason[]
   currentPlayers    Player[]
+  currentManagers   Manager[]
 }
 
 model HighlightedTeam {
