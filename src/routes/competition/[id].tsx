@@ -104,7 +104,7 @@ export default () => {
                       fallback={<Flag />}
                       keyed
                     >
-                      {(flag) => <img src={flag} />}
+                      {(flag) => <img class="avatar h-6 w-6 ring ring-black ring-offset-2" src={flag} />}
                     </Show>
                     <span>{competition.country.name}</span>
                   </span>
