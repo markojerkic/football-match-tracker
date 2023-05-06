@@ -3,22 +3,21 @@ import { prisma } from "~/util/prisma";
 export const getLatestSeasonForCompetition = (competitionId: string) => {
   return prisma.competitionInSeason.findFirstOrThrow({
     where: {
-      competitionId
+      competitionId,
     },
     orderBy: {
-      seasonId: "desc"
+      seasonId: "desc",
     },
     select: {
-      seasonId: true
-    }
-
+      seasonId: true,
+    },
   });
-}
+};
 
 export const getCompetitionDetail = (id: string) => {
   return prisma.competition.findUniqueOrThrow({
     where: {
-      id
+      id,
     },
 
     select: {
@@ -26,14 +25,12 @@ export const getCompetitionDetail = (id: string) => {
       country: {
         select: {
           name: true,
-          imageSlug: true
-        }
-      }
-
-    }
-
-  })
-}
+          imageSlug: true,
+        },
+      },
+    },
+  });
+};
 
 export const getCompetitionOptions = () => {
   return prisma.competition

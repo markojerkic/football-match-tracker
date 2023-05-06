@@ -28,7 +28,7 @@ const Flag = () => (
     viewBox="0 0 24 24"
     stroke-width="1.5"
     stroke="currentColor"
-    class="h-6 w-6 mx-auto"
+    class="mx-auto h-6 w-6"
   >
     <path
       stroke-linecap="round"
@@ -48,7 +48,6 @@ const TabSelector = () => {
         {/*
         <Tab route="games" label="Games" id={props.playerId} />
         */}
-
       </div>
     </div>
   );
@@ -58,7 +57,6 @@ const Tab = (props: { label: string; route: string }) => {
   return (
     <span class="flex-1">
       <A
-        end={true}
         href={props.route}
         activeClass={activeStyle}
         inactiveClass={inactiveStyle}
@@ -69,7 +67,6 @@ const Tab = (props: { label: string; route: string }) => {
     </span>
   );
 };
-
 
 export default () => {
   const competitionDetail = useRouteData<typeof routeData>();
@@ -102,12 +99,13 @@ export default () => {
               <div>Competition {competition.name}</div>
               <div class="mx-auto w-[90%] border-2 border-black p-4 md:w-[50%]">
                 <div class="flex space-x-4">
-
-                  <span class="flex flex-col space-y-2 items-center justify-center text-sm">
-                    <Show when={competition.country.imageSlug} fallback={<Flag />} keyed>
-                      {(flag) => (
-                        <img src={flag} />
-                      )}
+                  <span class="flex flex-col items-center justify-center space-y-2 text-sm">
+                    <Show
+                      when={competition.country.imageSlug}
+                      fallback={<Flag />}
+                      keyed
+                    >
+                      {(flag) => <img src={flag} />}
                     </Show>
                     <span>{competition.country.name}</span>
                   </span>
@@ -120,21 +118,20 @@ export default () => {
                 <TabSelector />
 
                 <Suspense>
-                  <ErrorBoundary fallback={() => (
-                    <div class="rounded-md bg-error p-4 text-white">
-                      <span>
-                        Error loading data for this tab. Try another tab or another
-                        game.
-                      </span>
-                    </div>
-                  )}>
+                  <ErrorBoundary
+                    fallback={() => (
+                      <div class="rounded-md bg-error p-4 text-white">
+                        <span>
+                          Error loading data for this tab. Try another tab or
+                          another game.
+                        </span>
+                      </div>
+                    )}
+                  >
                     <Outlet />
                   </ErrorBoundary>
                 </Suspense>
-
               </div>
-
-
             </>
           )}
         </Show>

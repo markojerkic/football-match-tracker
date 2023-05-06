@@ -1,5 +1,11 @@
 import { For, createSignal } from "solid-js";
-import { RouteDataArgs, Title, useParams, useRouteData } from "solid-start"
+import {
+  RouteDataArgs,
+  Title,
+  useNavigate,
+  useParams,
+  useRouteData,
+} from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import { Select } from "~/components/form-helpers";
 import { GamePreview } from "~/components/games";
@@ -7,8 +13,6 @@ import { getGamesForCompetitionInSeason } from "~/server/games";
 import { getSeasonsFromCompetition } from "~/server/seasons";
 
 export const routeData = ({ params }: RouteDataArgs) => {
-  const [selectedSeason, setSelectedSeason] = createSignal<string>(params.seasonId);
-
   const seasons = createServerData$(([, id]) => getSeasonsFromCompetition(id), {
     key: () => ["seasons-from-competition", params.id],
     initialValue: [],
@@ -17,18 +21,18 @@ export const routeData = ({ params }: RouteDataArgs) => {
   const games = createServerData$(
     ([, id, season]) => getGamesForCompetitionInSeason(id, season),
     {
-      key: () => ["games-for-competition", params.id, selectedSeason()] as const,
+      key: () => ["games-for-competition", params.id, params.seasonId],
       initialValue: [],
     }
   );
 
-  return { games, seasons, selectedSeason, setSelectedSeason };
-}
+  return { games, seasons };
+};
 
 export default () => {
-  const { games, seasons, selectedSeason, setSelectedSeason } =
-    useRouteData<typeof routeData>();
-
+  const { games, seasons } = useRouteData<typeof routeData>();
+  const params = useParams();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -39,8 +43,10 @@ export default () => {
           label="Season"
           options={seasons() ?? []}
           control={{
-            value: selectedSeason(),
-            setValue: (val) => setSelectedSeason(val),
+            value: params.seasonId,
+            setValue: (val) => {
+              navigate(`/competition/${params.id}/games/${val}`);
+            },
           }}
           required
         />
@@ -61,5 +67,5 @@ export default () => {
         </For>
       </div>
     </>
-  )
-}
+  );
+};

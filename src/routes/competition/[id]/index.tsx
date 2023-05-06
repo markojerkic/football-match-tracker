@@ -143,9 +143,9 @@
 //   );
 // };
 
-import { HttpStatusCode } from "solid-start/server"
+import { HttpStatusCode } from "solid-start/server";
 
 //
 export default () => {
-  return <HttpStatusCode code={404} />
-}
+  return <HttpStatusCode code={404} />;
+};

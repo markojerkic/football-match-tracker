@@ -1,7 +1,3 @@
 export default () => {
-  return (
-    <div>
-      Here be dragons.
-    </div>
-  )
-}
+  return <div>Here be dragons.</div>;
+};
