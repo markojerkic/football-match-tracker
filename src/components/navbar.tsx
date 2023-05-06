@@ -9,6 +9,7 @@ export default () => {
       <A
         href="/"
         class="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100"
+        end
       >
         <span class="sr-only">Logo</span>⚽
       </A>
@@ -31,6 +32,7 @@ export default () => {
             class="rounded-lg px-3 py-2"
             activeClass="underline underline-offset-2"
             href="/game"
+            end
           >
             {" "}
             Games{" "}
@@ -42,6 +44,7 @@ export default () => {
             class="rounded-lg px-3 py-2"
             activeClass="underline underline-offset-2"
             href="/admin/game"
+            end
           >
             {" "}
             New Game{" "}
@@ -53,18 +56,19 @@ export default () => {
             class="rounded-lg px-3 py-2"
             activeClass="underline underline-offset-2"
             href="/admin/player"
+            end
           >
             {" "}
             New Player{" "}
           </A>
         </li>
 
-
         <li>
           <A
             class="rounded-lg px-3 py-2"
             activeClass="underline underline-offset-2"
             href="/admin/manager"
+            end
           >
             {" "}
             New Manager{" "}

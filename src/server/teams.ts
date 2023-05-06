@@ -2,7 +2,9 @@ import { prisma } from "~/util/prisma";
 import { type Option } from "~/components/form-helpers";
 import { PlayersTeamInSeason } from "~/routes/admin/player-season/[id]";
 
-export const getTeamForPlayerForm = async (playerId: string): Promise<PlayersTeamInSeason[]> => {
+export const getTeamForPlayerForm = async (
+  playerId: string
+): Promise<PlayersTeamInSeason[]> => {
   return prisma.playersTeamInSeason.findMany({
     where: {
       playerId,
@@ -17,10 +19,10 @@ export const getTeamForPlayerForm = async (playerId: string): Promise<PlayersTea
     select: {
       id: true,
       teamId: true,
-      seasonId: true
-    }
+      seasonId: true,
+    },
   });
-}
+};
 
 export const getTeamsForPlayer = async (playerId: string) => {
   const teams = await prisma.playersTeamInSeason

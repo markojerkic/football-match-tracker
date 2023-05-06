@@ -22,7 +22,9 @@ export const getGoalCountForGame = async (gameId: string) => {
 
 // Monkey path
 // @ts-expect-error
-BigInt.prototype.toJSON = function() { return this.toString() }
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
 
 export const getGamesForPlayer = async (playerId: string) => {
   const games: {
@@ -82,11 +84,11 @@ export const getGames = async (selectedDate: string | undefined) => {
       where: {
         ...(lte !== undefined && gte !== undefined
           ? {
-            kickoffTime: {
-              gte,
-              lte,
-            },
-          }
+              kickoffTime: {
+                gte,
+                lte,
+              },
+            }
           : {}),
       },
       select: {
@@ -116,7 +118,7 @@ export const getGames = async (selectedDate: string | undefined) => {
   return games;
 };
 
-const countGoals = <T,>(game: T & { goals: { isHomeTeamGoal: boolean }[] }) => {
+const countGoals = <T>(game: T & { goals: { isHomeTeamGoal: boolean }[] }) => {
   let homeTeamGoalCount = 0;
   let awayTeamGoalCount = 0;
 
@@ -290,43 +292,43 @@ export const getGameFormData = async (
 
       const goals: Goal[] = game.goals.map(
         (g) =>
-        ({
-          id: g.id,
-          isHomeTeamGoal: g.isHomeTeamGoal,
-          scorerId: g.scoredBy.id,
-          isOwnGoal: g.isOwnGoal,
-          isPenalty: g.isPenalty,
-          scoredInMinute: g.scoredInMinute,
-          scoredInExtraMinute: g.scoredInExtraMinute ?? undefined,
-          assistentId: g.assistedBy?.id ?? undefined,
-        } satisfies Goal)
+          ({
+            id: g.id,
+            isHomeTeamGoal: g.isHomeTeamGoal,
+            scorerId: g.scoredBy.id,
+            isOwnGoal: g.isOwnGoal,
+            isPenalty: g.isPenalty,
+            scoredInMinute: g.scoredInMinute,
+            scoredInExtraMinute: g.scoredInExtraMinute ?? undefined,
+            assistentId: g.assistedBy?.id ?? undefined,
+          } satisfies Goal)
       );
 
       const cards: CardEvent[] = game.cardsAwarded.map(
         (c) =>
-        ({
-          id: c.id,
-          minute: c.minute,
-          extraTimeMinute: c.extraTimeMinute ?? undefined,
-          cardType: c.cardType,
-          playerId: c.player.id,
-          playerLastName: c.player.lastName,
-          isHomeTeam: c.isHomeTeam,
-        } satisfies CardEvent)
+          ({
+            id: c.id,
+            minute: c.minute,
+            extraTimeMinute: c.extraTimeMinute ?? undefined,
+            cardType: c.cardType,
+            playerId: c.player.id,
+            playerLastName: c.player.lastName,
+            isHomeTeam: c.isHomeTeam,
+          } satisfies CardEvent)
       );
 
       const substitutions: SubstitutionEvent[] = game.substitutions.map(
         (sub) =>
-        ({
-          id: sub.id,
-          minute: sub.minute,
-          extraTimeMinute: sub.extraTimeMinute ?? undefined,
-          playerInId: sub.playerInId,
-          playerInName: sub.playerIn?.lastName ?? "",
-          playerOutId: sub.playerOutId,
-          playerOutName: sub.playerOut?.lastName ?? "",
-          isHomeTeam: sub.isHomeTeam,
-        } satisfies SubstitutionEvent)
+          ({
+            id: sub.id,
+            minute: sub.minute,
+            extraTimeMinute: sub.extraTimeMinute ?? undefined,
+            playerInId: sub.playerInId,
+            playerInName: sub.playerIn?.lastName ?? "",
+            playerOutId: sub.playerOutId,
+            playerOutName: sub.playerOut?.lastName ?? "",
+            isHomeTeam: sub.isHomeTeam,
+          } satisfies SubstitutionEvent)
       );
 
       return {

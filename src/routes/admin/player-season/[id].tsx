@@ -1,6 +1,11 @@
 import { For, Resource, Show, createRenderEffect } from "solid-js";
 import { createStore } from "solid-js/store";
-import ErrorBoundary, { RouteDataArgs, Title, useParams, useRouteData } from "solid-start";
+import ErrorBoundary, {
+  RouteDataArgs,
+  Title,
+  useParams,
+  useRouteData,
+} from "solid-start";
 import {
   HttpStatusCode,
   createServerAction$,
@@ -11,7 +16,7 @@ import { zfd } from "zod-form-data";
 import { Select } from "~/components/form-helpers";
 import { BasicPlayerDetail } from "~/components/player";
 import { getPlayerById, savePlayerTeams } from "~/server/players";
-import { getAllSeasons, getSeasonsFromCompetition } from "~/server/seasons";
+import { getAllSeasons } from "~/server/seasons";
 import { getAllTeams, getTeamForPlayerForm } from "~/server/teams";
 
 export const routeData = ({ params }: RouteDataArgs) => {
@@ -51,7 +56,7 @@ const schema = zfd.formData(
   z.object({
     team: teamInSeasonSchema.array().optional().default([]),
     teamsToDelete: zfd.text().array().optional().default([]),
-    playerId: zfd.text()
+    playerId: zfd.text(),
   })
 );
 
@@ -73,13 +78,12 @@ export default () => {
     }
   });
 
-  const [status, { Form }] = createServerAction$(async (formData: FormData) => {
+  const [_, { Form }] = createServerAction$(async (formData: FormData) => {
     const data = schema.parse(formData);
     return savePlayerTeams(data);
   });
 
-  const t = () => JSON.stringify(teamSeasons, null, 2);
-  const d = () => JSON.stringify(teamsToDelete, null, 2);
+  const loading = () => playerTeamsInSeasons.loading;
 
   return (
     <ErrorBoundary
@@ -109,13 +113,14 @@ export default () => {
             />
 
             <Form class="mx-auto flex w-[90%] flex-col space-y-4 border-2 border-black p-4 md:w-[50%]">
-              {t()}
-              <span class="divider" />
-              {d()}
               <input type="hidden" name="playerId" value={playerId} />
               <For each={teamsToDelete}>
                 {(team, index) => (
-                  <input type="hidden" name={`teamsToDelete[${index()}]`} value={team} />
+                  <input
+                    type="hidden"
+                    name={`teamsToDelete[${index()}]`}
+                    value={team}
+                  />
                 )}
               </For>
               <For each={teamSeasons}>
@@ -131,6 +136,7 @@ export default () => {
                       name={`team[${index()}].teamId`}
                       label="Team"
                       required
+                      disabled={loading()}
                       options={teams() ?? []}
                       control={{
                         value: team.teamId,
@@ -143,6 +149,7 @@ export default () => {
                       name={`team[${index()}].seasonId`}
                       label="Season"
                       required
+                      disabled={loading()}
                       options={seasons() ?? []}
                       control={{
                         value: team.seasonId,
@@ -154,6 +161,7 @@ export default () => {
                     <button
                       type="button"
                       class="btn-error btn"
+                      disabled={playerTeamsInSeasons.state === "pending"}
                       onClick={() => {
                         const id = team.id;
                         if (id) {
@@ -161,9 +169,7 @@ export default () => {
                         }
 
                         setTeamSeasons((curr) =>
-                          [...curr].filter(
-                            (_, i) => i !== index()
-                          )
+                          [...curr].filter((_, i) => i !== index())
                         );
                       }}
                     >
@@ -200,7 +206,7 @@ export default () => {
                   Add new team
                 </button>
 
-                <button type="submit" class="btn">
+                <button type="submit" class="btn" disabled={loading()}>
                   Save
                 </button>
               </span>

@@ -169,38 +169,37 @@ export const getPlayersInTeamAndSeason = async (
     );
 };
 
-
 export const savePlayerTeams = async (teams: PlayerTeamsForm) => {
-
   if (teams.teamsToDelete.length > 0) {
     await prisma.playersTeamInSeason.deleteMany({
       where: {
         id: {
-          in: teams.teamsToDelete
-        }
-      }
-    })
+          in: teams.teamsToDelete,
+        },
+      },
+    });
   }
 
+  const update = teams.team.filter((team) => team.id !== undefined);
 
-  const update = teams.team.filter(team => team.id !== undefined);
-
-  await Promise.all(update.map(async (teamToUpdate) => {
-    return prisma.playersTeamInSeason.update({
-      where: {
-        id: teamToUpdate.id
-      },
-      data: teamToUpdate
+  await Promise.all(
+    update.map(async (teamToUpdate) => {
+      return prisma.playersTeamInSeason.update({
+        where: {
+          id: teamToUpdate.id,
+        },
+        data: teamToUpdate,
+      });
     })
-  }))
+  );
 
-  const create = teams.team.filter(team => team.id === undefined);
+  const create = teams.team.filter((team) => team.id === undefined);
   await prisma.playersTeamInSeason.createMany({
-    data: create.map(team => ({
+    data: create.map((team) => ({
       ...team,
-      playerId: teams.playerId
-    }))
+      playerId: teams.playerId,
+    })),
   });
 
   return redirect(`/player/${teams.playerId}`);
-}
+};

@@ -167,12 +167,12 @@ export const PlayerDetail = (detail: {
   lastName: string;
   imageSlug: string | undefined;
   currentTeam:
-  | {
-    id: string;
-    name: string;
-    imageSlug: string | null;
-  }
-  | undefined;
+    | {
+        id: string;
+        name: string;
+        imageSlug: string | null;
+      }
+    | undefined;
 }) => {
   return (
     <article class="mx-auto flex w-[90%] flex-col justify-center space-y-4 border-2 border-black p-4 md:w-[50%]">
@@ -205,13 +205,11 @@ export const PlayerDetail = (detail: {
       <span class="divider" />
 
       <div>
-        <Show when={detail.currentTeam} fallback={
-          <CurrentTeam
-            name={"Unkown"}
-            id={null}
-            imageSlug={null}
-          />
-        } keyed>
+        <Show
+          when={detail.currentTeam}
+          fallback={<CurrentTeam name={"Unkown"} id={null} imageSlug={null} />}
+          keyed
+        >
           {(currentTeam) => (
             <CurrentTeam
               name={currentTeam.name}
@@ -281,23 +279,21 @@ const CurrentTeam = (team: {
   );
 };
 
-
 export const BasicPlayerDetail = (detail: {
   id: string;
   firstName: string;
   lastName: string;
   imageSlug: string | undefined;
   currentTeam:
-  | {
-    id: string;
-    name: string;
-    imageSlug: string | null;
-  }
-  | undefined;
+    | {
+        id: string;
+        name: string;
+        imageSlug: string | null;
+      }
+    | undefined;
 }) => {
   return (
     <article class="mx-auto flex w-[90%] flex-col justify-center space-y-4 border-2 border-black p-4 md:w-[50%]">
-
       <ImageOrDefaultAvater imageSlug={detail.imageSlug} />
       <h3 class="text-center text-3xl font-semibold">{`${detail.firstName} ${detail.lastName}`}</h3>
 
@@ -323,5 +319,5 @@ export const BasicPlayerDetail = (detail: {
       </div>
       */}
     </article>
-  )
-}
+  );
+};
