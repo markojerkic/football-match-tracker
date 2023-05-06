@@ -2,6 +2,28 @@ import { prisma } from "~/util/prisma";
 import { type Option } from "~/components/form-helpers";
 import { PlayersTeamInSeason } from "~/routes/admin/player-season/[id]";
 
+export const getTeamsInCompetitionSeason = async (
+  competitionId: string,
+  seasonId: string
+) => {
+  return prisma.teamInCompetition.findMany({
+    where: {
+      competitionId,
+      seasonId,
+    },
+
+    select: {
+      team: {
+        select: {
+          id: true,
+          name: true,
+          imageSlug: true,
+        },
+      },
+    },
+  });
+};
+
 export const getTeamForManagerForm = async (managerId: string) => {
   return prisma.managerInTeamSeason.findMany({
     where: {

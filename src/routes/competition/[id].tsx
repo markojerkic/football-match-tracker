@@ -119,11 +119,13 @@ export default () => {
 
                 <Suspense>
                   <ErrorBoundary
-                    fallback={() => (
+                    fallback={(e) => (
                       <div class="rounded-md bg-error p-4 text-white">
                         <span>
                           Error loading data for this tab. Try another tab or
                           another game.
+                          <span class="divider" />
+                          {e.message}
                         </span>
                       </div>
                     )}
