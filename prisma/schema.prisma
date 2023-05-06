@@ -47,7 +47,7 @@ model Manager {
   teamsInSeason      ManagerInTeamSeason[]
   managerForHomeTeam Game[]                @relation("homeTeamManager")
   managerForawayTeam Game[]                @relation("awayTeamManager")
-  countryId          String // @default("clfqiqd1i0000uvwm2lh15gov")
+  countryId          String
   currentTeam        Team?                 @relation(fields: [teamId], references: [id])
 }
 
