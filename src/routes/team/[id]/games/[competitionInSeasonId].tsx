@@ -1,5 +1,11 @@
 import { For } from "solid-js";
-import { RouteDataArgs, Title, useNavigate, useParams, useRouteData } from "solid-start";
+import {
+  RouteDataArgs,
+  Title,
+  useNavigate,
+  useParams,
+  useRouteData,
+} from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import { Select } from "~/components/form-helpers";
 import { GamePreview } from "~/components/games";
@@ -7,21 +13,27 @@ import { getGamesForCompetitionSeason } from "~/server/games";
 import { getCompetitionSeasons } from "~/server/seasons";
 
 export const routeData = ({ params }: RouteDataArgs) => {
-  const competitionSeasons = createServerData$(([, id]) => getCompetitionSeasons(id), {
-    key: () => ["competition-seasons", params.id],
-    initialValue: [],
-  });
+  const competitionSeasons = createServerData$(
+    ([, id]) => getCompetitionSeasons(id),
+    {
+      key: () => ["competition-seasons", params.id],
+      initialValue: [],
+    }
+  );
 
   const games = createServerData$(
     ([, id]) => getGamesForCompetitionSeason(id),
     {
-      key: () => ["games-for-team-competition-season", params.competitionInSeasonId],
+      key: () => [
+        "games-for-team-competition-season",
+        params.competitionInSeasonId,
+      ],
       initialValue: [],
     }
   );
 
   return { games, competitionSeasons };
-}
+};
 
 export default () => {
   const { games, competitionSeasons } = useRouteData<typeof routeData>();
@@ -38,7 +50,7 @@ export default () => {
           label="Season"
           options={competitionSeasons() ?? []}
           control={{
-            value: params.seasonId,
+            value: params.competitionInSeasonId,
             setValue: (val) => {
               navigate(`/team/${params.id}/games/${val}`);
             },
@@ -63,4 +75,4 @@ export default () => {
       </div>
     </>
   );
-}
+};

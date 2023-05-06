@@ -10,19 +10,17 @@ export const getLatestSeasonCompetitionForTeam = async (teamId: string) => {
 
     orderBy: {
       season: {
-        title: "desc"
-      }
-    }
-
+        title: "desc",
+      },
+    },
   });
-}
+};
 
 export const getTeamById = async (id: string) => {
   return prisma.team.findUniqueOrThrow({
     where: {
-      id
+      id,
     },
-
 
     select: {
       name: true,
@@ -33,21 +31,19 @@ export const getTeamById = async (id: string) => {
           id: true,
           firstName: true,
           lastName: true,
-          imageSlug: true
-        }
+          imageSlug: true,
+        },
       },
 
       country: {
         select: {
           name: true,
-          imageSlug: true
-        }
-      }
-    }
-
+          imageSlug: true,
+        },
+      },
+    },
   });
-}
-
+};
 
 export const getTeamsInCompetitionSeason = async (
   competitionId: string,
