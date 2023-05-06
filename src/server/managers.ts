@@ -4,6 +4,7 @@ import { ServerError, redirect } from "solid-start";
 import { playerManagerFormSchema } from "./players";
 import { ManagerTeamsForm } from "~/routes/admin/manager-season/[id]";
 
+
 export const getManagerById = async (id: string) => {
   return prisma.manager
     .findUnique({
