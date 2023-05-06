@@ -96,7 +96,6 @@ export default () => {
           {(competition) => (
             <>
               <Title>{competition.name}</Title>
-              <div>Competition {competition.name}</div>
               <div class="mx-auto w-[90%] border-2 border-black p-4 md:w-[50%]">
                 <div class="flex space-x-4">
                   <span class="flex flex-col items-center justify-center space-y-2 text-sm">
