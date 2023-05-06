@@ -21,10 +21,13 @@ import { getAllTeams, getTeamForManagerForm } from "~/server/teams";
 
 export const routeData = ({ params }: RouteDataArgs) => {
   const managerTeamsInSeasons: Resource<ManagerssTeamInSeason[]> =
-    createServerData$(async ([, managerId]) => getTeamForManagerForm(managerId), {
-      key: () => ["team-in-season-manager", params.id],
-      initialValue: [],
-    });
+    createServerData$(
+      async ([, managerId]) => getTeamForManagerForm(managerId),
+      {
+        key: () => ["team-in-season-manager", params.id],
+        initialValue: [],
+      }
+    );
 
   const managerData = createServerData$(
     ([, managerId]) => getManagerById(managerId),
@@ -68,7 +71,9 @@ export default () => {
   const { managerData, seasons, teams, managerTeamsInSeasons } =
     useRouteData<typeof routeData>();
 
-  const [teamSeasons, setTeamSeasons] = createStore<ManagerssTeamInSeason[]>([]);
+  const [teamSeasons, setTeamSeasons] = createStore<ManagerssTeamInSeason[]>(
+    []
+  );
   const [teamsToDelete, setTeamsToDelete] = createStore<string[]>([]);
 
   createRenderEffect(() => {

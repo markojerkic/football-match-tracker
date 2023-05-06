@@ -19,8 +19,8 @@ export const getTeamForManagerForm = async (managerId: string) => {
       teamId: true,
       seasonId: true,
     },
-  })
-}
+  });
+};
 
 export const getTeamForPlayerForm = async (
   playerId: string
@@ -48,7 +48,7 @@ export const getTeamsForManager = async (managerId: string) => {
   const teams = await prisma.managerInTeamSeason
     .findMany({
       where: {
-        managerId
+        managerId,
       },
 
       orderBy: {
