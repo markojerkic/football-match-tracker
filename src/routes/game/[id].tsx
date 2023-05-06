@@ -46,8 +46,13 @@ const GameInfo = (gameData: GameDataById) => {
       <div class="relative h-full w-full transform border-2 border-black bg-white">
         <div class="flex flex-col space-y-6 p-4">
           <span class="flex items-center justify-start space-x-4 text-sm">
-            <span>{calendarDate()}</span>
-            <span>{kickoffTime()}</span>
+            <span class="flex flex-col space-y-2">
+              <A class="hover:link" href={`/competition/${gameData.competition?.id}`}>{gameData.competition?.name} - {gameData.season?.title}</A>
+              <span class="flex space-x-2">
+                <span>{calendarDate()}</span>
+                <span>{kickoffTime()}</span>
+              </span>
+            </span>
 
             {/* FIXME: only admins can see this */}
             <div class="flex grow justify-end">
@@ -117,11 +122,9 @@ export default () => {
               </Title>
               <Meta
                 name="description"
-                content={`On ${gameData.kickoffTime.toLocaleString()}, ${
-                  gameData.homeTeam.name
-                } and ${
-                  gameData.homeTeam.name
-                } took each other on in a football game.`}
+                content={`On ${gameData.kickoffTime.toLocaleString()}, ${gameData.homeTeam.name
+                  } and ${gameData.homeTeam.name
+                  } took each other on in a football game.`}
               />
               <GameInfo {...gameData} />
             </>
