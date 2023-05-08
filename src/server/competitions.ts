@@ -1,5 +1,64 @@
 import { prisma } from "~/util/prisma";
-import { getTeamsInCompetitionSeason } from "./teams";
+import { TeamInSeasonFormElement, getTeamsInCompetitionSeason } from "./teams";
+import { type Option } from "~/components/form-helpers";
+
+export const getTeamInCompetitionSeasons = async (
+  teamId: string
+): Promise<TeamInSeasonFormElement[]> => {
+  return prisma.teamInCompetition
+    .findMany({
+      where: {
+        teamId,
+      },
+    })
+    .then((seasons) =>
+      seasons.map(
+        (s) =>
+          ({
+            competitionSeasonId: s.competitionInSeasonId,
+            id: s.id,
+          } satisfies TeamInSeasonFormElement)
+      )
+    );
+};
+
+export const getCompetitionSeasons = async () => {
+  return prisma.competitionInSeason
+    .findMany({
+      orderBy: [
+        {
+          competition: { name: "asc" },
+        },
+        {
+          season: { title: "desc" },
+        },
+      ],
+      select: {
+        id: true,
+        competition: {
+          select: {
+            name: true,
+          },
+        },
+
+        season: {
+          select: {
+            title: true,
+          },
+        },
+        competitionId: true,
+        seasonId: true,
+      },
+    })
+    .then((seasons) =>
+      seasons.map((s) => ({
+        value: s.id,
+        label: `${s.competition.name} - ${s.season.title}`,
+        competitionId: s.competitionId,
+        seasonId: s.seasonId,
+      }))
+    );
+};
 
 export const getTableForCompetition = async (
   competitionId: string,

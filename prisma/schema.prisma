@@ -95,13 +95,11 @@ model Player {
 }
 
 model TeamInCompetition {
-  id            String      @id @default(cuid())
-  team          Team        @relation(fields: [teamId], references: [id])
-  compatition   Competition @relation(fields: [competitionId], references: [id])
-  season        Season      @relation(fields: [seasonId], references: [id])
-  teamId        String
-  competitionId String
-  seasonId      String
+  id                    String              @id @default(cuid())
+  teamId                String
+  team                  Team                @relation(fields: [teamId], references: [id])
+  competitionInSeason   CompetitionInSeason @relation(fields: [competitionInSeasonId], references: [id])
+  competitionInSeasonId String
 }
 
 model Competition {
@@ -111,18 +109,18 @@ model Competition {
   countryId           String
   games               Game[]
   isHighlighted       Boolean
-  teams               TeamInCompetition[]
   imageSlug           String?
   type                CompetitionType
   competitionInSeason CompetitionInSeason[]
 }
 
 model CompetitionInSeason {
-  id            String      @id @default(cuid())
-  competition   Competition @relation(fields: [competitionId], references: [id])
-  season        Season      @relation(fields: [seasonId], references: [id])
-  competitionId String
-  seasonId      String
+  id                String              @id @default(cuid())
+  competition       Competition         @relation(fields: [competitionId], references: [id])
+  season            Season              @relation(fields: [seasonId], references: [id])
+  competitionId     String
+  seasonId          String
+  TeamInCompetition TeamInCompetition[]
 }
 
 model Season {
@@ -130,7 +128,6 @@ model Season {
   title                String                @unique
   competitionInSeason  CompetitionInSeason[]
   games                Game[]
-  teamsInCompetitions  TeamInCompetition[]
   playersTeamInSeason  PlayersTeamInSeason[]
   isCurrent            Boolean
   managersInTeamSeason ManagerInTeamSeason[]

@@ -684,7 +684,6 @@ export const updateOrSaveGame = async (
 export const getGamesForCompetitionSeason = async (
   competitionSeasonId: string
 ): Promise<GameForPlayerOrManagerInSeason[]> => {
-  console.log(competitionSeasonId);
   const season = await prisma.teamInCompetition.findUniqueOrThrow({
     where: {
       id: competitionSeasonId,
@@ -692,8 +691,14 @@ export const getGamesForCompetitionSeason = async (
 
     select: {
       id: true,
-      seasonId: true,
-      competitionId: true,
+
+      competitionInSeason: {
+        select: {
+          seasonId: true,
+          competitionId: true,
+        },
+      },
+
       teamId: true,
     },
   });
@@ -703,8 +708,8 @@ export const getGamesForCompetitionSeason = async (
   return prisma.game
     .findMany({
       where: {
-        seasonId: season.seasonId,
-        competitionId: season.competitionId,
+        seasonId: season.competitionInSeason.seasonId,
+        competitionId: season.competitionInSeason.competitionId,
         OR: [{ homeTeamId: season.teamId }, { awayTeamId: season.teamId }],
       },
 

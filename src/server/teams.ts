@@ -6,6 +6,60 @@ import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { redirect } from "solid-start";
 
+export const teamInSeasonSchema = z.object({
+  id: zfd.text(z.string().optional()),
+  competitionSeasonId: zfd.text(),
+});
+
+export type TeamInSeasonFormElement = z.infer<typeof teamInSeasonSchema>;
+
+export const teamInSeasonFormSchema = zfd.formData(
+  z.object({
+    season: teamInSeasonSchema.array().optional().default([]),
+    seasonsToDelete: zfd.text().array().optional().default([]),
+    teamId: zfd.text(),
+  })
+);
+
+export const saveTeamInCompetitionSeasons = async (
+  data: z.infer<typeof teamInSeasonFormSchema>
+) => {
+  if (data.seasonsToDelete.length > 0) {
+    await prisma.teamInCompetition.deleteMany({
+      where: {
+        id: {
+          in: data.seasonsToDelete,
+        },
+      },
+    });
+  }
+
+  const update = data.season.filter((s) => s.id !== undefined);
+
+  await Promise.all(
+    update.map(async (u) =>
+      prisma.teamInCompetition.update({
+        where: {
+          id: u.id,
+        },
+        data: {
+          competitionInSeasonId: u.competitionSeasonId,
+        },
+      })
+    )
+  );
+
+  const create = data.season.filter((s) => s.id === undefined);
+  await prisma.teamInCompetition.createMany({
+    data: create.map((c) => ({
+      competitionInSeasonId: c.competitionSeasonId,
+      teamId: data.teamId,
+    })),
+  });
+
+  return redirect(`/team/${data.teamId}`);
+};
+
 export const getTeamForm = async (id: string): Promise<TeamForm> => {
   return prisma.team
     .findFirstOrThrow({
@@ -78,8 +132,10 @@ export const getLatestSeasonCompetitionForTeam = async (teamId: string) => {
     },
 
     orderBy: {
-      season: {
-        title: "desc",
+      competitionInSeason: {
+        season: {
+          title: "desc",
+        },
       },
     },
   });
@@ -120,8 +176,10 @@ export const getTeamsInCompetitionSeason = async (
 ) => {
   return prisma.teamInCompetition.findMany({
     where: {
-      competitionId,
-      seasonId,
+      competitionInSeason: {
+        competitionId,
+        seasonId,
+      },
     },
 
     select: {
@@ -293,8 +351,10 @@ export const getTeamsInSeasonAndCompetition = async (
   return prisma.teamInCompetition
     .findMany({
       where: {
-        seasonId,
-        competitionId,
+        competitionInSeason: {
+          seasonId,
+          competitionId,
+        },
       },
       select: {
         team: {
