@@ -46,6 +46,7 @@ export const TextInput = (props: {
   label: string;
   required: boolean;
   type?: string;
+  class?: string;
 }) => {
   return (
     <span class="flex flex-col">
@@ -53,6 +54,9 @@ export const TextInput = (props: {
       <input
         type={props.type ?? "text"}
         class="input-bordered input w-full invalid:input-error"
+        classList={{
+          [props.class ?? '']: props.class !== undefined
+        }}
         name={props.name}
         required={props.required}
         disabled={props.disabled ?? false}
