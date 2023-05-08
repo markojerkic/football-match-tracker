@@ -29,7 +29,7 @@ import { getSeasonsFromCompetition } from "~/server/seasons";
 import { getTeamsInSeasonAndCompetition } from "~/server/teams";
 import { getManagersForTeamInSeason } from "~/server/managers";
 
-const ColorPicker = (props: {
+export const ColorPicker = (props: {
   control: (c: string) => void;
   value: string;
   name: string;

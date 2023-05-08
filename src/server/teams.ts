@@ -1,6 +1,75 @@
 import { prisma } from "~/util/prisma";
 import { type Option } from "~/components/form-helpers";
 import { PlayersTeamInSeason } from "~/routes/admin/player-season/[id]";
+import { optionalString } from "./players";
+import { z } from "zod";
+import { zfd } from "zod-form-data";
+import { redirect } from "solid-start";
+
+export const getTeamForm = async (id: string): Promise<TeamForm> => {
+  return prisma.team
+    .findFirstOrThrow({
+      where: {
+        id,
+      },
+
+      select: {
+        id: true,
+        imageSlug: true,
+        name: true,
+        primaryShirtColor: true,
+        countryId: true,
+      },
+    })
+    .then(
+      (team) =>
+        ({
+          id: team.id,
+          imageSlug: team.imageSlug ?? undefined,
+          name: team.name,
+          primaryShirtColor: team.primaryShirtColor,
+          country: team.countryId,
+        } satisfies TeamForm)
+    );
+};
+
+export const saveOrUpdateTeam = async (team: TeamForm) => {
+  if (team.id) {
+    await prisma.team.update({
+      where: {
+        id: team.id,
+      },
+      data: {
+        countryId: team.country,
+        imageSlug: team.imageSlug,
+        name: team.name,
+        primaryShirtColor: team.primaryShirtColor,
+      },
+    });
+
+    return redirect(`/team/${team.id}`);
+  }
+
+  const savedTeam = await prisma.team.create({
+    data: {
+      countryId: team.country,
+      imageSlug: team.imageSlug,
+      name: team.name,
+      primaryShirtColor: team.primaryShirtColor,
+    },
+  });
+
+  return redirect(`/team/${savedTeam.id}`);
+};
+
+export const teamSchema = zfd.formData({
+  id: optionalString,
+  name: zfd.text(),
+  country: zfd.text(),
+  imageSlug: optionalString,
+  primaryShirtColor: zfd.text(),
+});
+export type TeamForm = z.infer<typeof teamSchema>;
 
 export const getLatestSeasonCompetitionForTeam = async (teamId: string) => {
   return prisma.teamInCompetition.findFirstOrThrow({

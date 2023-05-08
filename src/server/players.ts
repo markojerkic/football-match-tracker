@@ -4,11 +4,10 @@ import { z } from "zod";
 import { PlayerTeamsForm } from "~/routes/admin/player-season/[id]";
 import { prisma } from "~/util/prisma";
 
-const optionalString = z
+export const optionalString = z
   .string()
   .optional()
   .transform((v) => {
-    console.log("test", v);
     if (v === "") return undefined;
     return v;
   });
