@@ -10,7 +10,7 @@
   },
   "type": "module",
   "devDependencies": {
-    "@types/node": "^18.16.3",
+    "@types/node": "^20.1.0",
     "autoprefixer": "^10.4.14",
     "esbuild-register": "^3.4.2",
     "postcss": "^8.4.23",
@@ -22,7 +22,7 @@
     "tailwindcss": "^3.3.2",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4",
-    "vite": "^4.3.4",
+    "vite": "^4.3.5",
     "xlsx": "^0.18.5"
   },
   "dependencies": {
@@ -37,7 +37,7 @@
     "nprogress": "^0.2.0",
     "solid-forms": "^0.4.8",
     "solid-headless": "^0.13.1",
-    "solid-js": "^1.7.4",
+    "solid-js": "^1.7.5",
     "solid-start": "^0.2.26",
     "solid-start-vercel": "^0.2.26",
     "tailwind-merge": "^1.12.0",
