@@ -1,7 +1,7 @@
 import { Show } from "solid-js";
 import { createServerAction$, createServerData$ } from "solid-start/server";
 import { zfd } from "zod-form-data";
-import { isPlayerFavourite, toggleFavouritePlayer } from "~/server/favourites";
+import { isPlayerFavourite, isTeamFavourite, toggleFavouritePlayer, toggleFavouriteTeam } from "~/server/favourites";
 
 const EmptyHart = () => (
   <svg
@@ -32,7 +32,7 @@ const FullHart = () => (
 );
 
 const favouriteSchema = zfd.formData({
-  playerId: zfd.text()
+  id: zfd.text()
 });
 
 export const FavouritePlayer = (props: { id: string }) => {
@@ -45,7 +45,7 @@ export const FavouritePlayer = (props: { id: string }) => {
   const [status, { Form }] = createServerAction$(async (formData: FormData, { request }) => {
     const data = favouriteSchema.parse(formData);
 
-    return toggleFavouritePlayer(data.playerId, request);
+    return toggleFavouritePlayer(data.id, request);
   }, {
     invalidate: () => ["player-favourite", props.id]
   });
@@ -59,7 +59,41 @@ export const FavouritePlayer = (props: { id: string }) => {
 
   return (
     <Form>
-      <input type="hidden" name="playerId" value={props.id} />
+      <input type="hidden" name="id" value={props.id} />
+      <button>
+        <Show when={fav()} fallback={<EmptyHart />}>
+          <FullHart />
+        </Show>
+      </button>
+    </Form>
+  );
+};
+
+export const FavouriteTeam = (props: { id: string }) => {
+  const isFavourite = createServerData$(([, id], { request }) => {
+    return isTeamFavourite(id, request)
+  }, {
+    key: () => ["team-favourite", props.id]
+  });
+
+  const [status, { Form }] = createServerAction$(async (formData: FormData, { request }) => {
+    const data = favouriteSchema.parse(formData);
+
+    return toggleFavouriteTeam(data.id, request);
+  }, {
+    invalidate: () => ["team-favourite", props.id]
+  });
+
+  const fav = () => {
+    if (status.pending) {
+      return !isFavourite();
+    }
+    return isFavourite();
+  }
+
+  return (
+    <Form>
+      <input type="hidden" name="id" value={props.id} />
       <button>
         <Show when={fav()} fallback={<EmptyHart />}>
           <FullHart />

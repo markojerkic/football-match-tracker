@@ -15,6 +15,7 @@ import { Outlet } from "solid-start/router";
 import { activeStyle, inactiveStyle } from "./games";
 import { AdminOnly } from "./admin-only";
 import { FavouritePlayer } from "./favourite";
+import { LoggedInOnly } from "./logged-in-only";
 
 const PerssonIcon = () => (
   <svg
@@ -203,7 +204,9 @@ export const PlayerDetail = (detail: {
         </div>
       </AdminOnly>
 
-      <FavouritePlayer id={detail.id} />
+      <LoggedInOnly>
+        <FavouritePlayer id={detail.id} />
+      </LoggedInOnly>
 
       <ImageOrDefaultAvater imageSlug={detail.imageSlug} />
       <h3 class="text-center text-3xl font-semibold">{`${detail.firstName} ${detail.lastName}`}</h3>
