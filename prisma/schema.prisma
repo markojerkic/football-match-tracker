@@ -27,6 +27,7 @@ model FavouriteTeam {
   userId String
   team   Team   @relation(fields: [teamId], references: [id])
   teamId String
+  @@unique([userId, teamId])
 }
 
 model FavouritePlayer {
@@ -35,6 +36,7 @@ model FavouritePlayer {
   player   Player @relation(fields: [playerId], references: [id])
   userId   String
   playerId String
+  @@unique([userId, playerId])
 }
 
 model Manager {

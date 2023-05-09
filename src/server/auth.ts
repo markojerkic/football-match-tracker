@@ -4,7 +4,6 @@ import { z } from 'zod';
 import { zfd } from 'zod-form-data';
 import { prisma } from "~/util/prisma";
 import bcrypt from "bcryptjs";
-import { createServerData$ } from 'solid-start/server';
 
 export const registerSchema = zfd.formData({
   userName: zfd.text(),
@@ -54,7 +53,7 @@ const storage = createCookieSessionStorage({
   }
 });
 
-async function getUserId(request: Request) {
+export async function getUserId(request: Request): Promise<string> {
   const session = await storage.getSession(request.headers.get("Cookie"));
 
   const userId = session.get("userId");
