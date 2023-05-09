@@ -1,10 +1,10 @@
 import { UserRole } from '@prisma/client';
-import { Server, request } from 'http';
 import { ServerError, createCookieSessionStorage, redirect } from 'solid-start';
 import { z } from 'zod';
 import { zfd } from 'zod-form-data';
 import { prisma } from "~/util/prisma";
 import bcrypt from "bcryptjs";
+import { createServerData$ } from 'solid-start/server';
 
 export const registerSchema = zfd.formData({
   userName: zfd.text(),
@@ -16,7 +16,7 @@ export const registerSchema = zfd.formData({
 
 export type RegisterForm = z.infer<typeof registerSchema>;
 
-export const register = async (data: RegisterForm, request: Request) => {
+export const register = async (data: RegisterForm) => {
   const userExists = await prisma.user.findUnique({
     where: {
       userName: data.userName
@@ -39,7 +39,7 @@ export const register = async (data: RegisterForm, request: Request) => {
     }
   });
 
-  return logIn(request, user.id);
+  return logIn(user.id);
 }
 
 const storage = createCookieSessionStorage({
@@ -109,7 +109,7 @@ export const logInSchema = zfd.formData({
 });
 export type LogInForm = z.infer<typeof logInSchema>;
 
-export const logInAction = async (request: Request, data: LogInForm) => {
+export const logInAction = async (data: LogInForm) => {
   const user = await prisma.user.findUnique({
     where: {
       userName: data.userName
@@ -129,11 +129,11 @@ export const logInAction = async (request: Request, data: LogInForm) => {
     throw new ServerError("incorrect");
   }
 
-  return logIn(request, user.id);
+  return logIn(user.id);
 
 }
 
-async function logIn(request: Request, userId: string) {
+async function logIn(userId: string) {
   const session = await storage.getSession();
   session.set("userId", userId);
   return redirect("/", {
@@ -141,4 +141,23 @@ async function logIn(request: Request, userId: string) {
       "Set-Cookie": await storage.commitSession(session)
     }
   });
+}
+
+export const isAdmin = async (request: Request) => {
+  const userId = await getUserId(request);
+  if (!userId) {
+    return false;
+  }
+
+  const role = await prisma.user.findUnique({
+    where: {
+      id: userId
+    },
+
+    select: {
+      role: true
+    }
+  });
+
+  return role?.role === UserRole.ADMIN;
 }

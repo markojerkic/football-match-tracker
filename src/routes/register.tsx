@@ -5,10 +5,10 @@ import { TextInput } from "~/components/form-helpers";
 import { RegisterForm, register, registerSchema } from "~/server/auth";
 
 export default () => {
-  const [status, { Form }] = createServerAction$(async (formData: FormData, { request }) => {
+  const [status, { Form }] = createServerAction$(async (formData: FormData) => {
     const data = registerSchema.parse(formData);
 
-    return register(data, request);
+    return register(data);
   });
 
   const [user, setUser] = createStore<RegisterForm>({

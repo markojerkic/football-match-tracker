@@ -3,13 +3,13 @@ import { createStore } from "solid-js/store";
 import { A } from "solid-start";
 import { createServerAction$ } from "solid-start/server";
 import { TextInput } from "~/components/form-helpers";
-import { LogInForm, RegisterForm, logInAction, logInSchema, register, registerSchema } from "~/server/auth";
+import { LogInForm, logInAction, logInSchema, } from "~/server/auth";
 
 export default () => {
-  const [status, { Form }] = createServerAction$(async (formData: FormData, { request }) => {
+  const [status, { Form }] = createServerAction$(async (formData: FormData) => {
     const data = logInSchema.parse(formData);
 
-    return logInAction(request, data);
+    return logInAction(data);
   });
 
   const [user, setUser] = createStore<LogInForm>({
@@ -20,7 +20,7 @@ export default () => {
 
   return (
     <div class="mx-auto flex w-[90%] flex-col space-y-4 border-2 border-black p-4 md:w-[30%]">
-      <span class="text-3xl font-bold">Register</span>
+      <span class="text-3xl font-bold">Log in</span>
 
       <Form class="grid grid-cols-1 gap-2">
 

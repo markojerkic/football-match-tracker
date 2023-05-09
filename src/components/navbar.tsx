@@ -1,4 +1,5 @@
 import { A } from "solid-start";
+import { AdminOnly } from "./admin-only";
 
 const User = () => (
   <svg
@@ -18,6 +19,7 @@ const User = () => (
 );
 
 export default () => {
+
   return (
     <nav
       aria-label="Site Nav"
@@ -56,41 +58,47 @@ export default () => {
           </A>
         </li>
 
-        <li>
-          <A
-            class="rounded-lg px-3 py-2"
-            activeClass="underline underline-offset-2"
-            href="/admin/game"
-            end
-          >
-            {" "}
-            New Game{" "}
-          </A>
-        </li>
+        <AdminOnly>
+          <li>
+            <A
+              class="rounded-lg px-3 py-2"
+              activeClass="underline underline-offset-2"
+              href="/admin/game"
+              end
+            >
+              {" "}
+              New Game{" "}
+            </A>
+          </li>
+        </AdminOnly>
 
-        <li>
-          <A
-            class="rounded-lg px-3 py-2"
-            activeClass="underline underline-offset-2"
-            href="/admin/player"
-            end
-          >
-            {" "}
-            New Player{" "}
-          </A>
-        </li>
+        <AdminOnly>
+          <li>
+            <A
+              class="rounded-lg px-3 py-2"
+              activeClass="underline underline-offset-2"
+              href="/admin/player"
+              end
+            >
+              {" "}
+              New Player{" "}
+            </A>
+          </li>
+        </AdminOnly>
 
-        <li>
-          <A
-            class="rounded-lg px-3 py-2"
-            activeClass="underline underline-offset-2"
-            href="/admin/manager"
-            end
-          >
-            {" "}
-            New Manager{" "}
-          </A>
-        </li>
+        <AdminOnly>
+          <li>
+            <A
+              class="rounded-lg px-3 py-2"
+              activeClass="underline underline-offset-2"
+              href="/admin/manager"
+              end
+            >
+              {" "}
+              New Manager{" "}
+            </A>
+          </li>
+        </AdminOnly>
 
         <li>
           <A
