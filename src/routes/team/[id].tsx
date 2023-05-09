@@ -94,8 +94,6 @@ export default () => {
                     </A>
                   </AdminOnly>
                 </div>
-
-
               </div>
 
               <span class="divider" />

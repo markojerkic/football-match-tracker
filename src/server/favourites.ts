@@ -1,7 +1,10 @@
 import { getUserId, logout } from "./auth";
 import { prisma } from "~/util/prisma";
 
-export const isPlayerFavourite = async (id: string, request: Request): Promise<boolean> => {
+export const isPlayerFavourite = async (
+  id: string,
+  request: Request
+): Promise<boolean> => {
   const userId = await getUserId(request);
   if (!userId) {
     return false;
@@ -11,15 +14,18 @@ export const isPlayerFavourite = async (id: string, request: Request): Promise<b
     where: {
       userId_playerId: {
         userId,
-        playerId: id
-      }
-    }
+        playerId: id,
+      },
+    },
   });
 
   return favourite !== null;
-}
+};
 
-export const toggleFavouritePlayer = async (playerId: string, request: Request) => {
+export const toggleFavouritePlayer = async (
+  playerId: string,
+  request: Request
+) => {
   const userId = await getUserId(request);
   if (!userId) {
     return logout(request);
@@ -29,31 +35,31 @@ export const toggleFavouritePlayer = async (playerId: string, request: Request) 
     where: {
       userId_playerId: {
         userId,
-        playerId
-      }
-    }
+        playerId,
+      },
+    },
   });
 
   if (favourite) {
     await prisma.favouritePlayer.delete({
       where: {
-        id: favourite.id
-      }
-    })
+        id: favourite.id,
+      },
+    });
   } else {
     await prisma.favouritePlayer.create({
       data: {
         userId,
-        playerId
-      }
-    })
-
+        playerId,
+      },
+    });
   }
+};
 
-}
-
-
-export const isTeamFavourite = async (id: string, request: Request): Promise<boolean> => {
+export const isTeamFavourite = async (
+  id: string,
+  request: Request
+): Promise<boolean> => {
   const userId = await getUserId(request);
   if (!userId) {
     return false;
@@ -63,13 +69,13 @@ export const isTeamFavourite = async (id: string, request: Request): Promise<boo
     where: {
       userId_teamId: {
         userId,
-        teamId: id
-      }
-    }
+        teamId: id,
+      },
+    },
   });
 
   return favourite !== null;
-}
+};
 
 export const toggleFavouriteTeam = async (teamId: string, request: Request) => {
   const userId = await getUserId(request);
@@ -81,25 +87,23 @@ export const toggleFavouriteTeam = async (teamId: string, request: Request) => {
     where: {
       userId_teamId: {
         userId,
-        teamId
-      }
-    }
+        teamId,
+      },
+    },
   });
 
   if (favourite) {
     await prisma.favouriteTeam.delete({
       where: {
-        id: favourite.id
-      }
-    })
+        id: favourite.id,
+      },
+    });
   } else {
     await prisma.favouriteTeam.create({
       data: {
         userId,
-        teamId
-      }
-    })
-
+        teamId,
+      },
+    });
   }
-
-}
+};

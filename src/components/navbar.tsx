@@ -19,7 +19,6 @@ const User = () => (
 );
 
 export default () => {
-
   return (
     <nav
       aria-label="Site Nav"

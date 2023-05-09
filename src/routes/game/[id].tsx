@@ -83,7 +83,6 @@ const GameInfo = (gameData: GameDataById) => {
                 </A>
               </div>
             </AdminOnly>
-
           </span>
           <span class="flex w-full flex-col">
             <span class="flex w-full justify-center space-x-4">
@@ -149,9 +148,11 @@ export default () => {
               </Title>
               <Meta
                 name="description"
-                content={`On ${gameData.kickoffTime.toLocaleString()}, ${gameData.homeTeam.name
-                  } and ${gameData.homeTeam.name
-                  } took each other on in a football game.`}
+                content={`On ${gameData.kickoffTime.toLocaleString()}, ${
+                  gameData.homeTeam.name
+                } and ${
+                  gameData.homeTeam.name
+                } took each other on in a football game.`}
               />
               <GameInfo {...gameData} />
             </>

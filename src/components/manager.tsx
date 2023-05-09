@@ -10,16 +10,15 @@ export const ManagerDetail = (detail: {
   lastName: string;
   imageSlug: string | undefined;
   currentTeam:
-  | {
-    id: string;
-    name: string;
-    imageSlug: string | null;
-  }
-  | undefined;
+    | {
+        id: string;
+        name: string;
+        imageSlug: string | null;
+      }
+    | undefined;
 }) => {
   return (
     <article class="mx-auto flex w-[90%] flex-col justify-center space-y-4 border-2 border-black p-4 md:w-[50%]">
-
       <AdminOnly>
         <div class="flex grow justify-end">
           <A

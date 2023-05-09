@@ -4,15 +4,16 @@ import { isUserLoggedIn } from "~/server/auth";
 
 export const LoggedInOnly: ParentComponent = (props) => {
   const loggedInOnlyComponent = children(() => props.children);
-  const isLoggedIn = createServerData$((_, { request }) => isUserLoggedIn(request), {
-    key: () => ["is-logged-in"],
-  })
+  const isLoggedIn = createServerData$(
+    (_, { request }) => isUserLoggedIn(request),
+    {
+      key: () => ["is-logged-in"],
+    }
+  );
 
   return (
     <>
-      <Show when={isLoggedIn()}>
-        {loggedInOnlyComponent()}
-      </Show>
+      <Show when={isLoggedIn()}>{loggedInOnlyComponent()}</Show>
     </>
-  )
-}
+  );
+};

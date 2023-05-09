@@ -1,7 +1,12 @@
 import { Show } from "solid-js";
 import { createServerAction$, createServerData$ } from "solid-start/server";
 import { zfd } from "zod-form-data";
-import { isPlayerFavourite, isTeamFavourite, toggleFavouritePlayer, toggleFavouriteTeam } from "~/server/favourites";
+import {
+  isPlayerFavourite,
+  isTeamFavourite,
+  toggleFavouritePlayer,
+  toggleFavouriteTeam,
+} from "~/server/favourites";
 
 const EmptyHart = () => (
   <svg
@@ -32,30 +37,36 @@ const FullHart = () => (
 );
 
 const favouriteSchema = zfd.formData({
-  id: zfd.text()
+  id: zfd.text(),
 });
 
 export const FavouritePlayer = (props: { id: string }) => {
-  const isFavourite = createServerData$(([, id], { request }) => {
-    return isPlayerFavourite(id, request)
-  }, {
-    key: () => ["player-favourite", props.id]
-  });
+  const isFavourite = createServerData$(
+    ([, id], { request }) => {
+      return isPlayerFavourite(id, request);
+    },
+    {
+      key: () => ["player-favourite", props.id],
+    }
+  );
 
-  const [status, { Form }] = createServerAction$(async (formData: FormData, { request }) => {
-    const data = favouriteSchema.parse(formData);
+  const [status, { Form }] = createServerAction$(
+    async (formData: FormData, { request }) => {
+      const data = favouriteSchema.parse(formData);
 
-    return toggleFavouritePlayer(data.id, request);
-  }, {
-    invalidate: () => ["player-favourite", props.id]
-  });
+      return toggleFavouritePlayer(data.id, request);
+    },
+    {
+      invalidate: () => ["player-favourite", props.id],
+    }
+  );
 
   const fav = () => {
     if (status.pending) {
       return !isFavourite();
     }
     return isFavourite();
-  }
+  };
 
   return (
     <Form>
@@ -70,26 +81,32 @@ export const FavouritePlayer = (props: { id: string }) => {
 };
 
 export const FavouriteTeam = (props: { id: string }) => {
-  const isFavourite = createServerData$(([, id], { request }) => {
-    return isTeamFavourite(id, request)
-  }, {
-    key: () => ["team-favourite", props.id]
-  });
+  const isFavourite = createServerData$(
+    ([, id], { request }) => {
+      return isTeamFavourite(id, request);
+    },
+    {
+      key: () => ["team-favourite", props.id],
+    }
+  );
 
-  const [status, { Form }] = createServerAction$(async (formData: FormData, { request }) => {
-    const data = favouriteSchema.parse(formData);
+  const [status, { Form }] = createServerAction$(
+    async (formData: FormData, { request }) => {
+      const data = favouriteSchema.parse(formData);
 
-    return toggleFavouriteTeam(data.id, request);
-  }, {
-    invalidate: () => ["team-favourite", props.id]
-  });
+      return toggleFavouriteTeam(data.id, request);
+    },
+    {
+      invalidate: () => ["team-favourite", props.id],
+    }
+  );
 
   const fav = () => {
     if (status.pending) {
       return !isFavourite();
     }
     return isFavourite();
-  }
+  };
 
   return (
     <Form>

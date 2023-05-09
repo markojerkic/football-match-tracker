@@ -16,20 +16,18 @@ export default () => {
     password: "",
     password2: "",
     firstName: "",
-    lastName: ""
+    lastName: "",
   });
 
   const isPasswordNotEqual = () => {
     return user.password !== user.password2;
-  }
-
+  };
 
   return (
     <div class="mx-auto flex w-[90%] flex-col space-y-4 border-2 border-black p-4 md:w-[30%]">
       <span class="text-3xl font-bold">Register</span>
 
       <Form class="grid grid-cols-1 gap-2">
-
         <TextInput
           label="User name"
           type="text"
@@ -70,7 +68,6 @@ export default () => {
             setValue: (val) => setUser({ lastName: val }),
           }}
         />
-
 
         <TextInput
           label="Password"

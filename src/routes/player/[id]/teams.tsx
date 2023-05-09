@@ -20,7 +20,6 @@ export default () => {
 
   return (
     <div class="flex flex-col justify-center space-y-4">
-
       <AdminOnly>
         <div class="flex grow justify-end">
           <A

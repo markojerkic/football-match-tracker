@@ -55,7 +55,7 @@ export const TextInput = (props: {
         type={props.type ?? "text"}
         class="input-bordered input w-full invalid:input-error"
         classList={{
-          [props.class ?? '']: props.class !== undefined
+          [props.class ?? ""]: props.class !== undefined,
         }}
         name={props.name}
         required={props.required}
