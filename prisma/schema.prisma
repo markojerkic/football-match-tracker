@@ -14,7 +14,8 @@ model User {
   id               String            @id @default(cuid())
   firstName        String
   lastName         String
-  email            String
+  userName         String            @unique
+  password         String
   role             UserRole
   favouritePlayers FavouritePlayer[]
   favouriteTeams   FavouriteTeam[]

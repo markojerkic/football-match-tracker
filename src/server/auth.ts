@@ -1,4 +1,46 @@
-import { createCookieSessionStorage, redirect } from 'solid-start';
+import { UserRole } from '@prisma/client';
+import { Server, request } from 'http';
+import { ServerError, createCookieSessionStorage, redirect } from 'solid-start';
+import { z } from 'zod';
+import { zfd } from 'zod-form-data';
+import { prisma } from "~/util/prisma";
+import bcrypt from "bcryptjs";
+
+export const registerSchema = zfd.formData({
+  userName: zfd.text(),
+  password: zfd.text(),
+  password2: zfd.text(),
+  firstName: zfd.text(),
+  lastName: zfd.text(),
+});
+
+export type RegisterForm = z.infer<typeof registerSchema>;
+
+export const register = async (data: RegisterForm, request: Request) => {
+  const userExists = await prisma.user.findUnique({
+    where: {
+      userName: data.userName
+    }
+  });
+
+  if (userExists) {
+    throw new ServerError("user-exists");
+  }
+
+  const hasshedPassowrd = await bcrypt.hash(data.password, 8);
+
+  const user = await prisma.user.create({
+    data: {
+      userName: data.userName,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      password: hasshedPassowrd,
+      role: UserRole.USER
+    }
+  });
+
+  return logIn(request, user.id);
+}
 
 const storage = createCookieSessionStorage({
   cookie: {
@@ -19,7 +61,39 @@ async function getUserId(request: Request) {
   return userId;
 }
 
-async function logout(request: Request) {
+export const getUserData = async (request: Request): Promise<{ firstName: string, lastName: string, userName: string }> => {
+  const userId = await getUserId(request);
+
+  if (!userId) {
+    // @ts-expect-error redirect
+    return redirect("/login");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId
+    },
+    select: {
+      firstName: true,
+      lastName: true,
+      userName: true,
+    }
+  });
+
+  if (!user) {
+    // @ts-expect-error redirect
+    return redirect("/login");
+  }
+
+  return user;
+}
+
+export const isUserLoggedIn = async (request: Request) => {
+  const userId = await getUserId(request);
+  return userId !== null;
+}
+
+export async function logout(request: Request) {
   const session = await storage.getSession(request.headers.get("Cookie"));
 
   return redirect("/login", {
@@ -29,10 +103,40 @@ async function logout(request: Request) {
   });
 }
 
+export const logInSchema = zfd.formData({
+  userName: zfd.text(),
+  password: zfd.text()
+});
+export type LogInForm = z.infer<typeof logInSchema>;
+
+export const logInAction = async (request: Request, data: LogInForm) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      userName: data.userName
+    },
+    select: {
+      id: true,
+      password: true
+    }
+  });
+
+  if (!user) {
+    throw new ServerError("incorrect");
+  }
+
+  const isCorrect = await bcrypt.compare(data.password, user.password);
+  if (!isCorrect) {
+    throw new ServerError("incorrect");
+  }
+
+  return logIn(request, user.id);
+
+}
+
 async function logIn(request: Request, userId: string) {
   const session = await storage.getSession();
   session.set("userId", userId);
-  return new Response("Signed Up", {
+  return redirect("/", {
     headers: {
       "Set-Cookie": await storage.commitSession(session)
     }

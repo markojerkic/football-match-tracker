@@ -20,7 +20,6 @@ import Nprogress from "nprogress";
 
 export default function Root() {
   const isRouting = useIsRouting();
-
   createEffect(() => {
     const routing = isRouting();
     if (routing) {
@@ -39,7 +38,7 @@ export default function Root() {
       </Head>
       <Body class="flex flex-col space-y-4 py-4">
         <ErrorBoundary>
-          <Navbar />
+          <Navbar  />
           <Suspense fallback={<div>Loading...</div>}>
             <Routes>
               <FileRoutes />
