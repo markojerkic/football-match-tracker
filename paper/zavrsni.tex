@@ -144,6 +144,106 @@ Aplikacija je poslužena pod domenom \emph{https://football.jerkic.dev}.
 
 \chapter{Izrada aplikacije}
 
+\section{Autentifikacija}
+
+Od korisnika se očekuje da bude autentificiran za samo jednu funkcionalnost, a to je spremanje omiljenih igrača i ekipa. Korisnik koji označi nekog igrača ili ekipu kao omiljenu brže može pronaći podatke o utakmicama i statistici te ekipa ili igrača.
+
+Svakom korisniku na navigacijskoj traci je prikazana tipka koja vodi do korisničkog profila. Ako korisnik nije prijavljen, onda aplikacija zatraži od njega da se prijavi tako da ga prebaci na odgovarajuću putanju.
+
+Ekran za prijavu u sustav traži od korisnika korisničko ime i zaporku.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=10cm]{images/login.jpg}
+\caption{Ekran prijave u sustav}
+\label{fig:login}
+\end{figure}
+
+Ako korsnik unese neispravo koriničko ime ili ako predana zaporka nije točna za dano korisničko ime, onda sustav prikaže grešku gdje se navodi da nije ispravno korisničko ime ili zaporka, ali se ne kaže korisniku što točno nije ispravno.
+Ako korisnik upiše ispravno korisničko ime i zaporku onda mu se dodijeli kolačić sjednice\footnote{https://www.cookieyes.com/blog/session-cookies/} i prebaci ga se na početnu stranicu aplikacije.
+Kolačić sjednice se koristi da bi se nadalje znalo jeli korisnik autentifician i tko je korisnik.
+
+Korisnik koji nema napravljen korisnički račun može prijeći na stranicu registracije preko poveznice na dnu komponente za prijavu.
+Za uspješnu registraciju se od korisnika traži ime, prezime, korisničko ime te zaporku. Zaporka se mora dva puta unijeti te ako dvije unesene zaporke nisu jednake onda se korisniku ne dopušta predavanje unesenih podataka.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=10cm]{images/register.jpg}
+\caption{Ekran registracije korisnika}
+\label{fig:register}
+\end{figure}
+
+Ako korisnik unese korisničko ime koje se već koristi, onda mu korisničko sučelje prikaže da nije ispravno te da unese novo korisničko ime.
+Ako su svi podatci ispravni, onda se nakon registracije automatski provede i prijava u sustav te se prebaci korisnika na početnu stranicu.
+
+\section{Početna stranica}
+
+TODO: Ovaj dio treba još prepraviti. Treba napraviti da prikazane utakmice se čitaju iz baze.
+
+\section{Pregled utakmica}
+
+Korisnik može doći do stranice pregleda utakmice preko navigacijske trake.
+
+Prilikom dolaska na tu stranicu, od korisnika se traži da unese datum za koji želi pregledati utakmice. Ako korisnik nije ništa unio onda se automatski odabere datum posjećivanja stranice.
+Nakon što korisnik unese željeni datum, aplikacija prikaže popis utakmice koje su igrane toga datuma uz osnovne informacije o tim utakmicama. Prikaže se ekipe koje su sudjelovale, datum i vrijeme igranja te rezultat.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=5cm]{images/game-list.jpg}
+\caption{Popis utakmica određenog datuma}
+\label{fig:games-list}
+\end{figure}
+
+\subsection{Pregled detalja utakmice}
+
+Nakon što korisnik odabere određenu utakmicu aplikacija će prikazati detalje te utakmice s desne strane popisa utakmica.
+Stranica pregleda utakmica je napravljena koristeći ugniježđeno usmjeravanje (eng. nested routing)\footnote{https://start.solidjs.com/core-concepts/routing#nested-routes}.
+To znači da prilikom promjene putanje unutar aplikacije ne radimo ponovno crtanje cijelog ekrana niti učitavamo sve podatke potrebne za cijelu stranicu.
+Učitavamo samo podatke koji su potrebni za prikaz onih dijelova aplikacije koji se nalaze u promijenjenom segmentu putanje.
+Na stranici pregleda detalja utakmice, aplikacije ima četiri razine ugniježđenog usmjeravanja. Prva razina se učitava za cijelu aplikaciju i ona sadrži samo navigacijsku traku i potake o tome jeli korisnik prijavljen i koju ulogu ima.
+Druga razina se učitava kada se posjeti "/goals" putanju. Ta razina učitava popis dostupnih utakmica za dani datum i prikazuje ih s desne strane.
+Treča razina sadrži identifikator utakmice. Tu se učitavaju osnvni podatci utakmice kao ime natjecanja i sezone u kojoj se igra utakmica, datum igranja, imena klubova, sličice grbova te rezultat.
+Četvrta razina odabire jednu od tri kartice pregleda detalja utakmica: kartica s golovima, kartonima i zamjenama; kartica s grafičkim prikazom početnih jedanaest obje ekipe te kartica s statistikom utakmice.
+
+
+Ako se ne odabere niti jedna kartica na četvrtoj razini, onda aplikacija automatski prebaci korisnika na karticu s golovima.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=15cm]{images/goals.jpg}
+\caption{Osnovni podatci utakmice i popis golova}
+\label{fig:goals}
+\end{figure}
+
+\subsection{Grafički prikaz početnih jedanaest}
+
+Svaka spremljena utakmica mora imati spremljene podatke o početnih jedanaest obije ekipe.
+Ekipa može imati jednu od sljedećih početnih formacija: 442, 433, 4231, 352, 3511, 343 i 532.
+Na osnovu ovog podatka te spremljenih podataka u bazi podataka grafički se prikaže izgled početnih jedanaest.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=15cm]{images/formation.jpg}
+\caption{Početnih jedanaest}
+\label{fig:formation}
+\end{figure}
+
+Za izradu ovog grafičkog prikaza je korišten samo CSS framework Tailwind\footnote{https://tailwindcss.com}.
+Svi vidljivi elemti su ručno programirani koristeći samo dostupne tehnologije HTML-a i CSS-a. Oblik dresa je preuzet s interneta u SVG formatu te modificiran da se može mijenjati boja dresa ovisno o ekipi.
+Prilikom klika ne jednog od igrača, korisnika se odvede na stranicu pregleda detalja tog igrača.
+
+\subsection{Prikaz statistike}
+
+Na stranici prikaza statistike prikazuju se podatci o posjedu lopte, ukupnim udarcima, udarcima u vrata, dodavanjima, ubačajima iz kuta, driblinzima, uspješnim driblimzima, zaleđima i sl.
+Osim samog broja za odgovarajuću statistiku također se grafički prikazuju omjeer domaće i gostujuće ekipe.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=15cm]{images/statistic.jpg}
+\caption{Statistika utakmice}
+\label{fig:statistic}
+\end{figure}
+
 \chapter{Zaključak}
 Zaključak.
 
