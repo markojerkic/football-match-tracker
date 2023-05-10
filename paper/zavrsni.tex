@@ -90,7 +90,7 @@ U slučaju kada utakmica još nije počela, entitet "Game" ne sadrži podatke o 
 Entitet "Game" također sadržava informaciju o vremenu početka utakmice, vremenu nadoknade u prvom i drugom poluvremenu, boju dresova domaće i gostujuće ekipe, kao i boje dresova vratara, status utakmice, te početne postave dviju ekipa.
 Status utakmice se sprema kao enumirana vrijednost koja može poprimiti vrijednosti "NOT\textunderscore STARTED," "STARTED," "HALFTIME" te "OVER".
 
-Početne postave prvih jedanaest se spremaju kao "jsonb"\footnote{https://www.postgresql.org/docs/9.5/functions-json.html} vrsta podataka.
+Početne postave prvih jedanaest se spremaju kao "jsonb"\footnote{https://www.postgresql.org/docs/9.5/functions-json.html} \citep{postgressjson} vrsta podataka.
 Podatci se spremaju kao JSON polje od jedanaest vrijednosti koje predstavljaju jedanaest igrača početne postave. U tom JSON podatku je spremljen identifikator igrača, broj dresa koji igrač nosi na toj utakmici, broj reda u početnoj formaciji te redni broj igrača u tome redu gledajući s lijeva na desno.
 Odlučeno je spremati početnu postavu kao JSON vrijednost umjesto da se stvori novi entitet koji bi imao vezu na entitet "Game" jer bi to stvorilo previše unosa u bazi podataka, točnije 22 po svakoj spremljenoj utakmici.
 Pored toga, spremanje tog podatka kao JSON je olakšalo način izrade administracije početne postave kroz klijetsku aplikaciju.
@@ -114,6 +114,35 @@ Pored nabrojanih entiteta postoje još entiteti potrebni za autentifikaciju te s
 
 \chapter{Odabrane tehnologije i arhitektura}
 
+Arhitektura aplikacije se sastoji od NodeJS\footnote{https://nodejs.org/en} koja obrađuje HTTP zahtjeve te poslužuje statični sadržaj (kao HTML, JavaScript i CSS datoteke) i dinamične podatke u obliku JSON-a te PostreSQL\footnote{https://www.postgresql.org/} baze podataka.
+
+\section{Backend i frontend tehnologija}
+NodeJS aplikacija je napisana koristeći meta-framework SolidStart\footnote{https://start.solidjs.com}. Meta-framework \citep{meta2022davanzo} je software koji je napisan da upotpuni neki postojeći frontend framework.
+Većim meta-framework propisuje načine na koji se radi dohvat i pisanje podataka te donosi vlastiti usmjerivač\footnote{https://hr.wikipedia.org/wiki/Usmjerivač} (eng. router).
+
+SolidStart je meta-framework oko popularnog frontend framework-a SolidJS\footnote{https://solidjs.com}. SolidJS je postao popularan u poljednjih nekoliko godina zbog svog modela reaktivnosti klijentskih JavaScript aplikacija.
+SolidJS je obnovio ideju signala stanja. Ryan Carniato \citep{ryan2023signal} opisuje signal kao reaktivno stanje aplikacije kojemu se pristupa preko observer obrazca\footnote{https://en.wikipedia.org/wiki/Observer\_pattern}.
+Stanje se drži u jednom objektu i može se dijeliti na više mjesta. Na svakom mjestu gdje se želi pristupiti tome stanju potrebno je se pretplatiti na izvor signala. To se učini tako da se pozove funkcija signala.
+Svagdje gdje se pozove funkcija signala automatski se pretplati na sami izvor.
+Najveća prednost signala je ta što je moguće pretplititi JavaScript DOM\footnote{https://developer.mozilla.org/en-US/docs/Web/API/Document\_Object\_Model/Introduction} na signal.
+To znači da svaki put kada se u signal upiše nova vrijednost, izvornik pošalje obavijest svim pretplaticima te ako je DOM među pretplatnicima, SolidJS runtime preuzme najnoviju vrijednost tog signala te izmjeni samo
+one čvorove HTML stabla koji su pretplaćeni na njega.
+
+Ovaj način ažuriranja HTML stabla je jako efikasan. U prosjeku mu treba manje vremena da ažurira HTML stablo od frameworka kao React\footnote{https://react.dev} koji koriste virtualni DOM\footnote{https://legacy.reactjs.org/docs/faq-internals.html} na koji se pišu sve promjene te usporede virtualni i stvarni DOM pa se ažuriraju samo promijenjeni čvorovi.
+SolidJS time također rezultira manjim prevedenim JavaScript datotekama jer ne mora s njima slati cijeli virtualni DOM.
+Ovaj način ažuriranja HTML stabla je poznat kao "fine-grained reactivity"\citep{ryan2021reactivity}.
+
+\section{Poslužitelj}
+Aplikacija se poslužuje na poslužitelju Vercel\footnote{https://vercel.com}. Aplikacije se poslužuje koristeći tvz. "bezposlužiteljsku" (eng. serverless).
+To znači da postoji jedan poslužitelj koji konstantno vrti aplikaciju i čeka zahtjeve. Svaki put kada dođe novi zahtjev, provjeri se postoji li uključena Lambda\footnote{https://aws.amazon.com/lambda/} instanca, a ako ne postoji onda se pokrene nova, i onda ta instanca obradi zahtjev.
+Ako nakon nekoliko minuta ta lambda instanca ne dobije novi zahtjev, onda se ona ugasi \citep{serverless2022}.
+
+Baza podataka koristi poslužitelj Supabase\footnote{https://supabase.com/} gdje je pokrenuta instanca PostreSQL servera.
+Supabase se također koristi za obavijsti o promjenama podataka određenih entiteta u bazi na osnovu kojih se na klijentu ažuriraju podatci u stvarnom vremenu.
+
+Aplikacija je poslužena pod domenom \emph{https://football.jerkic.dev}.
+
+\chapter{Izrada aplikacije}
 
 \chapter{Zaključak}
 Zaključak.
