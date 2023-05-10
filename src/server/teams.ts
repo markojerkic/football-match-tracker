@@ -6,6 +6,18 @@ import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { redirect } from "solid-start";
 
+export const findTeams = async (
+  q: string
+): Promise<{ id: string; name: string; imageSlug: string | null }[]> => {
+  return await prisma.$queryRaw`
+  select "name", "id", "imageSlug"
+from "Team"
+where lower("name") like ${`%${q.toLowerCase()}%`}
+order by "name" asc
+limit 30;
+  `;
+};
+
 export const teamInSeasonSchema = z.object({
   id: zfd.text(z.string().optional()),
   competitionSeasonId: zfd.text(),

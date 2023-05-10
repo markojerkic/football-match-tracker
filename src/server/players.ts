@@ -4,6 +4,26 @@ import { z } from "zod";
 import { PlayerTeamsForm } from "~/routes/admin/player-season/[id]";
 import { prisma } from "~/util/prisma";
 
+export const findPlayers = async (
+  q: string
+): Promise<
+  {
+    id: string;
+    firstName: string;
+    lastName: string;
+    imageSlug: string | null;
+  }[]
+> => {
+  return prisma.$queryRaw`
+  select "firstName", "lastName", "id", "imageSlug"
+from "Player"
+where lower("firstName") like ${`%${q.toLowerCase()}%`}
+   or lower("lastName") like ${`%${q.toLowerCase()}%`}
+order by "lastName" asc, "firstName" asc
+limit 30;
+  `;
+};
+
 export const optionalString = z
   .string()
   .optional()

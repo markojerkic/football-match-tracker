@@ -4,6 +4,26 @@ import { ServerError, redirect } from "solid-start";
 import { playerManagerFormSchema } from "./players";
 import { ManagerTeamsForm } from "~/routes/admin/manager-season/[id]";
 
+export const findManagers = async (
+  q: string
+): Promise<
+  {
+    id: string;
+    firstName: string;
+    lastName: string;
+    imageSlug: string | null;
+  }[]
+> => {
+  return prisma.$queryRaw`
+  select "firstName", "lastName", "id", "imageSlug"
+from "Manager"
+where lower("firstName") like ${`%${q.toLowerCase()}%`}
+   or lower("lastName") like ${`%${q.toLowerCase()}%`}
+order by "lastName" asc, "firstName" asc
+limit 30;
+  `;
+};
+
 export const getManagerById = async (id: string) => {
   return prisma.manager
     .findUnique({
