@@ -1,5 +1,5 @@
 import { prisma } from "~/util/prisma";
-import { TeamInSeasonFormElement, getTeamsInCompetitionSeason } from "./teams";
+import { TeamInSeasonFormElement, getTeamsInCompetitionSeason, getTeamsInCompetitionSeasonById } from "./teams";
 import { type Option } from "~/components/form-helpers";
 
 export const getTeamInCompetitionSeasons = async (
@@ -59,6 +59,16 @@ export const getCompetitionSeasons = async () => {
       }))
     );
 };
+
+export const getTableForCompetitionInSeason = async (competitionSeasonId: string) => {
+  const info = await prisma.competitionInSeason.findFirstOrThrow({
+    where: {
+      id: competitionSeasonId
+    }
+  });
+
+  return getTableForCompetition(info.competitionId, info.seasonId);
+}
 
 export const getTableForCompetition = async (
   competitionId: string,

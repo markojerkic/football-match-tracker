@@ -89,13 +89,13 @@ export const getTeamForm = async (id: string): Promise<TeamForm> => {
     })
     .then(
       (team) =>
-        ({
-          id: team.id,
-          imageSlug: team.imageSlug ?? undefined,
-          name: team.name,
-          primaryShirtColor: team.primaryShirtColor,
-          country: team.countryId,
-        } satisfies TeamForm)
+      ({
+        id: team.id,
+        imageSlug: team.imageSlug ?? undefined,
+        name: team.name,
+        primaryShirtColor: team.primaryShirtColor,
+        country: team.countryId,
+      } satisfies TeamForm)
     );
 };
 

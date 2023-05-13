@@ -1,6 +1,57 @@
 import { prisma } from "~/util/prisma";
 import { type Option } from "~/components/form-helpers";
 
+export const getCompetitionSeasonsIds = async (
+  teamId: string
+): Promise<Option[]> => {
+  return prisma.teamInCompetition
+    .findMany({
+      where: {
+        teamId,
+      },
+
+      orderBy: {
+        competitionInSeason: {
+          season: {
+            title: "desc",
+          },
+        }
+      },
+
+      select: {
+        id: true,
+
+        competitionInSeason: {
+          select: {
+            id: true,
+            season: {
+              select: {
+                title: true,
+              },
+            },
+
+            competition: {
+              select: {
+                name: true
+              }
+            }
+
+          }
+        },
+
+      },
+    })
+    .then((competitionSeasons) =>
+      competitionSeasons.map(
+        (cs) =>
+        ({
+          label: `${cs.competitionInSeason.competition.name} - ${cs.competitionInSeason.season.title}`,
+          value: cs.competitionInSeason.id,
+        } satisfies Option)
+      )
+    );
+};
+
 export const getCompetitionSeasons = async (
   teamId: string
 ): Promise<Option[]> => {
@@ -11,34 +62,42 @@ export const getCompetitionSeasons = async (
       },
 
       orderBy: {
-        season: {
-          title: "desc",
-        },
+        competitionInSeason: {
+          season: {
+            title: "desc",
+          },
+        }
       },
 
       select: {
         id: true,
 
-        season: {
+        competitionInSeason: {
           select: {
-            title: true,
-          },
+            season: {
+              select: {
+                title: true,
+              },
+            },
+
+            competition: {
+              select: {
+                name: true
+              }
+            }
+
+          }
         },
 
-        compatition: {
-          select: {
-            name: true,
-          },
-        },
       },
     })
     .then((competitionSeasons) =>
       competitionSeasons.map(
         (cs) =>
-          ({
-            label: `${cs.compatition.name} - ${cs.season.title}`,
-            value: cs.id,
-          } satisfies Option)
+        ({
+          label: `${cs.competitionInSeason.competition.name} - ${cs.competitionInSeason.season.title}`,
+          value: cs.id,
+        } satisfies Option)
       )
     );
 };
@@ -54,10 +113,10 @@ export const getAllSeasons = async (): Promise<Option[]> => {
     .then((seasons) =>
       seasons.map(
         (s) =>
-          ({
-            label: s.title,
-            value: s.id,
-          } satisfies Option)
+        ({
+          label: s.title,
+          value: s.id,
+        } satisfies Option)
       )
     );
 };

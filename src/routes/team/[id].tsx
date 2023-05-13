@@ -68,9 +68,11 @@ export default () => {
 
                 <span class="text-center text-3xl font-bold">{team.name}</span>
 
-                <div class="flex grow justify-end">
+                <div class="grid grid-rows-2 grow justify-end">
                   <LoggedInOnly>
-                    <FavouriteTeam id={id} />
+                    <div class="place-self-center h-full">
+                      <FavouriteTeam id={id} />
+                    </div>
                   </LoggedInOnly>
                   <AdminOnly>
                     <A
