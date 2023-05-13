@@ -4,19 +4,17 @@ import { z } from "zod";
 
 const pusherSchema = z.object({
   PUSHER_APP_ID: z.string(),
-  PUSHER_KEY: z.string(),
   PUSHER_SECRET: z.string(),
-  PUSHER_CLUSTER: z.string(),
 });
 
-const pusherConf = pusherSchema.parse(process.env);
 
 export const sendMessage = (gameId: string) => {
+  const pusherConf = pusherSchema.parse(process.env);
   const pusher = new Pusher({
     appId: pusherConf.PUSHER_APP_ID,
-    key: pusherConf.PUSHER_KEY,
+    key: import.meta.env.VITE_PUSHER_KEY,
     secret: pusherConf.PUSHER_SECRET,
-    cluster: pusherConf.PUSHER_CLUSTER,
+    cluster: import.meta.env.VITE_PUSHER_CLUSTER,
     useTLS: true,
   });
 
@@ -26,8 +24,9 @@ export const sendMessage = (gameId: string) => {
 };
 
 export const subscribeGame = (gameId: string, callback: () => void) => {
-  const pusher = new PusherClient(pusherConf.PUSHER_KEY, {
-    cluster: pusherConf.PUSHER_CLUSTER,
+  console.log(import.meta.env)
+  const pusher = new PusherClient(import.meta.env.VITE_PUSHER_KEY, {
+    cluster: import.meta.env.VITE_PUSHER_CLUSTER,
   });
 
   const channel = pusher.subscribe("game");
