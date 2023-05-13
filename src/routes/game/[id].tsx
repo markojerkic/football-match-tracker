@@ -1,5 +1,12 @@
 import dayjs from "dayjs";
-import { ErrorBoundary, Show, Suspense, createMemo } from "solid-js";
+import {
+  ErrorBoundary,
+  Show,
+  Suspense,
+  createEffect,
+  createMemo,
+} from "solid-js";
+import { isServer } from "solid-js/web";
 import {
   A,
   RouteDataArgs,
@@ -7,11 +14,13 @@ import {
   Outlet,
   Title,
   Meta,
+  refetchRouteData,
 } from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import { AdminOnly } from "~/components/admin-only";
 import { GameDetailWrapper } from "~/components/games";
 import { GameDataById, getGameDataById } from "~/server/games";
+import { subscribeGame } from "~/server/pusher";
 
 export const routeData = ({ params }: RouteDataArgs<{ id: string }>) => {
   return createServerData$(([, id]) => getGameDataById(id), {
@@ -41,6 +50,21 @@ const GameInfo = (gameData: GameDataById) => {
 
     return `${homeTeamGoalCount} - ${awayTeamGoalCount}`;
   };
+
+  createEffect(() => {
+    if (!isServer) {
+      const subscription = subscribeGame(gameData.id, () => {
+        refetchRouteData(["game-data", gameData.id]);
+        refetchRouteData(["goals-in-game", gameData.id]);
+        refetchRouteData(["lineups", gameData.id]);
+        refetchRouteData(["game-statistics", gameData.id]);
+      });
+
+      return () => {
+        subscription.unsubscribe();
+      };
+    }
+  });
 
   return (
     <>

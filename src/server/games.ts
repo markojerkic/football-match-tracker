@@ -6,6 +6,7 @@ import { Formation } from "~/components/lineup";
 import { StatisticsForm } from "~/components/statistic";
 import { CardType, GameStatus } from "@prisma/client";
 import { ServerError } from "solid-start";
+import { sendMessage } from "./pusher";
 
 export const getGoalCountForGame = async (gameId: string) => {
   const goals = await prisma.goal.findMany({
@@ -677,6 +678,8 @@ export const updateOrSaveGame = async (
       data: stats,
     });
   }
+
+  sendMessage(gameId);
 
   return gameId;
 };
