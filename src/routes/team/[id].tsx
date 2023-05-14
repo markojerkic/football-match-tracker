@@ -132,6 +132,7 @@ const TabSelector = () => {
       <div class="flex border-b border-gray-400 text-center">
         <Tab route="table" label="Table" />
         <Tab route="games" label="Games" />
+        <Tab route="players" label="Players" />
 
         {/*
         <Tab route="games" label="Games" id={props.playerId} />

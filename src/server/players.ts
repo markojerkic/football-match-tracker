@@ -5,6 +5,18 @@ import { PlayerTeamsForm } from "~/routes/admin/player-season/[id]";
 import { prisma } from "~/util/prisma";
 import { getUserId } from "./auth";
 
+export const getPlayersForTeamInSeason = (teamId: string, seasonId: string) => {
+  return prisma.playersTeamInSeason.findMany({
+    where: {
+      teamId,
+      seasonId,
+    },
+    include: {
+      player: true,
+    },
+  });
+};
+
 export const getFavouritePlayers = async (request: Request) => {
   const userId = await getUserId(request);
 

@@ -166,6 +166,8 @@ Kolačić sjednice se koristi da bi se nadalje znalo jeli korisnik autentifician
 Korisnik koji nema napravljen korisnički račun može prijeći na stranicu registracije preko poveznice na dnu komponente za prijavu.
 Za uspješnu registraciju se od korisnika traži ime, prezime, korisničko ime te zaporku. Zaporka se mora dva puta unijeti te ako dvije unesene zaporke nisu jednake onda se korisniku ne dopušta predavanje unesenih podataka.
 
+Prijavljeni korisnici mogu pregledati popis igrača i ekipa koje su spremili kao najdraže na stranici profila.
+
 \begin{figure}[htb]
 \centering
 \includegraphics[width=10cm]{images/register.jpg}
@@ -175,10 +177,6 @@ Za uspješnu registraciju se od korisnika traži ime, prezime, korisničko ime t
 
 Ako korisnik unese korisničko ime koje se već koristi, onda mu korisničko sučelje prikaže da nije ispravno te da unese novo korisničko ime.
 Ako su svi podatci ispravni, onda se nakon registracije automatski provede i prijava u sustav te se prebaci korisnika na početnu stranicu.
-
-\section{Početna stranica}
-
-TODO: Ovaj dio treba još prepraviti. Treba napraviti da prikazane utakmice se čitaju iz baze.
 
 \section{Pregled utakmica}
 
@@ -197,7 +195,7 @@ Nakon što korisnik unese željeni datum, aplikacija prikaže popis utakmice koj
 \subsection{Pregled detalja utakmice}
 
 Nakon što korisnik odabere određenu utakmicu aplikacija će prikazati detalje te utakmice s desne strane popisa utakmica.
-Stranica pregleda utakmica je napravljena koristeći ugniježđeno usmjeravanje (eng. nested routing)\footnote{https://start.solidjs.com/core-concepts/routing#nested-routes}.
+Stranica pregleda utakmica je napravljena koristeći ugniježđeno usmjeravanje (eng. nested routing)\footnote{https://start.solidjs.com/core-concepts/routing\#nested-routes}.
 To znači da prilikom promjene putanje unutar aplikacije ne radimo ponovno crtanje cijelog ekrana niti učitavamo sve podatke potrebne za cijelu stranicu.
 Učitavamo samo podatke koji su potrebni za prikaz onih dijelova aplikacije koji se nalaze u promijenjenom segmentu putanje.
 Na stranici pregleda detalja utakmice, aplikacije ima četiri razine ugniježđenog usmjeravanja. Prva razina se učitava za cijelu aplikaciju i ona sadrži samo navigacijsku traku i potake o tome jeli korisnik prijavljen i koju ulogu ima.
@@ -206,7 +204,8 @@ Treča razina sadrži identifikator utakmice. Tu se učitavaju osnvni podatci ut
 Četvrta razina odabire jednu od tri kartice pregleda detalja utakmica: kartica s golovima, kartonima i zamjenama; kartica s grafičkim prikazom početnih jedanaest obje ekipe te kartica s statistikom utakmice.
 
 
-Ako se ne odabere niti jedna kartica na četvrtoj razini, onda aplikacija automatski prebaci korisnika na karticu s golovima.
+Ako se ne odabere niti jedna kartica na četvrtoj razini, onda aplikacija automatski prebaci korisnika na karticu s golovima utekmica.
+Golovi su poredani kronoliški. Pored golova, na istoj kronološkoj traci su prikazane zamjene provedene u utamici te podijeljeni kartoni.
 
 \begin{figure}[htb]
 \centering
@@ -243,6 +242,65 @@ Osim samog broja za odgovarajuću statistiku također se grafički prikazuju omj
 \caption{Statistika utakmice}
 \label{fig:statistic}
 \end{figure}
+
+\subsection{Uređivanje podataka utakmice}
+
+Korisnik koji ima ulogu administratora može pristupiti stranici uređivanja podataka postojeće utakmice i stranici stvaranja nove utakmice.
+Poveznica na stranicu stvaranje nove utakmice je vidljiva administratoru na navigacijskoj traci, a poveznica na stranicu uređivanja postojeće utakmice se nalazi na prikazu detalja utakmice.
+
+Od korisnika se prvo traži da unese željeno natjecanje u kojemu se igra utakmica te jednu od dostupnih sezona za to natjecanje.
+Nakon odabira natjecanja i sezone, učita se popis svih ekiša koje su sudjelovale te sezone u tome natjecanju.
+Od korisnika se traži da odabere ekipu domaćina i gostujuću ekipu. Nekon toga se učitaju svi igrači i izbornici koji su bili članovi odabranih ekipa te sezone.
+
+Treneri dviju ekipa se biraju kroz padajući izbornik, dok se početne postave ekipa biraju kroz posebno grafičko sučelje.
+S desne strane pretpregleda početnih postava prikazan je padajući izbornik formacija početnih postava te izbornik boje dresova vratara i igrača dviju ekipa.
+Pregled početnih postava ekipa je prilagođen da odabirom određene pozicije ili igrača se otvori izbornik gdje korisnik mora odabrati jednog igrača te broj koji će biti prikazan na njegovom dresu.
+
+Ispod toga se nalazi sučelje za dodavanje i uređivanje golova, kartona i zamjena utakmice.
+Nakon dodavanja gola, kartona ili zamjene, taj događaj se prikaže u pretpregledu kronološki poredano kao što se bi se prikazalo na stranici pregleda detalja utakmice.
+Pored svakog dodanog događaja na utakmici prikazana je tipka koja uklanja taj događaj s utakmice.
+
+Ako je korisnik za status utakmice odabrao bilo koji status, osim onoga koji označava da utakmica nije započela, onda je prikazano sučelje uređivanja statistike utakmice.
+Prikazani su pretpregledi statistike kao na stranici pregleda detalja utakmice, ali se iznad svake stavke prikazana komponenta za unos pojedinog podatka za domaću i gostujuću ekipu.
+
+Ako su svi uneseni podatci ispravni, onda se korisniku omogući spremanje podataka te utakmice. Nakon uspješnog spremanja podataka utakmice pošalje se websocket poruka da su podatci te urakmice ažurirani.
+Ako se u tom trenutku neki korisnik nalazi na stranici pregleda detalja te utakmice, onda se revalidiraju svi podatci te putanje. Na taj način je osigurano ažuranje podataka detalja utakmice u stvarnom vremenu.
+
+\section{Pregled detalja igrača i trenera}
+
+Pregled i ažuriranje podataka igrača i trenera su dosta slični. Pregled detalja igrača i trenera se sastoji od slike, prikaza osobnih podataka, te trenutne ekipe za koju taj igrač igra, tj. koju taj trener trenira.
+Ispod osnovnih podataka se nalaze dvije kartice. Prva kartica prikazuje popis ekipa po sezoni za koje je taj igrač igrao ili koje je taj trener trenirao.
+Druga kartica prikazuje popis utakmica u kojemu je igrač igrao u početnoj postavi. Ako se nalazimo na pregledu trenera, onda je to popis utakmica u kojemu je on bio trener domaće ili gostujuće ekipe.
+
+Stranica pregleda detalja igrača sadrži i tipku pomoću koje se dodaje ili uklanja igrača s popisa najdražih. Ako korisnik koji nije prijavljen klikne na tu tipku, onda ga se prebaci na stranicu prijave.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=10cm]{images/lovren.jpg}
+\caption{Pregled detalja igrača}
+\label{fig:player}
+\end{figure}
+
+Prijavljeni korisnici koji imaju ulogu administratora mogu uređivati podatke igrača i trenera preko dvije poveznice.
+Jedna poveznica odvodi na stranicu gdje se uređuju osnovni podatci kao ime, prezime, slika, datum rođenja i trenutna ekipa.
+Druga poveznica odvodi na stranicu gdje se unose podatci za koju je ekipu taj igrač igrao, tj. koju je ekipu taj trener trenirao, u određenoj sezoni.
+Ta se stranica sastoji od popisa gdje svaki redak ima padajući popis ekipa, padajući popis sezona te tipku koja uklanja trenutni redak.
+A na dnu te stranice se nalazi tipka koja dodaje novi redak i tipke koja sprema podatke.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=10cm]{images/per-season.jpg}
+\caption{Uređivanje podataka o ekipama po sezoni}
+\label{fig:per-season}
+\end{figure}
+
+\section{Pregled detalja ekipe}
+
+Pregled detalja ekipe se sastoji osnovih podataka ekipe kao ime, slika grba, trenutni trener te slika države iz koje dolazi ta ekipa.
+
+Ispod toga se nalaze tri kartice. Prva kartica prikazuje tablicu pretka u natjecanjima u kojima je sudjelovala ta ekipa. Na vrhu je dostuan padajući izbornik natjecanja i sezona u kojima je sudjelovala ekipa.
+Druga kartica prikazuje popis utakmica po sezonama i natjecanjima u kojima je sudjelovala ekipa s padajućim izbornikom natjecanja i sezona.
+Treća kartica prikazuje popis igrača po sezonama koji su igrali za tu ekipu.
 
 \chapter{Zaključak}
 Zaključak.

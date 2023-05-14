@@ -433,7 +433,7 @@ export default (props: {
         options={gameStatusOptions}
       />
 
-      <Show when={import.meta.env.DEV}>
+      <Show when={false && import.meta.env.DEV}>
         <pre>{JSON.stringify(gameFormGroup, null, 2)}</pre>
       </Show>
       <div class="flex justify-start">
