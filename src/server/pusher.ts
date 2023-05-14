@@ -7,7 +7,6 @@ const pusherSchema = z.object({
   PUSHER_SECRET: z.string(),
 });
 
-
 export const sendMessage = (gameId: string) => {
   const pusherConf = pusherSchema.parse(process.env);
   const pusher = new Pusher({
@@ -24,7 +23,8 @@ export const sendMessage = (gameId: string) => {
 };
 
 export const subscribeGame = (gameId: string, callback: () => void) => {
-  console.log(import.meta.env)
+  console.log(import.meta.env.VITE_PUSHER_KEY);
+  console.log(import.meta.env.VITE_PUSHER_CLUSTER);
   const pusher = new PusherClient(import.meta.env.VITE_PUSHER_KEY, {
     cluster: import.meta.env.VITE_PUSHER_CLUSTER,
   });

@@ -142,17 +142,22 @@ type Event = {
   minute: number;
   extraTimeMinute: number | undefined;
   card: { card: CardEvent; index: number } | null;
-  goal: { goal: ArrayElement<GoalsInGame>; index: number } | null;
+  goal: {
+    goal: ArrayElement<GoalsInGame> & {
+      homeTeamGoalCount: number;
+      awayTeamGoalCount: number;
+    };
+    index: number;
+  } | null;
   substitution: { substitution: SubstitutionEvent; index: number } | null;
 };
 
 export default (gameData: GameDetailProps) => {
-  let homeTeamGoalCount = 0;
-  let awayTeamGoalCount = 0;
-
   const events = (): Event[] => {
     const e: Event[] = [];
 
+    let homeTeamGoalCount = 0;
+    let awayTeamGoalCount = 0;
     // Add all goals
     e.push(
       ...(gameData.goals ?? []).map((g, i) => {
@@ -160,7 +165,16 @@ export default (gameData: GameDetailProps) => {
           minute: g.scoredInMinute,
           extraTimeMinute: g.scoredInExtraMinute ?? undefined,
           goal: {
-            goal: g,
+            goal: {
+              ...g,
+              homeTeamGoalCount: g.isHomeTeamGoal
+                ? ++homeTeamGoalCount
+                : homeTeamGoalCount,
+
+              awayTeamGoalCount: g.isHomeTeamGoal
+                ? awayTeamGoalCount
+                : ++awayTeamGoalCount,
+            },
             index: i,
           },
           card: null,
@@ -244,16 +258,8 @@ export default (gameData: GameDetailProps) => {
                       scorer={goal.goal.scoredBy}
                       assistent={goal.goal.assistedBy}
                       isHomeTeamGoal={goal.goal.isHomeTeamGoal}
-                      homeTeamCurrentGoalCount={
-                        goal.goal.isHomeTeamGoal
-                          ? ++homeTeamGoalCount
-                          : homeTeamGoalCount
-                      }
-                      awayTeamCurrentGoalCount={
-                        goal.goal.isHomeTeamGoal
-                          ? awayTeamGoalCount
-                          : ++awayTeamGoalCount
-                      }
+                      homeTeamCurrentGoalCount={goal.goal.homeTeamGoalCount}
+                      awayTeamCurrentGoalCount={goal.goal.awayTeamGoalCount}
                     />
                   </div>
                   <Show when={gameData.onRemoveGoal} keyed>
@@ -262,7 +268,7 @@ export default (gameData: GameDetailProps) => {
                         class="btn-outline btn-error btn-square btn mx-2 gap-2"
                         type="button"
                         onClick={() => {
-                          callback(index());
+                          callback(goal.index);
                         }}
                       >
                         <svg
@@ -300,7 +306,7 @@ export default (gameData: GameDetailProps) => {
                         class="btn-outline btn-error btn-square btn mx-2 gap-2"
                         type="button"
                         onClick={() => {
-                          callback(index());
+                          callback(card.index);
                         }}
                       >
                         <svg
@@ -341,7 +347,7 @@ export default (gameData: GameDetailProps) => {
                         class="btn-outline btn-error btn-square btn mx-2 gap-2"
                         type="button"
                         onClick={() => {
-                          callback(index());
+                          callback(substitution.index);
                         }}
                       >
                         <svg

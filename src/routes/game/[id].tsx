@@ -53,11 +53,9 @@ const GameInfo = (gameData: GameDataById) => {
 
   createEffect(() => {
     if (!isServer) {
+      console.log(import.meta.env);
       const subscription = subscribeGame(gameData.id, () => {
-        refetchRouteData(["game-data", gameData.id]);
-        refetchRouteData(["goals-in-game", gameData.id]);
-        refetchRouteData(["lineups", gameData.id]);
-        refetchRouteData(["game-statistics", gameData.id]);
+        refetchRouteData();
       });
 
       return () => {

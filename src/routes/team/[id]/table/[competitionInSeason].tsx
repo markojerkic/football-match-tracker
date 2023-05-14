@@ -1,4 +1,3 @@
-
 import { For } from "solid-js";
 import {
   A,
@@ -14,28 +13,23 @@ import { getTableForCompetitionInSeason } from "~/server/competitions";
 import { getCompetitionSeasonsIds } from "~/server/seasons";
 
 export const routeData = ({ params }: RouteDataArgs) => {
-  const seasons = createServerData$(
-    ([, id]) => getCompetitionSeasonsIds(id),
-    {
-      key: () => ["competition-seasons", params.id],
-      initialValue: [],
-    }
-  );
+  const seasons = createServerData$(([, id]) => getCompetitionSeasonsIds(id), {
+    key: () => ["competition-seasons", params.id],
+    initialValue: [],
+  });
 
   const table = createServerData$(
-    ([, id]) =>
-      getTableForCompetitionInSeason(id),
+    ([, id]) => getTableForCompetitionInSeason(id),
     {
       key: () => ["table-for-team", params.competitionInSeason],
     }
   );
 
-
   return {
     seasons,
-    table
-  }
-}
+    table,
+  };
+};
 
 export default () => {
   const { table, seasons } = useRouteData<typeof routeData>();
@@ -94,4 +88,3 @@ export default () => {
     </>
   );
 };
-

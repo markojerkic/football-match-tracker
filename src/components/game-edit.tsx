@@ -177,6 +177,7 @@ export default (props: {
     const stats = props.statisticsData;
 
     if (gameData) {
+      console.log(gameData);
       gameFormGroupControls(gameData);
     }
 
@@ -275,7 +276,7 @@ export default (props: {
   });
 
   return (
-    <Form class="group mx-auto flex w-[50%] max-w-lg flex-col space-y-4">
+    <Form class="group mx-auto flex w-[70%] max-w-2xl flex-col space-y-4">
       <div class="flex flex-col">
         <input
           type="hidden"
@@ -324,8 +325,13 @@ export default (props: {
             name="homeTeam"
             required
             control={{
-              setValue: (val) => gameFormGroupControls({ homeTeam: val }),
-              value: gameFormGroup.homeTeam,
+              setValue: (val) => {
+                if (val !== gameFormGroup.homeTeam) {
+                  gameFormGroupControls("homeTeamLineup", []);
+                }
+                gameFormGroupControls({ season: val });
+              },
+              value: "clfqiqdjh0025uvwm2vi0pp6r",
             }}
             options={teams() ?? []}
           />
@@ -338,7 +344,12 @@ export default (props: {
             name="awayTeam"
             required
             control={{
-              setValue: (val) => gameFormGroupControls({ awayTeam: val }),
+              setValue: (val) => {
+                if (val !== gameFormGroup.awayTeam) {
+                  gameFormGroupControls("awayTeamLineup", []);
+                }
+                gameFormGroupControls({ awayTeam: val });
+              },
               value: gameFormGroup.awayTeam,
             }}
             options={teams() ?? []}
@@ -346,7 +357,7 @@ export default (props: {
         </Suspense>
       </span>
 
-      <span class="grid grid-flow-col justify-stretch gap-2">
+      <span class="grid grid-cols-2 justify-stretch gap-2">
         <Suspense fallback={<p>Loading...</p>}>
           <Select
             label="Home team manager"
@@ -424,7 +435,7 @@ export default (props: {
           </Show>
         </Suspense>
 
-        <div class="flex flex-col justify-between">
+        <div class="flex shrink flex-col justify-between">
           <ColorPicker
             label="Home team goalkeeper shirt color"
             value={gameFormGroup.homeTeamGoalkeeperShirtsColor}

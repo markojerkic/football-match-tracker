@@ -51,7 +51,7 @@ const PlayerRepresentation = (player: PlayerRepresentation) => {
   return (
     <A
       href={`/player/${player.id}`}
-      class="hover:z-1 group flex flex-col items-center justify-start p-2 hover:scale-125 hover:rounded-md hover:bg-green-700 md:max-w-md"
+      class="hover:z-1 group flex flex-col items-center justify-start rounded-md p-2 hover:bg-green-700 md:max-w-md"
     >
       <span class="relative mx-auto flex flex-col justify-center">
         <Shirt shirtColor={player.shirtColor} />
@@ -66,7 +66,7 @@ const PlayerRepresentation = (player: PlayerRepresentation) => {
           {player.shirtNumber}
         </span>
       </span>
-      <span class="absolute translate-y-[175%] text-center text-sm text-white group-hover:relative group-hover:translate-y-0">
+      <span class="z-10 line-clamp-2 max-w-[3rem] text-center text-xs text-white">
         {player.lastName}
       </span>
     </A>
@@ -218,42 +218,6 @@ const PlusIcon = () => (
   </svg>
 );
 
-// const IEditablePlayerRepresentation = (info: { shirtColor: string }) => {
-//   const [selectedPlayer, setSelectedPlayer] = createSignal<{
-//     shirtNumber: number;
-//     name: string;
-//     id: string;
-//   }>();
-//
-//   const isNumberTwoDigit = () =>
-//     (selectedPlayer()?.shirtNumber.toString().length ?? 0) > 1;
-//
-//   return (
-//     <>
-//       <div class="hover:z-1 group flex flex-col items-center justify-start p-2 hover:scale-125 hover:rounded-md hover:bg-green-700 md:max-w-md">
-//         <span class="relative mx-auto flex flex-col justify-center">
-//           <Shirt shirtColor={info.shirtColor} />
-//           <span
-//             classList={{
-//               "absolute top-[50%] translate-x-[-50%] translate-y-[-50%] text-center text-white":
-//                 true,
-//               "left-[47%]": isNumberTwoDigit(),
-//               "left-[50%]": !isNumberTwoDigit(),
-//             }}
-//           >
-//             <Show when={selectedPlayer()} fallback={<PlusIcon />}>
-//               {selectedPlayer()?.shirtNumber}
-//             </Show>
-//           </span>
-//         </span>
-//         <span class="absolute translate-y-[175%] text-center text-sm text-white group-hover:relative group-hover:translate-y-0">
-//           <Show when={selectedPlayer()}>{selectedPlayer()?.name}</Show>
-//         </span>
-//       </div>
-//     </>
-//   );
-// };
-
 const findInitialPlayer = (
   lineup: SelectedLineup[],
   row: number,
@@ -262,10 +226,6 @@ const findInitialPlayer = (
   const player = lineup.find(
     (p) => p.lineupRow === row && p.lineupColumn === column
   );
-  console.log("finding player", row, column);
-  console.log(lineup);
-  console.log(player);
-  console.warn("---");
   return player;
 };
 
@@ -348,7 +308,7 @@ export const EditablePlayerRepresentation = (info: {
     <>
       <button
         type="button"
-        class="hover:z-1 group flex flex-col items-center justify-start p-2 hover:scale-125 hover:rounded-md hover:bg-green-700 md:max-w-md"
+        class="hover:z-1 group flex flex-col items-center justify-start rounded-md p-2 hover:bg-green-700 md:max-w-md"
         onClick={openModal}
       >
         <span class="relative mx-auto flex flex-col justify-center">
@@ -366,7 +326,7 @@ export const EditablePlayerRepresentation = (info: {
             </Show>
           </span>
         </span>
-        <span class="absolute translate-y-[175%] text-center text-sm text-white group-hover:relative group-hover:translate-y-0">
+        <span class="z-10 line-clamp-2 max-w-[3rem] text-center text-xs text-white">
           <Show when={playerName()}>{playerName()}</Show>
         </span>
       </button>

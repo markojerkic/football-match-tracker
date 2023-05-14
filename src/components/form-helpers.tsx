@@ -32,7 +32,13 @@ export const Select = (props: {
       >
         <HiddenOption />
         <For each={props.options}>
-          {(option) => <option label={option.label} value={option.value} />}
+          {(option) => (
+            <option
+              label={option.label}
+              value={option.value}
+              selected={option.value === props.control.value}
+            />
+          )}
         </For>
       </select>
     </span>

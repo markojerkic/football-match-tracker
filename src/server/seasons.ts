@@ -15,7 +15,7 @@ export const getCompetitionSeasonsIds = async (
           season: {
             title: "desc",
           },
-        }
+        },
       },
 
       select: {
@@ -32,22 +32,20 @@ export const getCompetitionSeasonsIds = async (
 
             competition: {
               select: {
-                name: true
-              }
-            }
-
-          }
+                name: true,
+              },
+            },
+          },
         },
-
       },
     })
     .then((competitionSeasons) =>
       competitionSeasons.map(
         (cs) =>
-        ({
-          label: `${cs.competitionInSeason.competition.name} - ${cs.competitionInSeason.season.title}`,
-          value: cs.competitionInSeason.id,
-        } satisfies Option)
+          ({
+            label: `${cs.competitionInSeason.competition.name} - ${cs.competitionInSeason.season.title}`,
+            value: cs.competitionInSeason.id,
+          } satisfies Option)
       )
     );
 };
@@ -66,7 +64,7 @@ export const getCompetitionSeasons = async (
           season: {
             title: "desc",
           },
-        }
+        },
       },
 
       select: {
@@ -82,22 +80,20 @@ export const getCompetitionSeasons = async (
 
             competition: {
               select: {
-                name: true
-              }
-            }
-
-          }
+                name: true,
+              },
+            },
+          },
         },
-
       },
     })
     .then((competitionSeasons) =>
       competitionSeasons.map(
         (cs) =>
-        ({
-          label: `${cs.competitionInSeason.competition.name} - ${cs.competitionInSeason.season.title}`,
-          value: cs.id,
-        } satisfies Option)
+          ({
+            label: `${cs.competitionInSeason.competition.name} - ${cs.competitionInSeason.season.title}`,
+            value: cs.id,
+          } satisfies Option)
       )
     );
 };
@@ -113,10 +109,10 @@ export const getAllSeasons = async (): Promise<Option[]> => {
     .then((seasons) =>
       seasons.map(
         (s) =>
-        ({
-          label: s.title,
-          value: s.id,
-        } satisfies Option)
+          ({
+            label: s.title,
+            value: s.id,
+          } satisfies Option)
       )
     );
 };
