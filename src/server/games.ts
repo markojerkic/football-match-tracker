@@ -381,12 +381,14 @@ export const getGameGoalsById = async (gameId: string) => {
       isPenalty: true,
       scoredBy: {
         select: {
+          id: true,
           firstName: true,
           lastName: true,
         },
       },
       assistedBy: {
         select: {
+          id: true,
           firstName: true,
           lastName: true,
         },

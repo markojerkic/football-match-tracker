@@ -1,7 +1,24 @@
 import { For, Match, Show, Switch } from "solid-js";
-import { twMerge } from "tailwind-merge";
 import { ArrayElement, GoalsInGame } from "~/server/games";
 import { CardEvent, SubstitutionEvent } from "./events";
+import { A } from "solid-start";
+
+const SubstitutionIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke-width="1.5"
+    stroke="currentColor"
+    class="h-6 w-6 self-center"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.678 48.678 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3l-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3l-3 3"
+    />
+  </svg>
+);
 
 const SubstitutionInTimeline = (props: { sub: SubstitutionEvent }) => {
   const extraTime = () => {
@@ -10,27 +27,39 @@ const SubstitutionInTimeline = (props: { sub: SubstitutionEvent }) => {
   };
   return (
     <div
-      class={`flex ${
-        props.sub.isHomeTeam ? "self-start" : "flex-row-reverse self-end"
-      }`}
+      class="flex"
+      classList={{
+        "self-start": props.sub.isHomeTeam,
+        "flex-row-reverse self-end": !props.sub.isHomeTeam,
+      }}
     >
       <span
+        class="flex w-72 justify-between"
         classList={{
-          "flex w-72 justify-between": true,
           "flex-row-reverse": props.sub.isHomeTeam,
         }}
       >
-        {/*<span class="mx-4">{props.sub.cardType}</span>*/}
-        <span
+        <SubstitutionIcon />
+        <div
+          class="grow px-4"
           classList={{
-            "grow font-semibold": true,
             "text-end": props.sub.isHomeTeam,
             "text-start": !props.sub.isHomeTeam,
           }}
         >
-          {props.sub.playerInName}
-          {props.sub.playerOutName}
-        </span>
+          <p
+            classList={{
+              "grow font-semibold": true,
+            }}
+          >
+            <A href={`/player/${props.sub.playerInId}`} class="hover:link">
+              {props.sub.playerInName}
+            </A>
+          </p>
+          <A href={`/player/${props.sub.playerOutId}`} class="hover:link">
+            {props.sub.playerOutName}
+          </A>
+        </div>
         <span
           classList={{
             "text-end": props.sub.isHomeTeam,
@@ -50,20 +79,36 @@ const CardInTimeline = (props: { card: CardEvent }) => {
     if (!props.card.extraTimeMinute) return "";
     return ` ${props.card.minute}''`;
   };
+
   return (
     <div
-      class={`flex ${
-        props.card.isHomeTeam ? "self-start" : "flex-row-reverse self-end"
-      }`}
+      class="flex"
+      classList={{
+        "self-start": props.card.isHomeTeam,
+        "flex-row-reverse self-end": !props.card.isHomeTeam,
+      }}
     >
       <span
-        class={twMerge(
-          "flex w-72 justify-between",
-          props.card.isHomeTeam && "flex-row-reverse"
-        )}
+        class="flex w-72 justify-between"
+        classList={{
+          "flex-row-reverse": props.card.isHomeTeam,
+        }}
       >
-        <span class="mx-4">{props.card.cardType}</span>
-        <span
+        <Switch>
+          <Match when={props.card.cardType === "YELLOW"}>
+            <div class="border-1 mx-4 aspect-[9/16] h-full rounded-sm border border-black bg-yellow-400" />
+          </Match>
+          <Match when={props.card.cardType === "RED"}>
+            <div class="border-1 mx-4 aspect-[9/16] h-full rounded-sm border border-black bg-red-600" />
+          </Match>
+          <Match when={props.card.cardType === "SECOND_YELLOW"}>
+            <div class="border-1 mx-2 aspect-[9/16] h-full rounded-sm border border-black bg-red-600" />
+            <div class="border-1 mx-2 aspect-[9/16] h-full rounded-sm border border-black bg-yellow-400" />
+          </Match>
+        </Switch>
+        <A
+          href={`/player/${props.card.playerId}`}
+          class="hover:link"
           classList={{
             "grow font-semibold": true,
             "text-end": props.card.isHomeTeam,
@@ -71,7 +116,7 @@ const CardInTimeline = (props: { card: CardEvent }) => {
           }}
         >
           {props.card.playerLastName}
-        </span>
+        </A>
         <span
           classList={{
             "text-end": props.card.isHomeTeam,
@@ -87,8 +132,8 @@ const CardInTimeline = (props: { card: CardEvent }) => {
 };
 
 const GoalInTimeline = (goal: {
-  scorer: { firstName: string; lastName: string };
-  assistent: { firstName: string; lastName: string } | null;
+  scorer: { firstName: string; lastName: string; id: string };
+  assistent: { firstName: string; lastName: string; id: string } | null;
   scoredInMinute: number;
   scoredInExtraMinute: number | null;
   isHomeTeamGoal: boolean;
@@ -101,26 +146,51 @@ const GoalInTimeline = (goal: {
   };
   return (
     <div
-      class={`flex ${
-        goal.isHomeTeamGoal ? "self-start" : "flex-row-reverse self-end"
-      }`}
+      class="flex"
+      classList={{
+        "self-start": goal.isHomeTeamGoal,
+        "flex-row-reverse self-end": !goal.isHomeTeamGoal,
+      }}
     >
       <span
-        class={twMerge(
-          "flex w-72 justify-between",
-          goal.isHomeTeamGoal && "flex-row-reverse"
-        )}
+        class="flex min-w-[18rem] justify-between"
+        classList={{
+          "flex-row-reverse": goal.isHomeTeamGoal,
+        }}
       >
         <span class="mx-4">
           {goal.homeTeamCurrentGoalCount} - {goal.awayTeamCurrentGoalCount}
         </span>
+
         <span
-          class={twMerge(
-            "grow font-semibold",
-            goal.isHomeTeamGoal ? "text-end" : "text-start"
-          )}
-        >{`${goal.scorer.firstName} ${goal.scorer.lastName}`}</span>
-        <span class={twMerge(goal.isHomeTeamGoal ? "text-end" : "text-start")}>
+          class="grow font-semibold"
+          classList={{
+            "text-end": goal.isHomeTeamGoal,
+            "text-start": !goal.isHomeTeamGoal,
+          }}
+        >
+          <p>
+            <A href={`/player/${goal.scorer.id}`} class="hover:link">
+              {`${goal.scorer.firstName} ${goal.scorer.lastName}`}
+            </A>
+          </p>
+          <Show when={goal.assistent}>
+            <A
+              href={`/player/${goal.assistent?.id}`}
+              class="font-thin hover:link"
+            >
+              {`${goal.assistent?.firstName} ${goal.assistent?.lastName}`}
+            </A>
+          </Show>
+        </span>
+
+        <span
+          class=""
+          classList={{
+            "text-end mr-2": goal.isHomeTeamGoal,
+            "text-start ml-2": !goal.isHomeTeamGoal,
+          }}
+        >
           {`${goal.scoredInMinute}'`}
           {extraTime()}
         </span>
@@ -240,13 +310,13 @@ export default (gameData: GameDetailProps) => {
   };
 
   return (
-    <div class="flex flex-col-reverse">
+    <div class="flex flex-col-reverse space-y-4">
       <Show when={events().length === 0}>
         <p class="w-full text-center">No events</p>
       </Show>
 
       <For each={events()}>
-        {(event, index) => (
+        {(event) => (
           <Switch>
             <Match when={event.goal} keyed>
               {(goal) => (
