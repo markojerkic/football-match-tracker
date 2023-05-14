@@ -551,6 +551,8 @@ export const updateOrSaveGame = async (
 ) => {
   let gameId: string | undefined = game.id;
 
+  console.log("hometeam", game.homeTeamManager);
+
   const gameData = {
     competitionId: game.competition,
     homeTeamId: game.homeTeam,

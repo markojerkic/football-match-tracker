@@ -1,6 +1,6 @@
 import { For } from "solid-js";
 
-const HiddenOption = () => <option class="hidden" disabled selected />;
+const HiddenOption = () => <option class="hidden" disabled />;
 export type Option = { label: string; value: string | number };
 export type Control = {
   setValue: (value: string) => void;

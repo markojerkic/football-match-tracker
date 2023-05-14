@@ -26,6 +26,22 @@ export const getLineups = async ({ gameId }: { gameId: string }) => {
       homeTeamGoalkeeperShirtColor: true,
       awayTeamShirtColor: true,
       awayTeamGoalkeeperShirtColor: true,
+      homeTeamManager: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          imageSlug: true,
+        },
+      },
+      awayTeamManager: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          imageSlug: true,
+        },
+      },
     },
   });
 
@@ -75,6 +91,8 @@ export const getLineups = async ({ gameId }: { gameId: string }) => {
     awayTeamGoalkeeperShirtColor: lineup.awayTeamGoalkeeperShirtColor,
     homeTeamLineup,
     awayTeamLineup,
+    homeTeamManager: lineup.homeTeamManager,
+    awayTeamManager: lineup.awayTeamManager,
   };
   return result;
 };

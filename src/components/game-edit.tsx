@@ -275,6 +275,29 @@ export default (props: {
     );
   });
 
+  createEffect(() => {
+    const hm = homeTeamManagers();
+
+    if (
+      hm &&
+      hm?.find((m) => m.value === gameFormGroup.homeTeamManager) === undefined
+    ) {
+      gameFormGroupControls({
+        homeTeamManager: (hm[0] ?? { label: "", value: "" }).value as string,
+      });
+    }
+
+    const am = awayTeamManagers();
+    if (
+      am &&
+      am?.find((m) => m.value === gameFormGroup.awayTeamManager) === undefined
+    ) {
+      gameFormGroupControls({
+        awayTeamManager: (am[0] ?? { value: "" }).value as string,
+      });
+    }
+  });
+
   return (
     <Form class="group mx-auto flex w-[70%] max-w-2xl flex-col space-y-4">
       <div class="flex flex-col">

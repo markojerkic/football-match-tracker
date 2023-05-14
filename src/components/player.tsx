@@ -34,15 +34,22 @@ const PerssonIcon = () => (
   </svg>
 );
 
-const WrappedNoIcon = () => {
+const WrappedNoIcon = (props: { small: boolean }) => {
   return (
-    <div class="avatar mx-auto h-20 rounded-full bg-gray-400 p-4 ring ring-black ring-offset-2">
+    <div
+      class="avatar rounded-full bg-gray-400 ring ring-black ring-offset-2"
+      classList={{
+        "h-10 p-1": props.small,
+        "h-20 p-4 mx-auto": !props.small,
+      }}
+    >
       <PerssonIcon />
     </div>
   );
 };
 export const ImageOrDefaultAvater = (props: {
-  imageSlug: string | undefined;
+  imageSlug: string | undefined | null;
+  small?: boolean;
 }) => {
   const [isError, setIsError] = createSignal(false);
 
@@ -54,11 +61,17 @@ export const ImageOrDefaultAvater = (props: {
   return (
     <Show
       when={!isError() && props.imageSlug}
-      fallback={<WrappedNoIcon />}
+      fallback={<WrappedNoIcon small={props.small ?? false} />}
       keyed
     >
       {(img) => (
-        <div class="avatar mx-auto h-20 w-20 rounded-full ring ring-black ring-offset-2">
+        <div
+          class="avatar rounded-full ring ring-black ring-offset-2"
+          classList={{
+            "h-10 w-10": props.small,
+            "h-20 w-20 mx-auto": !props.small,
+          }}
+        >
           <img
             src={img}
             class="avatar rounded-full object-fill"
