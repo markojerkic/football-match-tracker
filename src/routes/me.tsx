@@ -12,14 +12,19 @@ export const routeData = () => {
     key: () => ["me"],
   });
 
-  const favouritePlayers = createServerData$((_, { request }) => getFavouritePlayers(request), {
-    key: () => ["favourite-players"]
-  })
+  const favouritePlayers = createServerData$(
+    (_, { request }) => getFavouritePlayers(request),
+    {
+      key: () => ["favourite-players"],
+    }
+  );
 
-  const favouriteTeams = createServerData$((_, { request }) => getFavouriteTeams(request), {
-    key: () => ["favourite-teams"]
-  })
-
+  const favouriteTeams = createServerData$(
+    (_, { request }) => getFavouriteTeams(request),
+    {
+      key: () => ["favourite-teams"],
+    }
+  );
 
   return {
     userData,
@@ -29,7 +34,8 @@ export const routeData = () => {
 };
 
 export default () => {
-  const { userData, favouriteTeams, favouritePlayers } = useRouteData<typeof routeData>();
+  const { userData, favouriteTeams, favouritePlayers } =
+    useRouteData<typeof routeData>();
 
   const [, { Form }] = createServerAction$(async (_: FormData, { request }) => {
     return logout(request);
@@ -48,11 +54,9 @@ export default () => {
         </Form>
       </div>
 
-      <div class="flex flex-col md:justify-around mt-6 md:flex-row w-full">
+      <div class="mt-6 flex w-full flex-col md:flex-row md:justify-around">
         <div class="flex flex-col space-y-4">
-          <p>
-            Favourite teams
-          </p>
+          <p>Favourite teams</p>
           <For each={favouriteTeams()}>
             {(team) => (
               <TeamPreview
@@ -65,9 +69,7 @@ export default () => {
         </div>
 
         <div class="flex flex-col space-y-4">
-          <p>
-            Favourite players
-          </p>
+          <p>Favourite players</p>
           <For each={favouritePlayers()}>
             {(player) => (
               <PlayerPreview
@@ -80,7 +82,6 @@ export default () => {
           </For>
         </div>
       </div>
-
     </div>
   );
 };

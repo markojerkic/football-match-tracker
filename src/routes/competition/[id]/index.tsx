@@ -1,5 +1,5 @@
-import { HttpStatusCode } from "solid-start/server";
+import { Navigate } from "solid-start";
 
 export default () => {
-  return <HttpStatusCode code={404} />;
+  return <Navigate href="table" />;
 };

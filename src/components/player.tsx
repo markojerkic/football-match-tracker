@@ -183,12 +183,12 @@ export const PlayerDetail = (detail: {
   lastName: string;
   imageSlug: string | undefined;
   currentTeam:
-  | {
-    id: string;
-    name: string;
-    imageSlug: string | null;
-  }
-  | undefined;
+    | {
+        id: string;
+        name: string;
+        imageSlug: string | null;
+      }
+    | undefined;
 }) => {
   return (
     <article class="mx-auto flex w-[90%] flex-col justify-center space-y-4 border-2 border-black p-4 md:w-[50%]">
@@ -217,7 +217,7 @@ export const PlayerDetail = (detail: {
       </AdminOnly>
 
       <LoggedInOnly>
-        <div class="flex justify-end mr-3">
+        <div class="mr-3 flex justify-end">
           <FavouritePlayer id={detail.id} />
         </div>
       </LoggedInOnly>
@@ -308,12 +308,12 @@ export const BasicPlayerDetail = (detail: {
   lastName: string;
   imageSlug: string | undefined;
   currentTeam:
-  | {
-    id: string;
-    name: string;
-    imageSlug: string | null;
-  }
-  | undefined;
+    | {
+        id: string;
+        name: string;
+        imageSlug: string | null;
+      }
+    | undefined;
 }) => {
   return (
     <article class="mx-auto flex w-[90%] flex-col justify-center space-y-4 border-2 border-black p-4 md:w-[50%]">
@@ -361,7 +361,6 @@ export const PlayerPreview = (player: {
           <A class="font-semibold" href={`/player/${player.id}`}>
             {`${player.firstName} ${player.lastName}`}
           </A>
-
         </span>
       </span>
 

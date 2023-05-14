@@ -27,6 +27,7 @@ model FavouriteTeam {
   userId String
   team   Team   @relation(fields: [teamId], references: [id])
   teamId String
+
   @@unique([userId, teamId])
 }
 
@@ -36,6 +37,7 @@ model FavouritePlayer {
   player   Player @relation(fields: [playerId], references: [id])
   userId   String
   playerId String
+
   @@unique([userId, playerId])
 }
 
@@ -143,7 +145,7 @@ model Team {
   countryId         String
   homeGames         Game[]                @relation("homeGames")
   awayGames         Game[]                @relation("awayGames")
-  highlightedTeams  HighlightedTeam[]
+  isHighlighted     Boolean               @default(false)
   favouritedByUser  FavouriteTeam[]
   competitions      TeamInCompetition[]
   imageSlug         String?
@@ -153,12 +155,6 @@ model Team {
   maganersInSeason  ManagerInTeamSeason[]
   currentPlayers    Player[]
   currentManager    Manager?
-}
-
-model HighlightedTeam {
-  id     String @id @default(cuid())
-  team   Team   @relation(fields: [teamId], references: [id])
-  teamId String
 }
 
 model Country {

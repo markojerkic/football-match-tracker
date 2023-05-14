@@ -21,14 +21,17 @@ export const routeData = ({ params }: RouteDataArgs) => {
   return competitionDetail;
 };
 
-export const Flag = () => (
+export const Flag = (props: { small?: boolean }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
     stroke-width="1.5"
     stroke="currentColor"
-    class="mx-auto h-6 w-6"
+    class="h-6 w-6"
+    classList={{
+      "mx-auto": !props.small,
+    }}
   >
     <path
       stroke-linecap="round"
@@ -96,7 +99,7 @@ export default () => {
           {(competition) => (
             <>
               <Title>{competition.name}</Title>
-              <div class="mx-auto w-[90%] border-2 border-black p-4 md:w-[50%]">
+              <div class="mx-auto w-[90%] border-2 border-black p-4 lg:w-[50%]">
                 <div class="flex space-x-4">
                   <span class="flex flex-col items-center justify-center space-y-2 text-sm">
                     <Show
@@ -114,7 +117,15 @@ export default () => {
                     <span>{competition.country.name}</span>
                   </span>
 
-                  <span class="text-3xl font-bold">{competition.name}</span>
+                  <span class="grow text-3xl font-bold">
+                    {competition.name}
+                  </span>
+                  <Show when={competition.imageSlug}>
+                    <img
+                      src={competition.imageSlug ?? undefined}
+                      class="avatar h-12 object-cover"
+                    />
+                  </Show>
                 </div>
 
                 <span class="divider" />

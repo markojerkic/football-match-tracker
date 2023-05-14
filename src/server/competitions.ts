@@ -1,10 +1,12 @@
 import { prisma } from "~/util/prisma";
-import {
-  TeamInSeasonFormElement,
-  getTeamsInCompetitionSeason,
-  getTeamsInCompetitionSeasonById,
-} from "./teams";
-import { type Option } from "~/components/form-helpers";
+import { TeamInSeasonFormElement, getTeamsInCompetitionSeason } from "./teams";
+
+export const getHighlightedCompetitions = async () =>
+  prisma.competition.findMany({
+    where: {
+      isHighlighted: true,
+    },
+  });
 
 export const getTeamInCompetitionSeasons = async (
   teamId: string
@@ -185,35 +187,29 @@ export const getCompetitionDetail = (id: string) => {
       id,
     },
 
-    select: {
-      name: true,
-      country: {
-        select: {
-          name: true,
-          imageSlug: true,
-        },
-      },
+    include: {
+      country: true,
     },
   });
 };
 
-export const getCompetitionOptions = () => {
-  return prisma.competition
-    .findMany({
-      select: {
-        id: true,
-        name: true,
-        country: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    })
-    .then((competitions) =>
-      competitions.map((c) => ({
-        label: `${c.country.name} - ${c.name}`,
-        value: c.id,
-      }))
-    );
-};
+// export const getCompetitionOptions = () => {
+//   return prisma.competition
+//     .findMany({
+//       select: {
+//         id: true,
+//         name: true,
+//         country: {
+//           select: {
+//             name: true,
+//           },
+//         },
+//       },
+//     })
+//     .then((competitions) =>
+//       competitions.map((c) => ({
+//         label: `${c.country.name} - ${c.name}`,
+//         value: c.id,
+//       }))
+//     );
+// };

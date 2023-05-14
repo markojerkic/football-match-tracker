@@ -50,7 +50,7 @@ export default () => {
   const { players, teams, managers } = useRouteData<typeof routeData>();
 
   return (
-    <div class="border-1 mx-auto flex w-[90%] justify-around space-x-4 border border-black p-4 md:w-[50%]">
+    <div class="border-1 mx-auto flex w-[90%] flex-col justify-around space-x-4 border border-black p-4 lg:w-[50%] lg:flex-row">
       <div class="flex flex-col">
         <span class="my-4 text-2xl font-bold">Players</span>
         <For each={players()}>

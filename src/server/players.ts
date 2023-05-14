@@ -10,13 +10,13 @@ export const getFavouritePlayers = async (request: Request) => {
 
   return prisma.favouritePlayer.findMany({
     where: {
-      userId
+      userId,
     },
     select: {
-      player: true
-    }
+      player: true,
+    },
   });
-}
+};
 
 export const findPlayers = async (
   q: string
