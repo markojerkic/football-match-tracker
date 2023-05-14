@@ -183,17 +183,17 @@ export const PlayerDetail = (detail: {
   lastName: string;
   imageSlug: string | undefined;
   currentTeam:
-    | {
-        id: string;
-        name: string;
-        imageSlug: string | null;
-      }
-    | undefined;
+  | {
+    id: string;
+    name: string;
+    imageSlug: string | null;
+  }
+  | undefined;
 }) => {
   return (
     <article class="mx-auto flex w-[90%] flex-col justify-center space-y-4 border-2 border-black p-4 md:w-[50%]">
       <AdminOnly>
-        <div class="flex grow justify-end">
+        <div class="flex justify-end">
           <A
             href={`/admin/player/${detail.id}`}
             class="btn-outline btn-circle btn justify-self-end"
@@ -217,7 +217,9 @@ export const PlayerDetail = (detail: {
       </AdminOnly>
 
       <LoggedInOnly>
-        <FavouritePlayer id={detail.id} />
+        <div class="flex justify-end mr-3">
+          <FavouritePlayer id={detail.id} />
+        </div>
       </LoggedInOnly>
 
       <ImageOrDefaultAvater imageSlug={detail.imageSlug} />
@@ -306,12 +308,12 @@ export const BasicPlayerDetail = (detail: {
   lastName: string;
   imageSlug: string | undefined;
   currentTeam:
-    | {
-        id: string;
-        name: string;
-        imageSlug: string | null;
-      }
-    | undefined;
+  | {
+    id: string;
+    name: string;
+    imageSlug: string | null;
+  }
+  | undefined;
 }) => {
   return (
     <article class="mx-auto flex w-[90%] flex-col justify-center space-y-4 border-2 border-black p-4 md:w-[50%]">
@@ -340,5 +342,30 @@ export const BasicPlayerDetail = (detail: {
       </div>
       */}
     </article>
+  );
+};
+
+export const PlayerPreview = (player: {
+  firstName: string;
+  lastName: string;
+  id: string;
+  imageSlug: string | null;
+}) => {
+  return (
+    <div class="flex w-full flex-col space-y-4">
+      <span class="flex items-center space-x-4">
+        <A href={`/player/${player.id}`}>
+          <ImageOrDefaultAvater imageSlug={player.imageSlug} small />
+        </A>
+        <span class="flex flex-col justify-around">
+          <A class="font-semibold" href={`/player/${player.id}`}>
+            {`${player.firstName} ${player.lastName}`}
+          </A>
+
+        </span>
+      </span>
+
+      <span class="divider" />
+    </div>
   );
 };

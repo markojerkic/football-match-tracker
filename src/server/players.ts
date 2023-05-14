@@ -3,6 +3,20 @@ import { ServerError, redirect } from "solid-start";
 import { z } from "zod";
 import { PlayerTeamsForm } from "~/routes/admin/player-season/[id]";
 import { prisma } from "~/util/prisma";
+import { getUserId } from "./auth";
+
+export const getFavouritePlayers = async (request: Request) => {
+  const userId = await getUserId(request);
+
+  return prisma.favouritePlayer.findMany({
+    where: {
+      userId
+    },
+    select: {
+      player: true
+    }
+  });
+}
 
 export const findPlayers = async (
   q: string

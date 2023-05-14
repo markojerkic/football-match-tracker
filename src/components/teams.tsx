@@ -4,6 +4,7 @@ import { OptionWithImage } from "~/server/country";
 import { TeamForm } from "~/server/teams";
 import { Select, TextInput } from "./form-helpers";
 import { ColorPicker } from "./game-edit";
+import { Show } from "solid-js";
 
 export const TeamInfoForm = (props: {
   team: TeamForm;
@@ -65,8 +66,8 @@ export const TeamPreview = (team: {
   name: string;
   id: string;
   imageSlug: string | null;
-  seasonName: string;
-  seasonId: string;
+  seasonName?: string;
+  seasonId?: string;
 }) => {
   return (
     <div class="flex w-full flex-col space-y-4">
@@ -83,9 +84,11 @@ export const TeamPreview = (team: {
           </A>
 
           {/* TODO: go to games  */}
-          <A class="font-thin hover:link" href={`/season/${team.seasonId}`}>
-            {team.seasonName}
-          </A>
+          <Show when={team.seasonId && team.seasonName}>
+            <A class="font-thin hover:link" href={`/season/${team.seasonId}`}>
+              {team.seasonName}
+            </A>
+          </Show>
         </span>
       </span>
 

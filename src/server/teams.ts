@@ -5,6 +5,20 @@ import { optionalString } from "./players";
 import { z } from "zod";
 import { zfd } from "zod-form-data";
 import { redirect } from "solid-start";
+import { getUserId } from "./auth";
+
+export const getFavouriteTeams = async (request: Request) => {
+  const userId = await getUserId(request);
+
+  return prisma.favouriteTeam.findMany({
+    where: {
+      userId
+    },
+    select: {
+      team: true
+    }
+  })
+}
 
 export const findTeams = async (
   q: string
