@@ -247,8 +247,8 @@ Ovaj način ažuriranja HTML stabla je poznat kao "fine-grained reactivity"\cite
 
 SolidStart nadopunjuje mogućnosti SolidJs-a.
 
-Glavna značajka koju donosi SolidStart je mogućnost generiranje HTML odgovora na serveru (eng. server-side rendering\footnote{https://solutionshub.epam.com/blog/post/what-is-server-side-rendering}).
-SolidStart zapravo radi na principu progresivnog poboljšanja (eng. progressive enhancement\footnote{https://developer.mozilla.org/en-US/docs/Glossary/Progressive_Enhancement}).
+Glavna značajka koju donosi SolidStart je mogućnost generiranje HTML odgovora na serveru (eng. server\-side rendering\footnote{https://solutionshub.epam.com/blog/post/what\-is\-server\-side\-rendering}).
+SolidStart zapravo radi na principu progresivnog poboljšanja (eng. progressive enhancement\footnote{https://developer.mozilla.org/en\\-US/docs/Glossary/Progressive\_Enhancement}).
 To znači da prvi zahtjev koji korisnik pošalje kada stigne na stranicu se obradi na poslužitelju i korisnik dobije HTML bogat sadržajem kao odgovor, a za svaku narednu promjenu putanje unutar aplikacije učitava se samo JSON potreban za prikaz te stranice.
 Ovo je hibridni način učitavanja sadržaja koji spaja najbolje iz oba svijeta.
 Generiranje HTML sadržaja na serveru za prvi zahtjev je dobro jer korsnik već s prvim odgovorom dobiva željeni sadržaj i ne mora čekati da se učita JavaScript koji dohvaća potrebne podatke nakon učitavanja praznog HTML zapisa.
@@ -257,13 +257,13 @@ SolidStart omogućuje učitavanje podataka s poslužitelja kolikacijom poslužit
 To znači da se u datoteci u kojoj se pišu komponente koje će pokreću na klijentu piše i funkcija koja radi isključivo na poslužitelju. U toj funkciji se može čitati i pisati iz baze ili raditi sve što se može raditi samo na poslužitelju.
 SolidStart će izvući tu funkciju iz klijentskog koda. Ta funkcija postane dio poslužitelja, a na njeno mjesto se u klijenskom kodu ubaci funkcija koja će preko HTTP zahtjeva pokrenuti poslužiteljsku funkciju i dohvatiti odgovor.
 To se radi tako da se kod koji treba raditi isključivo na poslužitelju napiše unutar pomoćne funkcije \emph{createServerData\$()}\footnote{https://start.solidjs.com/api/createServerData}.
-Ova metoda kao rezultat vrati SolidJs \emph{resource}\footnote{https://www.solidjs.com/docs/latest/api#createresource} koji omogućava asinkrono čitanje podataka.
+Ova metoda kao rezultat vrati SolidJs \emph{resource} \footnote{https://www.solidjs.com/docs/latest/api\#createresource} koji omogućava asinkrono čitanje podataka.
 
 \begin{lstlisting}[caption=Učitavanje podataka s poslužitelja]
 //// Radi na poslužitelju i klijentu
 ...
 ////
-  const serverData = createServerData$(async () => {
+  const serverData = createServerData\$(async () => {
   //// Radi samo na poslužitelju
       return db.getAllPlayers();
   ////
