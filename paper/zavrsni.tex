@@ -218,7 +218,7 @@ Status utakmice se sprema kao enumirana vrijednost koja može poprimiti vrijedno
 Početne postave prvih jedanaest se spremaju kao "jsonb"\footnote{https://www.postgresql.org/docs/9.5/functions-json.html} \citep{postgressjson} vrsta podataka.
 Podatci se spremaju kao JSON polje od jedanaest vrijednosti koje predstavljaju jedanaest igrača početne postave. U tom JSON podatku je spremljen identifikator igrača, broj dresa koji igrač nosi na toj utakmici, broj reda u početnoj formaciji te redni broj igrača u tome redu gledajući s lijeva na desno.
 Odlučeno je spremati početnu postavu kao JSON vrijednost umjesto da se stvori novi entitet koji bi imao vezu na entitet "Game" jer bi to stvorilo previše unosa u bazi podataka, točnije 22 po svakoj spremljenoj utakmici.
-Pored toga, spremanje tog podatka kao JSON je olakšalo način izrade administracije početne postave kroz klijetsku aplikaciju.
+Pored toga, spremanje tog podatka kao JSON je olakšalo način izrade administracije početne postave kroz klijentsku aplikaciju.
 
 Entitet "GameStatistics" sadrži podatke kao što su ukupni udarci, udarci u vrata, ubačaji iz kuta, prekršaji, stvorene velike prilike, broj dodavanja, broj ubacivanje lopte u šesnaesterac, broj driblinga i broj uklizavanja za obje ekipe.
 
@@ -488,14 +488,15 @@ Nakon dodavanja gola, kartona ili zamjene, taj događaj se prikaže u pretpregle
 Pored svakog dodanog događaja na utakmici prikazana je tipka koja uklanja taj događaj s utakmice.
 
 Ako je korisnik za status utakmice odabrao bilo koji status, osim onoga koji označava da utakmica nije započela, onda je prikazano sučelje uređivanja statistike utakmice.
-Prikazani su pretpregledi statistike kao na stranici pregleda detalja utakmice, ali se iznad svake stavke prikazana komponenta za unos pojedinog podatka za domaću i gostujuću ekipu.
+Prikazani su pretpregledi statistike kao na stranici pregleda detalja utakmice, ali je iznad svake stavke prikazana komponenta za unos pojedinog podatka za domaću i gostujuću ekipu.
 
 Ako su svi uneseni podatci ispravni, onda se korisniku omogući spremanje podataka te utakmice. Nakon uspješnog spremanja podataka utakmice pošalje se websocket poruka da su podatci te utakmice ažurirani.
 Ako se u tom trenutku neki korisnik nalazi na stranici pregleda detalja te utakmice, onda se invalidiraju svi podatci te putanje. Tako je osigurano ažuriranje podataka detalja utakmice u stvarnom vremenu.
 
 Pošto je aplikacija podignuta na bezposlužiteljskoj okolini, nije moguće pokrenuti vlastiti WebSocket poslužitelj.
 Zbog toga je za izradu WebSocket komunikacije korišten servis Pusher\footnote{https://pusher.com/} koji prihvati poruku od Node servera.
-Pusher nakon toga pošalje WebSocket poruku svim pretplatnicima određeni kanal. Korisnik se automatski pretplati na WebSocket stranicu pregleda detalja neke utakmice te automatski se otkaže pretplata kada se ode s te stranice.
+Pusher nakon toga pošalje WebSocket poruku svim pretplatnicima na određeni kanal.
+Korisnik se automatski pretplati na WebSocket kanal dolaskom na stranicu pregleda detalja neke utakmice te se pretplata automatski otkaže kada ode s te stranice.
 
 \section{Pregled detalja igrača i trenera}
 
@@ -509,7 +510,7 @@ Pregled i ažuriranje podataka igrača i trenera su dosta slični. Pregled detal
 \end{figure}
 
 Ispod osnovnih podataka se nalaze dvije kartice. Prva kartica prikazuje popis ekipa po sezoni za koje je taj igrač igrao ili koje je taj trener trenirao.
-Druga kartica prikazuje popis utakmica u kojemu je igrač igrao u početnoj postavi. Ako se nalazimo na pregledu trenera, onda je to popis utakmica u kojemu je on bio trener domaće ili gostujuće ekipe.
+Druga kartica prikazuje popis utakmica u kojema je igrač igrao u početnoj postavi. Ako se nalazimo na pregledu trenera, onda je to popis utakmica u kojema je on bio trener domaće ili gostujuće ekipe.
 
 Stranica pregleda detalja igrača sadrži i tipku pomoću koje se dodaje ili uklanja igrača s popisa najdražih. Ako korisnik koji nije prijavljen klikne na tu tipku, onda ga se prebaci na stranicu prijave.
 
@@ -517,7 +518,7 @@ Prijavljeni korisnici koji imaju ulogu administratora mogu uređivati podatke ig
 Jedna poveznica odvodi na stranicu gdje se uređuju osnovni podatci kao ime, prezime, slika, datum rođenja i trenutna ekipa.
 Druga poveznica odvodi na stranicu gdje se unose podatci za koju je ekipu taj igrač igrao, tj. koju je ekipu taj trener trenirao, u određenoj sezoni.
 Ta se stranica sastoji od popisa gdje svaki redak ima padajući popis ekipa, padajući popis sezona te tipku koja uklanja trenutni redak.
-A na dnu te stranice se nalazi tipka koja dodaje novi redak i tipke koja sprema podatke.
+A na dnu te stranice se nalazi tipka koja dodaje novi redak i tipka koja sprema podatke.
 
 \begin{figure}[htb]
 \centering
@@ -538,7 +539,7 @@ Pregled detalja ekipe se sastoji osnovnih podataka ekipe kao ime, slika grba te 
 \label{fig:per-season}
 \end{figure}
 
-Ispod toga se nalaze tri kartice. Prva kartica prikazuje tablicu pretka u natjecanjima u kojima je sudjelovala ta ekipa. Na vrhu je dostupan padajući izbornik natjecanja i sezona u kojima je sudjelovala ekipa.
+Ispod toga se nalaze tri kartice. Prva kartica prikazuje tablicu poretka u natjecanjima u kojima je sudjelovala ta ekipa. Na vrhu je dostupan padajući izbornik natjecanja i sezona u kojima je sudjelovala ekipa.
 Ime svake ekipe služi kao poveznica koja vodi na stranicu detalja te ekipe.
 Druga kartica prikazuje popis utakmica po sezonama i natjecanjima u kojima je sudjelovala ekipa s padajućim izbornikom natjecanja i sezona. Odabirom određene utakmice korisnika se prebacuje na prikaz detalja te utakmice.
 Treća kartica prikazuje popis igrača po sezonama koji su igrali za tu ekipu.
@@ -546,8 +547,9 @@ Treća kartica prikazuje popis igrača po sezonama koji su igrali za tu ekipu.
 \section{Pretraga igrača, trenera i ekipa}
 
 Korisnik klikom na tipku s ikonom povećala na navigacijskoj traci dobije polje za unos pojma pretrage. Nakon unosa pojma pretrage korisnika se vodi na stranicu rezultata pretrage.
-Prikazuju se pronađeni rezultati za igrače, trenere i ekipe. Kod igrača i trenera, pretraga se vrši tako da se usporedi sadrži li ime ili prezime osobe uneseni pojam kao podniz.
-Razlika velikih i malih slova se ignoriraju. Kod pretrage ekipa provjerava se samo sadrži li ime ekipe uneseni pojam kao podniz.
+Prikazuju se pronađeni rezultati za igrače, trenere i ekipe.
+Kod igrača i trenera, pretraga se vrši tako da se usporedi sadrži li ime ili prezime osobe uneseni pojam kao podniz.
+Razlika velikih i malih slova se ignorira. Kod pretrage ekipa provjerava se samo sadrži li ime ekipe uneseni pojam kao podniz.
 
 Rezultati pretrage se prikazuju u tri stupca. Jedan stupac je za igrače, jedan za trenere i jedan za ekipe. Za sva tri entiteta se prikaže ime i slika ako je dostupna.
 
@@ -560,14 +562,14 @@ Rezultati pretrage se prikazuju u tri stupca. Jedan stupac je za igrače, jedan 
 
 \section{Pregled detalja natjecanja}
 
-Kod pregleda detalja određenog natjecanja prikazane su ime natjecanja, slika i ime države u kojoj se odražava natjecanje te grb natjecanja ako postoji.
+Kod pregleda detalja određenog natjecanja prikazani su ime natjecanja, slika i ime države u kojoj se održava natjecanje te grb natjecanja ako postoji.
 
-Ispod osnovnih informacija o natjecanju prikazane su dvije kartice koje prikazuju popis utakmica odigranih po određenoj sezoni te tablica poretka ekipa koji su sudjelovali u tome natjecanju određene sezone.
+Ispod osnovnih informacija o natjecanju prikazane su dvije kartice koje prikazuju popis utakmica odigranih po određenoj sezoni te tablica poretka ekipa koje su sudjelovale u tome natjecanju određene sezone.
 U oba slučaja se identifikator sezone sprema u putanji URL-a te ako korisnik slučajno dođe na stranicu pregleda tablice ili popisa utakmica bez identifikatora određene sezone, aplikacija će automatski preusmjeriti korisnika na najnoviju dostupnu sezonu toga natjecanja.
 
-Tablica poretka se ne sprema u bazi nego se izračuna svaki puta kada se čita.
+Tablica poretka se ne sprema u bazi podataka nego se izračuna svaki put kada se čita.
 Učita se popis svih utakmica za tu sezonu, napravi se mapa koja mapira identifikator ekipe na objekt koji sadrži podatke o bodovima ekipe, broju odigranih utakmica, broju pobjeda, broju gubitaka te broju neriješenih utakmica.
-Prilazi se kroz popis utakmica se ažurira objekt koji sadrži podatke za domaću i gostujuću ekipu.
+Prolazi se kroz popis utakmica te se ažurira objekt koji sadrži podatke za domaću i gostujuću ekipu.
 Entitet utakmice ne bilježi tko je pobjednik, nego se to izračuna na osnovu zabijenih golova na utakmici. Prebroje se golovi i autogolovi te se na osnovu toga odredi tko dobiva tri, jedan ili nula bodova.
 
 \begin{figure}[htb]
@@ -583,7 +585,7 @@ Izradom ove aplikacije uspješno je omogućeno lako pregledavanje detalja odigra
 Korisniku je omogućeno brzo i lako pretraživanje dostupnih igrača, trenera i ekipa.
 
 Stranice koje prikazuju podatke povezanog resursa sadržavaju poveznice koje vode korisnika na stranicu pregleda detalja tog resursa.
-Za entitete koji sadrže jako malo informacija, kao sezona koja sadrži samo naziv, nije napravljena mogućnost uređivanje niti unosa novih podataka jer se ti podatci ne ažuriraju često i lako ih je dodati direktno kroz bazu podataka.
+Za entitete koji sadrže jako malo informacija, kao sezona koja sadrži samo naziv, nije napravljena mogućnost uređivanja niti unosa novih podataka jer se ti podatci ne ažuriraju često i lako ih je dodati direktno kroz bazu podataka.
 Napravljena su sučelja za uređivanje podataka o utakmicama, igračima i trenerima te unos novih podataka.
 Omogućen je lak odabir povezanih resursa pri uređivanju podataka preko padajućih izbornika.
 
@@ -592,12 +594,12 @@ Cijeli grafički prikaz i uređivanje početnih postava izrađeno je koristeći 
 
 Sve forme za uređivanje podataka na stranici, osim one za uređivanje podataka određene utakmice, napravljene su oslanjajući se na HTML form element poboljšan SolidStart-ovim \emph{createServerAction\$()}.
 Uređivanje podataka o početnim postavama je bilo previše komplicirano pa se taj podatak šalje kao JSON.
-Kao poboljšanje bi se moglo napraviti da se prikaz svakog igača u početnoj postavi sastoji od par skrivenih \emph{input} polja koji se popune s potrebnim vrijednostima, kao identifikator odabranog igrača i broj na leđima,
+Kao poboljšanje bi se moglo napraviti da se prikaz svakog igača u početnoj postavi sastoji od par skrivenih \emph{input} polja koja se popune s potrebnim vrijednostima, kao identifikator odabranog igrača i broj na leđima,
 nakon ispunjavanja pomoćne forme koja bi se otvorila u lebdećem prozoru nakon odabira određene pozicije u početnoj postavi.
 
 Pisanjem aplikacije u fullstack framework-u povećana je brzina izrade funkcionalnih zahtjeva.
 SolidStart meta-framework omogućio je pisanje koda koji se izvodi isključivo na poslužitelju unutar klijentskih komponenti čime se dobiva osjećaj pisanja desktop aplikacije.
-Dohvat podataka se vrši samo pozivanjem funkcije. Programer ne mora razmišljati o odvajanju poslužiteljskog i klijentskog koda, otvaranju HTTP endpointa te mapiranju parametara koji se šalju preko HTTP poziva.
+Dohvat podataka se vrši samo pozivanjem funkcije. Programer ne mora razmišljati o odvajanju poslužiteljskog i klijentskog koda, otvaranju HTTP endpointa te mapiranju parametara koji se šalju preko HTTP zahtjeva.
 
 \bibliography{literatura}
 \bibliographystyle{fer}
