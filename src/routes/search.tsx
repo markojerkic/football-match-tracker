@@ -114,7 +114,7 @@ export default () => {
       </div>
 
       <div class="flex flex-col">
-        <span class="my-4 text-2xl font-bold">Team</span>
+        <span class="my-4 text-2xl font-bold">Teams</span>
         <For each={teams()}>
           {(team) => (
             <A href={`/team/${team.id}`} class="group relative block w-full">

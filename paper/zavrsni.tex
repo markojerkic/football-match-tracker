@@ -1,5 +1,75 @@
 \documentclass[times, utf8, zavrsni]{fer}
 \usepackage{booktabs}
+\usepackage{listings}
+\usepackage{listings}
+\usepackage{color}
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break, const, let, async},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstset{
+   language=JavaScript,
+   extendedchars=true,
+   basicstyle=\footnotesize\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   numbers=left,
+   numberstyle=\footnotesize,
+   numbersep=9pt,
+   tabsize=2,
+   breaklines=true,
+   showtabs=false,
+   captionpos=b
+}
+
+\lstset{
+     literate=%
+         {á}{{\'a}}1
+         {í}{{\'i}}1
+         {é}{{\'e}}1
+         {ý}{{\'y}}1
+         {ú}{{\'u}}1
+         {ó}{{\'o}}1
+         {ě}{{\v{e}}}1
+         {š}{{\v{s}}}1
+         {č}{{\v{c}}}1
+         {ř}{{\v{r}}}1
+         {ž}{{\v{z}}}1
+         {ď}{{\v{d}}}1
+         {ť}{{\v{t}}}1
+         {ň}{{\v{n}}}1
+         {ů}{{\r{u}}}1
+         {Á}{{\'A}}1
+         {Í}{{\'I}}1
+         {É}{{\'E}}1
+         {Ý}{{\'Y}}1
+         {Ú}{{\'U}}1
+         {Ó}{{\'O}}1
+         {Ě}{{\v{E}}}1
+         {Š}{{\v{S}}}1
+         {Č}{{\v{C}}}1
+         {Ř}{{\v{R}}}1
+         {Ž}{{\v{Z}}}1
+         {Ď}{{\v{D}}}1
+         {Ť}{{\v{T}}}1
+         {Ň}{{\v{N}}}1
+         {Ů}{{\r{U}}}1
+}
 
 \begin{document}
 
@@ -63,9 +133,17 @@ Aplikacija Rezultati.com otvori detalje utakmice u skočnom prozoru, dok OneFoot
 Zaglavlje stranice detalja utakmice prikazuje ime i grb ekipa koje su sudjelovale u utakmici, datum utakmice i trenutni rezultat.
 Detaljni podatci su raspodijeljeni u više kategorija koje se odabiru preko kartica. Zadana kartica sadrži događaje utakmice, kao što su pogodci, kartoni i zamjene, kronološki poredane po minuti.
 
+\begin{figure}[htb]
+\centering
+\includegraphics[width=15cm]{images/ss-detail.jpg}
+\caption{Detalji utakmice na SofaScore}
+\label{fig:ss-detail}
+\end{figure}
+
 Pored kartice događaja po minuti, bitne su još kartica početnih postava dviju ekipa te kartica statistike utakmice.
 Kartica početnih postava utakmice grafički prikazuje prvih jedanaest igrača obje ekipe, formaciju, boju dresova te broj na dresovima.
 Kartica statistike prikazuje podatke o posjedu lopte, broju udaraca, broju udaraca u vrata, broju udaraca iz kuta i sl., za obje ekipe.
+
 
 \section{Prikaz detalja igrača, izbornika, ekipa i natjecanja}
 
@@ -79,15 +157,46 @@ trenutnim igračima koji igraju za tu ekipu, te tablica poretka natjecanja u koj
 
 Kod stranice pregleda natjecanja, najbitnije su kartice s tablicom poretka te popisom utakmica po sezoni za odabrano natjecanje.
 
-\chapter{Relacijski model baze podataka}
+\chapter{Cilj izrade projekta}
 
-Dizajnirani relacijski model podataka sadrži 19 tablica te 6 enumeracijski vrsti.
+Nakon analize postojećih rješenja na internetu izdvojene su određene funkcionalnosti koje se čine najbitnije i najkorisnije prosječnom korisniku.
+Najbitnija funkcionalnost aplikacije za pregled rezultata utakmica je detaljni prikaz podataka utakmice.
+Detaljni prikaz podataka utakmice mora sadržavati rezultat utakmice, događaje utakmice, početne postave te statistiku.
+
+Događaji utakmice moraju sadržavati popis golova, zamijena i podijeljenih kartona. Svi događaji moraju biti poredani silazno prema minuti utakmice u kojoj je došlo do tog događaja.
+Za svaki gol mora se prikazati tko ga je postigao, tko je asistirao, koji je rezultat utakmice bio nakon tog pogotka te u kojoj minuti je zabijen.
+Imena igrača koji su zabili ili asistirali za taj gol moraju biti poveznice koje će korisnika odvesti na stranicu pregleda detalja toga igrača.
+Podijeljeni kartoni moraju imati ime igrača koji je dobio karton. Treba grafički prikazati jeli karton žuti, crveni ili drugi žuti.
+Zamjena mora prikazati ime igrača koji ulazi u igru te ime igrača koji izlati iz igre.
+Imena igrača koji su dobili karton ili su sudjelovali u zamjeni također moju biti poveznice koje vode na stranicu detalja igrača.
+
+Stranica pregleda početnih postava ekipa mora grafički prikazati koja se formacija koristi te u odgovarajućoj formaciji prikazati dres igrača s njegovim brojem koji nosi na utakmici te ime igrača.
+Svaki dres koji predstavlja igrača u početnoj postavi mora biti poveznica na stranicu detalja igrača.
+U slučaju kada početne postave ekipa koje sudjeluju u određenoj utakmici nisu dostupne, potrebno je obavijestiti korisnika o nedostatku podataka i prikazati popis igrača koji su dostupni odabranoj ekipi za tu sezonu.
+
+Potrebno je omogućiti prikaz svih dostupnih utakmice za odabrani datum. Svaka prikazana utakmica mora sadžavati ime domaće i gostujuće ekipe, vrijeme održavanja utakmice te rezultat.
+
+Korisnik mora moći pretražiti dostupne igrače, trenere i ekipe. Rezultati pretrage moraju biti poveznice na detaljni pregled podataka odabranog entiteta.
+
+Kod pregleda detalja igrača i trenera potreno je prikazati osnovne informacije kao ime, prezime i sliku osobe ako je dostupna.
+Potrebno je prikazati trenutnu ekipu kojoj igrač ili trener pripada te popis ekipa kojima je pripadao u određenoj sezoni.
+Treba se omogućiti prikaz utakmica u kojima je sudjelovao odabrani trener ili igrač.
+
+Potrebno je omogućiti prijavu i registraciju korisnika. Prijavljeni korisnik treba imati mogućnost spremanja najdražih igrača i ekipa kako bi brže došao do podataka koji ga zanimaju.
+Korisnik koji ima ulogu administratora treba imati mogućnost uređivanja i unosa novih podataka za odabrani set entiteta.
+
+\chapter{Model baze podataka}
+
+Dizajnirani relacijski model podataka sadrži 18 tablica te 6 enumeracijski vrsti.
+
+\section{Entiteti i veze}
 
 Središnji entitet relacijskog modela je tablica "Game," koja sadrži osnovne podatke o utakmici. Ovaj entitet sadrži veze na natjecanje kojemu pripada utakmica, domaću i gostujuću ekipu, izbornika domaće i gostujuće ekipe,
 sezonu u kojoj se igra utakmica te na tablicu koja sarži detaljniju statistiku utakmice. Tablica "Game" sadrži foreign key na tablicu "GameStatistic," ali taj podatak nije obavezan jer svaka utakmica ne mora imati podatke o statistici.
 U slučaju kada utakmica još nije počela, entitet "Game" ne sadrži podatke o statistici, pa to polje sadrži vrijednost "null."
 
-Entitet "Game" također sadržava informaciju o vremenu početka utakmice, vremenu nadoknade u prvom i drugom poluvremenu, boju dresova domaće i gostujuće ekipe, kao i boje dresova vratara, status utakmice, te početne postave dviju ekipa.
+Entitet "Game" također sadržava informaciju o vremenu početka utakmice, vremenu nadoknade u prvom i drugom poluvremenu, boju dresova domaće i gostujuće ekipe spremljenu kao heksadecimalna vrijednost,
+kao i boje dresova vratara, status utakmice, te početne postave dviju ekipa.
 Status utakmice se sprema kao enumirana vrijednost koja može poprimiti vrijednosti "NOT\textunderscore STARTED," "STARTED," "HALFTIME" te "OVER".
 
 Početne postave prvih jedanaest se spremaju kao "jsonb"\footnote{https://www.postgresql.org/docs/9.5/functions-json.html} \citep{postgressjson} vrsta podataka.
@@ -114,23 +223,65 @@ Pored nabrojanih entiteta postoje još entiteti potrebni za autentifikaciju te s
 
 \chapter{Odabrane tehnologije i arhitektura}
 
-Arhitektura aplikacije se sastoji od NodeJS\footnote{https://nodejs.org/en} koja obrađuje HTTP zahtjeve te poslužuje statični sadržaj (kao HTML, JavaScript i CSS datoteke) i dinamične podatke u obliku JSON-a te PostreSQL\footnote{https://www.postgresql.org/} baze podataka.
+Arhitektura aplikacije se sastoji od NodeJS\footnote{https://nodejs.org/en} servera, koji obrađuje HTTP zahtjeve te poslužuje statični sadržaj (kao HTML, JavaScript i CSS datoteke) i dinamične podatke u obliku JSON-a, te PostreSQL\footnote{https://www.postgresql.org/} baze podataka.
 
 \section{Backend i frontend tehnologija}
 NodeJS aplikacija je napisana koristeći meta-framework SolidStart\footnote{https://start.solidjs.com}. Meta-framework \citep{meta2022davanzo} je software koji je napisan da upotpuni neki postojeći frontend framework.
 Većim meta-framework propisuje načine na koji se radi dohvat i pisanje podataka te donosi vlastiti usmjerivač\footnote{https://hr.wikipedia.org/wiki/Usmjerivač} (eng. router).
 
-SolidStart je meta-framework oko popularnog frontend framework-a SolidJS\footnote{https://solidjs.com}. SolidJS je postao popularan u poljednjih nekoliko godina zbog svog modela reaktivnosti klijentskih JavaScript aplikacija.
-SolidJS je obnovio ideju signala stanja. Ryan Carniato \citep{ryan2023signal} opisuje signal kao reaktivno stanje aplikacije kojemu se pristupa preko observer obrazca\footnote{https://en.wikipedia.org/wiki/Observer\_pattern}.
-Stanje se drži u jednom objektu i može se dijeliti na više mjesta. Na svakom mjestu gdje se želi pristupiti tome stanju potrebno je se pretplatiti na izvor signala. To se učini tako da se pozove funkcija signala.
+\subsection{SolidJs}
+
+SolidStart je meta-framework izrađen oko popularnog JavaScript framework-a SolidJS\footnote{https://solidjs.com}. SolidJS je postao popularan u poljednjih nekoliko godina zbog svog modela reaktivnosti klijentskih JavaScript aplikacija.
+SolidJS je obnovio ideju signala stanja \citep{ryan2023signal}. Ryan Carniato opisuje signal  kao reaktivno stanje aplikacije kojemu se pristupa preko observer obrazca\footnote{https://en.wikipedia.org/wiki/Observer\_pattern}.
+Stanje se drži u jednom objektu i može se dijeliti na više mjesta. Na svakom mjestu gdje se želi pristupiti tome stanju potrebno se pretplatiti na izvor signala. To se učini tako da se pozove funkcija signala.
 Svagdje gdje se pozove funkcija signala automatski se pretplati na sami izvor.
-Najveća prednost signala je ta što je moguće pretplititi JavaScript DOM\footnote{https://developer.mozilla.org/en-US/docs/Web/API/Document\_Object\_Model/Introduction} na signal.
+Najveća prednost signala je ta što je moguće pretplatiti JavaScript DOM\footnote{https://developer.mozilla.org/en-US/docs/Web/API/Document\_Object\_Model/Introduction} na signal.
 To znači da svaki put kada se u signal upiše nova vrijednost, izvornik pošalje obavijest svim pretplaticima te ako je DOM među pretplatnicima, SolidJS runtime preuzme najnoviju vrijednost tog signala te izmjeni samo
 one čvorove HTML stabla koji su pretplaćeni na njega.
 
 Ovaj način ažuriranja HTML stabla je jako efikasan. U prosjeku mu treba manje vremena da ažurira HTML stablo od frameworka kao React\footnote{https://react.dev} koji koriste virtualni DOM\footnote{https://legacy.reactjs.org/docs/faq-internals.html} na koji se pišu sve promjene te usporede virtualni i stvarni DOM pa se ažuriraju samo promijenjeni čvorovi.
 SolidJS time također rezultira manjim prevedenim JavaScript datotekama jer ne mora s njima slati cijeli virtualni DOM.
 Ovaj način ažuriranja HTML stabla je poznat kao "fine-grained reactivity"\citep{ryan2021reactivity}.
+
+\section{SolidStart metaframework}
+
+SolidStart nadopunjuje mogućnosti SolidJs-a.
+
+Glavna značajka koju donosi SolidStart je mogućnost generiranje HTML odgovora na serveru (eng. server-side rendering\footnote{https://solutionshub.epam.com/blog/post/what-is-server-side-rendering}).
+SolidStart zapravo radi na principu progresivnog poboljšanja (eng. progressive enhancement\footnote{https://developer.mozilla.org/en-US/docs/Glossary/Progressive_Enhancement}).
+To znači da prvi zahtjev koji korisnik pošalje kada stigne na stranicu se obradi na poslužitelju i korisnik dobije HTML bogat sadržajem kao odgovor, a za svaku narednu promjenu putanje unutar aplikacije učitava se samo JSON potreban za prikaz te stranice.
+Ovo je hibridni način učitavanja sadržaja koji spaja najbolje iz oba svijeta.
+Generiranje HTML sadržaja na serveru za prvi zahtjev je dobro jer korsnik već s prvim odgovorom dobiva željeni sadržaj i ne mora čekati da se učita JavaScript koji dohvaća potrebne podatke nakon učitavanja praznog HTML zapisa.
+
+SolidStart omogućuje učitavanje podataka s poslužitelja kolikacijom poslužiteljskog i klijentskog koda u istoj datoteci.
+To znači da se u datoteci u kojoj se pišu komponente koje će pokreću na klijentu piše i funkcija koja radi isključivo na poslužitelju. U toj funkciji se može čitati i pisati iz baze ili raditi sve što se može raditi samo na poslužitelju.
+SolidStart će izvući tu funkciju iz klijentskog koda. Ta funkcija postane dio poslužitelja, a na njeno mjesto se u klijenskom kodu ubaci funkcija koja će preko HTTP zahtjeva pokrenuti poslužiteljsku funkciju i dohvatiti odgovor.
+To se radi tako da se kod koji treba raditi isključivo na poslužitelju napiše unutar pomoćne funkcije \emph{createServerData\$()}\footnote{https://start.solidjs.com/api/createServerData}.
+Ova metoda kao rezultat vrati SolidJs \emph{resource}\footnote{https://www.solidjs.com/docs/latest/api#createresource} koji omogućava asinkrono čitanje podataka.
+
+\begin{lstlisting}[caption=Učitavanje podataka s poslužitelja]
+//// Radi na poslužitelju i klijentu
+...
+////
+  const serverData = createServerData$(async () => {
+  //// Radi samo na poslužitelju
+      return db.getAllPlayers();
+  ////
+  }, [{
+    key: () => ["all-teams"]
+  }]);
+//// Radi na poslužitelju i klijentu
+...
+////
+\end{lstlisting}
+
+Funckija \emph{createServerData\$()} se može pisati unutar komponente ili unutar posebne metode \emph{routeData()}.
+Resurs koji je napisan direktno u komponenti je povezan isključivo s tom komponentom i pokreće se svaki put kada se komponenta učita, dok resurs napisan unutar \emph{routeData()} funckije je povezan s određenom putanjom.
+U tom slučaju resurs se učita prije učitavanja same komponente koja čita taj resurs. Na taj način, kada se komponenta koja čita taj resurs učita imati će sve potrebne podatke i neće biti potrebe za prikazivanjem stanja učitavanja (eng. loading spinner).
+Sličnu filozofiju učitavanja podataka ima React metaframework Remix\footnote{https://remix.run}.
+
+Osim metoda učitavanja podataka, SolidStart donosi i olakšani način pisanja podataka.
+SolidStart preko funckije \emph{createServerAction\$()}\footnote{https://start.solidjs.com/api/createServerAction} omogućava lako povezivanje HTML \emph{form} elementa i poslužiteljskog koda koji čita podatke iz forme i sprema ih u bazu podataka.
 
 \section{Poslužitelj}
 Aplikacija se poslužuje na poslužitelju Vercel\footnote{https://vercel.com}. Aplikacije se poslužuje koristeći tvz. "bezposlužiteljsku" (eng. serverless).
@@ -143,6 +294,21 @@ Supabase se također koristi za obavijsti o promjenama podataka određenih entit
 Aplikacija je poslužena pod domenom \emph{https://football.jerkic.dev}.
 
 \chapter{Izrada aplikacije}
+
+\section{Početna stranica}
+
+Početna stranica aplikacije se sadrži od tri dijela. Pozadinske boje ta tri dijela se izjmenjuju između zelene i sive boje.
+
+Prvi dio sadrži pozdravnu poruku i poveznicu na stranicu pretrage utakmica po datumima. Drugi dio sadrži popis ekipa koje su označene kao istaknute, a treći dio sadrži popis natjecanja koji su označeni kao istaknuti.
+Ekipa i natjecanje imaju polje tipa \emph{boolean} u bazi podataka koje određuje jeli istaknuto i treba li se prikazati na početnoj stranici.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=14cm]{images/hero.jpg}
+\caption{Prikaz istaknutih ekipa i natjecanja}
+\label{fig:hero}
+\end{figure}
+
 
 \section{Autentifikacija}
 
@@ -183,7 +349,7 @@ Ako su svi podatci ispravni, onda se nakon registracije automatski provede i pri
 Korisnik može doći do stranice pregleda utakmice preko navigacijske trake.
 
 Prilikom dolaska na tu stranicu, od korisnika se traži da unese datum za koji želi pregledati utakmice. Ako korisnik nije ništa unio onda se automatski odabere datum posjećivanja stranice.
-Nakon što korisnik unese željeni datum, aplikacija prikaže popis utakmice koje su igrane toga datuma uz osnovne informacije o tim utakmicama. Prikaže se ekipe koje su sudjelovale, datum i vrijeme igranja te rezultat.
+Nakon što korisnik unese željeni datum, aplikacija prikaže popis utakmice koje su igrane toga datuma uz osnovne informacije o tim utakmicama. Prikažu se ekipe koje su sudjelovale, datum i vrijeme igranja te rezultat.
 
 \begin{figure}[htb]
 \centering
@@ -200,23 +366,44 @@ To znači da prilikom promjene putanje unutar aplikacije ne radimo ponovno crtan
 Učitavamo samo podatke koji su potrebni za prikaz onih dijelova aplikacije koji se nalaze u promijenjenom segmentu putanje.
 Na stranici pregleda detalja utakmice, aplikacije ima četiri razine ugniježđenog usmjeravanja. Prva razina se učitava za cijelu aplikaciju i ona sadrži samo navigacijsku traku i potake o tome jeli korisnik prijavljen i koju ulogu ima.
 Druga razina se učitava kada se posjeti "/goals" putanju. Ta razina učitava popis dostupnih utakmica za dani datum i prikazuje ih s desne strane.
-Treča razina sadrži identifikator utakmice. Tu se učitavaju osnvni podatci utakmice kao ime natjecanja i sezone u kojoj se igra utakmica, datum igranja, imena klubova, sličice grbova te rezultat.
+Treća razina sadrži identifikator utakmice. Tu se učitavaju osnvni podatci utakmice kao ime natjecanja i sezone u kojoj se igra utakmica, datum igranja, imena klubova, sličice grbova te rezultat.
 Četvrta razina odabire jednu od tri kartice pregleda detalja utakmica: kartica s golovima, kartonima i zamjenama; kartica s grafičkim prikazom početnih jedanaest obje ekipe te kartica s statistikom utakmice.
 
-
-Ako se ne odabere niti jedna kartica na četvrtoj razini, onda aplikacija automatski prebaci korisnika na karticu s golovima utekmica.
+Ako se ne odabere niti jedna kartica na četvrtoj razini, onda aplikacija automatski prebaci korisnika na karticu s golovima utakmice.
 Golovi su poredani kronoliški. Pored golova, na istoj kronološkoj traci su prikazane zamjene provedene u utamici te podijeljeni kartoni.
+
+Ime svakog igrača prikazanog na kronološkoj traci je poveznica koja vodi na stranicu s detaljima o tome igraču.
+
+Za svaki gol prikazano je ime igrača koji je zabio gol, ime igrača koji je asistirao za gol, minutu u kojoj je gol zabijen te rezultat utakmice nakon postignutog gola.
+Ime igrača koji je zabio gol je prikazan u podebljanom fontu te nalazi se iznad imena igrača koji je asistirao za taj gol.
+
+Svaki podijeljeni karton ima grafički prikazano jeli igrač dobio žuti, crveni ili drugi žuti karton.
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=15cm]{images/goals.jpg}
+\includegraphics[width=12cm]{images/goals.jpg}
 \caption{Osnovni podatci utakmice i popis golova}
 \label{fig:goals}
+\end{figure}
+
+Događaj je poravnat na lijevu stranu ako je u njemu sudjelovao igrač domaće ekipe, a na desnoj strani su događaji u kojima su sudjelovali igrači gostujuće ekipe.
+
+\subsection{Prikaz statistike}
+
+Na stranici prikaza statistike prikazuju se podatci o posjedu lopte, ukupnim udarcima, udarcima u vrata, dodavanjima, ubačajima iz kuta, driblinzima, uspješnim driblimzima, zaleđima i sl.
+Osim samog broja za odgovarajuću statistiku također se grafički prikazuju omjer domaće i gostujuće ekipe.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=15cm]{images/statistic.jpg}
+\caption{Statistika utakmice}
+\label{fig:statistic}
 \end{figure}
 
 \subsection{Grafički prikaz početnih jedanaest}
 
 Svaka spremljena utakmica mora imati spremljene podatke o početnih jedanaest obije ekipe.
+
 Ekipa može imati jednu od sljedećih početnih formacija: 442, 433, 4231, 352, 3511, 343 i 532.
 Na osnovu ovog podatka te spremljenih podataka u bazi podataka grafički se prikaže izgled početnih jedanaest.
 
@@ -231,30 +418,42 @@ Za izradu ovog grafičkog prikaza je korišten samo CSS framework Tailwind\footn
 Svi vidljivi elemti su ručno programirani koristeći samo dostupne tehnologije HTML-a i CSS-a. Oblik dresa je preuzet s interneta u SVG formatu te modificiran da se može mijenjati boja dresa ovisno o ekipi.
 Prilikom klika ne jednog od igrača, korisnika se odvede na stranicu pregleda detalja tog igrača.
 
-\subsection{Prikaz statistike}
+Prikaz početne postave se sastoji od jednog HTML elementa koji suži kao roditelj ostalih te on sadrži samo crni rub.
+Unutar njega su naslagani elementi zelene pozadinske boje. Zeleni elementi su poredani da se izjenjuju tamnija i svjetlija nijansa zelene boje.
 
-Na stranici prikaza statistike prikazuju se podatci o posjedu lopte, ukupnim udarcima, udarcima u vrata, dodavanjima, ubačajima iz kuta, driblinzima, uspješnim driblimzima, zaleđima i sl.
-Osim samog broja za odgovarajuću statistiku također se grafički prikazuju omjeer domaće i gostujuće ekipe.
-
-\begin{figure}[htb]
-\centering
-\includegraphics[width=15cm]{images/statistic.jpg}
-\caption{Statistika utakmice}
-\label{fig:statistic}
-\end{figure}
+Nakon zelenih traka dolaze dva bloka redova igrača. Ova dva bloka su unutar jednog elementa roditelja koji ima apsolutnu poziciju što omogućava da su redovi igrača nacrtani preko zelenih traka.
+Dva bloka redova igrača imaju istu logiku crtanja pozicija igrača, ali drugi blok ima Tailwind klasu "flex-col-reversed" što znači da red s vratarom, koji se treba prvi prikazati, se zapravo prikaže zadnji.
 
 \subsection{Uređivanje podataka utakmice}
 
 Korisnik koji ima ulogu administratora može pristupiti stranici uređivanja podataka postojeće utakmice i stranici stvaranja nove utakmice.
 Poveznica na stranicu stvaranje nove utakmice je vidljiva administratoru na navigacijskoj traci, a poveznica na stranicu uređivanja postojeće utakmice se nalazi na prikazu detalja utakmice.
 
-Od korisnika se prvo traži da unese željeno natjecanje u kojemu se igra utakmica te jednu od dostupnih sezona za to natjecanje.
-Nakon odabira natjecanja i sezone, učita se popis svih ekiša koje su sudjelovale te sezone u tome natjecanju.
-Od korisnika se traži da odabere ekipu domaćina i gostujuću ekipu. Nekon toga se učitaju svi igrači i izbornici koji su bili članovi odabranih ekipa te sezone.
+\begin{figure}[htb]
+\centering
+\includegraphics[width=14cm]{images/navigation.jpg}
+\caption{Navigacijska traka}
+\label{fig:formation}
+\end{figure}
 
-Treneri dviju ekipa se biraju kroz padajući izbornik, dok se početne postave ekipa biraju kroz posebno grafičko sučelje.
+
+Od korisnika se prvo traži da unese željeno natjecanje u kojemu se igra utakmica te jednu od dostupnih sezona za to natjecanje.
+Nakon odabira natjecanja i sezone, učita se popis svih ekipa koje su sudjelovale te sezone u tome natjecanju.
+Od korisnika se traži da odabere ekipu domaćina i gostujuću ekipu. Nakon toga se učitaju svi igrači i izbornici koji su bili članovi odabranih ekipa te sezone.
+
+Vrijeme početka utakmice se unosi kroz HTML ulazno polje koje ime vrstu "datetime-local\footnote{https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/datetime-local}".
+To ulazno polje traži od korisnika da unese datum te u koliko sati počinje utakmica.
+
+Status utakmice i treneri dviju ekipa se biraju kroz padajući izbornik, dok se početne postave ekipa biraju kroz posebno grafičko sučelje.
 S desne strane pretpregleda početnih postava prikazan je padajući izbornik formacija početnih postava te izbornik boje dresova vratara i igrača dviju ekipa.
 Pregled početnih postava ekipa je prilagođen da odabirom određene pozicije ili igrača se otvori izbornik gdje korisnik mora odabrati jednog igrača te broj koji će biti prikazan na njegovom dresu.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=12cm]{images/edit-game.jpg}
+\caption{Uređivanje početnih postava}
+\label{fig:formation}
+\end{figure}
 
 Ispod toga se nalazi sučelje za dodavanje i uređivanje golova, kartona i zamjena utakmice.
 Nakon dodavanja gola, kartona ili zamjene, taj događaj se prikaže u pretpregledu kronološki poredano kao što se bi se prikazalo na stranici pregleda detalja utakmice.
@@ -263,23 +462,28 @@ Pored svakog dodanog događaja na utakmici prikazana je tipka koja uklanja taj d
 Ako je korisnik za status utakmice odabrao bilo koji status, osim onoga koji označava da utakmica nije započela, onda je prikazano sučelje uređivanja statistike utakmice.
 Prikazani su pretpregledi statistike kao na stranici pregleda detalja utakmice, ali se iznad svake stavke prikazana komponenta za unos pojedinog podatka za domaću i gostujuću ekipu.
 
-Ako su svi uneseni podatci ispravni, onda se korisniku omogući spremanje podataka te utakmice. Nakon uspješnog spremanja podataka utakmice pošalje se websocket poruka da su podatci te urakmice ažurirani.
+Ako su svi uneseni podatci ispravni, onda se korisniku omogući spremanje podataka te utakmice. Nakon uspješnog spremanja podataka utakmice pošalje se websocket poruka da su podatci te utakmice ažurirani.
 Ako se u tom trenutku neki korisnik nalazi na stranici pregleda detalja te utakmice, onda se revalidiraju svi podatci te putanje. Na taj način je osigurano ažuranje podataka detalja utakmice u stvarnom vremenu.
+
+Pošto je aplikacija podignuta na bezposlužiteljskoj okolini, nije moguće pokrenuti vlastiti WebSocket poslužitelj.
+Zbog toga je za izradu WebSocket komunikacije korišten servis Pusher\footnote{https://pusher.com/} koji prihvati poruku od Node servera.
+Pusher nakon toga pošalje WebSocket poruku svim pretplatnicima određeni kanal. Korisnik se automatski pretplati na WebSocket stranicu pregleda detalja neke utakmice te automatski se otkaže pretplata kada se ode s te stranice.
 
 \section{Pregled detalja igrača i trenera}
 
 Pregled i ažuriranje podataka igrača i trenera su dosta slični. Pregled detalja igrača i trenera se sastoji od slike, prikaza osobnih podataka, te trenutne ekipe za koju taj igrač igra, tj. koju taj trener trenira.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=12cm]{images/lovren.jpg}
+\caption{Pregled detalja igrača}
+\label{fig:player}
+\end{figure}
+
 Ispod osnovnih podataka se nalaze dvije kartice. Prva kartica prikazuje popis ekipa po sezoni za koje je taj igrač igrao ili koje je taj trener trenirao.
 Druga kartica prikazuje popis utakmica u kojemu je igrač igrao u početnoj postavi. Ako se nalazimo na pregledu trenera, onda je to popis utakmica u kojemu je on bio trener domaće ili gostujuće ekipe.
 
 Stranica pregleda detalja igrača sadrži i tipku pomoću koje se dodaje ili uklanja igrača s popisa najdražih. Ako korisnik koji nije prijavljen klikne na tu tipku, onda ga se prebaci na stranicu prijave.
-
-\begin{figure}[htb]
-\centering
-\includegraphics[width=10cm]{images/lovren.jpg}
-\caption{Pregled detalja igrača}
-\label{fig:player}
-\end{figure}
 
 Prijavljeni korisnici koji imaju ulogu administratora mogu uređivati podatke igrača i trenera preko dvije poveznice.
 Jedna poveznica odvodi na stranicu gdje se uređuju osnovni podatci kao ime, prezime, slika, datum rođenja i trenutna ekipa.
@@ -289,21 +493,83 @@ A na dnu te stranice se nalazi tipka koja dodaje novi redak i tipke koja sprema 
 
 \begin{figure}[htb]
 \centering
-\includegraphics[width=10cm]{images/per-season.jpg}
+\includegraphics[width=14cm]{images/per-season.jpg}
 \caption{Uređivanje podataka o ekipama po sezoni}
 \label{fig:per-season}
 \end{figure}
 
+\newpage
 \section{Pregled detalja ekipe}
 
-Pregled detalja ekipe se sastoji osnovih podataka ekipe kao ime, slika grba, trenutni trener te slika države iz koje dolazi ta ekipa.
+Pregled detalja ekipe se sastoji osnovih podataka ekipe kao ime, slika grba te slika države iz koje dolazi ta ekipa.
 
-Ispod toga se nalaze tri kartice. Prva kartica prikazuje tablicu pretka u natjecanjima u kojima je sudjelovala ta ekipa. Na vrhu je dostuan padajući izbornik natjecanja i sezona u kojima je sudjelovala ekipa.
-Druga kartica prikazuje popis utakmica po sezonama i natjecanjima u kojima je sudjelovala ekipa s padajućim izbornikom natjecanja i sezona.
+\begin{figure}[htb]
+\centering
+\includegraphics[width=14cm]{images/team.jpg}
+\caption{Prikaz detalja ekipe}
+\label{fig:per-season}
+\end{figure}
+
+Ispod toga se nalaze tri kartice. Prva kartica prikazuje tablicu pretka u natjecanjima u kojima je sudjelovala ta ekipa. Na vrhu je dostupan padajući izbornik natjecanja i sezona u kojima je sudjelovala ekipa.
+Ime svake ekipe služi kao poveznica koja vodi na stranicu detalja te ekipe.
+Druga kartica prikazuje popis utakmica po sezonama i natjecanjima u kojima je sudjelovala ekipa s padajućim izbornikom natjecanja i sezona. Odabirom određene utakmice korisnika se prebacuje na prikaz detalja te utakmice.
 Treća kartica prikazuje popis igrača po sezonama koji su igrali za tu ekipu.
 
+\section{Pretraga igrača, trenera i ekipa}
+
+Korisnik klikom na tipku s ikonom povećala na navigacijskoj traci dobije polje za unos pojma pretrage. Nakon unosa pojma pretrage korisnika se vodi na stranicu rezultata pretrage.
+Prikazuju se pronađeni rezultati za igrače, trenere i ekipe. Kod igrača i trenera, pretraga se vrši tako da se usporedi sadrži li ime ili prezime osobe uneseni pojam kao podniz.
+Razlika velikih i malih slova se ignoriraju. Kod pretrage ekipa provjerava se samo sadrži li ime ekipe uneseni pojam kao podniz.
+
+Rezultati pretrage se prikazuju u tri stupca. Jedam stupac je za igrače, jedan za trenere i jedan za ekipe. Za sva tri entiteta se prikaže ime i slika ako je dostupna.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=14cm]{images/search.jpg}
+\caption{Rezultati pretrage}
+\label{fig:search}
+\end{figure}
+
+\section{Pregled detalja natjecanja}
+
+Kod pregleda detalja određenog natjecanja prikazane su ime natjecanja, slika i ime države u kojoj se odražava natjecanje te grb natjecanja ako postoji.
+
+Ispod osnovnih informacija o natjecanju prikazane su dvije kartice koje prikazuju popis utakmica odigranih po određenoj sezoni te tablica poretka ekipa koji su sudjelovali u tome natjecanju određene sezone.
+U oba slučaja se identifikator sezone sprema u putanji URL-a te ako korisnik slučajno dođe na stranicu pregleda tablice ili popisa utakmica bez identifikatora određene sezone, aplikacija će automatski preusmjeriti korisnika na najnoviju dostupnu sezonu toga natjecanja.
+
+Tablica poretka se ne sprema u bazi nego se izračuna svaki puta kada se čita.
+Učita se popis svih utakmica za tu sezonu, napravi se mapa koja mapira identifikator ekipe na objekt koji sadrži podatke o bodovima ekipe, broju odigranih utakmica, broju pobjeda, broju gubitaka te broju neriješenih utakmica.
+Prilazi se kroz popis utakmica se ažurira objekt koji sadrži podatke za domaću i gostojuću ekipu.
+Entitet utakmice ne bilježi tko je pobjednik, nego se to izračuna na osnovu zabijenih golova na utakmici. Prebroje se golovi i autogolovi te se na osnovu toga odredi tko dobiva tri, jedan ili nula bodova.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=14cm]{images/table.jpg}
+\caption{Tablica poretka ekipa}
+\label{fig:table}
+\end{figure}
+
 \chapter{Zaključak}
-Zaključak.
+
+Izradom ove aplikacije uspješno je omogućeno lako pregledavanje detalja odigranih nogometnih utakmica.
+Korisniku je omogućeno brzo i lako pretraživanje dostupnih igrača, trenera i ekipa.
+
+Stranice koje prikazuju podatke povezanog resursa sadržavaju poveznice koje vode korisnika na stranicu pregleda detalja tog resursa.
+Za entitete koji sadrže jako malo informacija, kao sezona koja sadrži samo naziv, nije napravljena mogućnost uređivanje niti unosa novih podataka jer se ti podatci ne ažuriraju često i lako ih je dodati direktno kroz bazu podataka.
+Napravljena su sučelja za uređivanje podataka o utakmicama, igračima i trenerima te unos novih podataka.
+Omogućen je lak odabir povezanih resursa pri uređivanju podataka preko padajućih izbornika.
+
+Najveći izazov je bila izrada grafičkog prikaza i uređivanja početnih postava i formacija ekipa neke utakmice.
+Cijeli grafički prikaz i uređivanje početnih postava izrađeno je koristeći isključivo CSS framework Tailwind i JavaScript framework SolidJs.
+
+Sve forme za uređivanje podataka na stranici, osim one za uređivanje podataka određene utakmice, napravljene su oslanjajući se na HTML form element poboljšan SolidStart-ovim \emph{createServerAction\$()}.
+Uređivanje podataka o početnim postavama je bilo previše komplicirano pa se taj podatak šalje kao JSON.
+Kao poboljšanje bi se moglo napraviti da se prikaz svakog igača u početnoj postavi sastoji od par skrivenih \emph{input} polja koji se popune s potrebnim vrijednostima, kao identifikator odabranog igralča i broj na leđima,
+nakon ispunjavanja pomoćne forme koja bi se otvorila u lebdećem prozoru nakon odabira određene pozicije u početnoj postavi.
+
+Pisanjem aplikacije u fullstack framework-u povećana je brzina izrade funkcionalnih zahtjeva.
+SolidStart metaframework omogućio je pisanje koda koji se izvodi isključivo na poslužitelju unutar klijentskih komponenti čime se dobiva osjećaj pisanja desktop aplikacije.
+Dohvat podataka se vrši samo pozivanjem funkcije. Programer ne mora razmišljati o odvajanju poslužiteljskog i klijentskog koda, otvaranju HTTP endpointa te mapiranju parametara koji se šalju preko HTTP poziva.
 
 \bibliography{literatura}
 \bibliographystyle{fer}

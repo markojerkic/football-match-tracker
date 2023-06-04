@@ -8,7 +8,7 @@ import { Flag } from "./competition/[id]";
 
 const Hero = () => {
   return (
-    <div class="hero min-h-screen bg-accent-focus">
+    <div class="hero bg-accent-focus py-20">
       <div class="hero-content text-start">
         <div class="max-w-md">
           <h1 class="text-5xl font-bold">Football results tracker</h1>
@@ -29,7 +29,7 @@ const HighlightedCompetitions = (props: {
   competitions: Competition[] | undefined;
 }) => {
   return (
-    <div class="min-h-screen  bg-accent-focus">
+    <div class="h-full bg-accent-focus py-20">
       <p class="p-4 text-center text-5xl font-bold">Highlighted competitions</p>
 
       <div class="mx-auto flex max-w-lg flex-col space-y-4 py-4">
@@ -68,7 +68,7 @@ const HighlightedCompetitions = (props: {
 
 const HighlightedTeams = (props: { teams: Team[] | undefined }) => {
   return (
-    <div class="min-h-screen">
+    <div class="h-full py-20">
       <p class="p-4 text-center text-5xl font-bold">Highlighted teams</p>
 
       <div class="mx-auto flex max-w-lg flex-col space-y-4 py-4">
