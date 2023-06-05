@@ -143,9 +143,9 @@ Neke od stvari koje bi korisnika mogle zanimati su: igrači koji su zabili golov
 Internet nam također omogućuje ažuriranje podataka o utakmici u stvarnom vremenu koristeći protokol WebSockets\footnote{https://developer.mozilla.org/en\-US/docs/Web/API/WebSockets\_API}.
 Korisnik tada ne mora ponovo učitati stranicu da bi dobio najnovije podatke.
 
-U prva dva poglavlja ovoga rada napravljena je analiza postojećih riješenja na interntu i odabir glavnih funkcionalnosti koje se planiraju izraditi u sklopu projekta.
-Dalje slijedi opis modela baze podataka. Tu su opisani svi entiteti i njihove veze. Nakon toga dolazi poglavlje koje opisuje arhitekturu aplikacije, odabrane tehologije i korištene biblioteke.
-Zatim je opisn process izrade aplikacije opisivajući sve izrađene funkcionalnosti. Na kraju dolazi zaključak koji opisuje rezultat projekta.
+U prva dva poglavlja ovoga rada napravljena je analiza postojećih rješenja na internetu i odabir glavnih funkcionalnosti koje se planiraju izraditi u sklopu projekta.
+Dalje slijedi opis modela baze podataka. Tu su opisani svi entiteti i njihove veze. Nakon toga dolazi poglavlje koje opisuje arhitekturu aplikacije, odabrane tehnologije i korištene biblioteke.
+Zatim je opisan process izrade aplikacije opisujući sve izrađene funkcionalnosti. Na kraju dolazi zaključak koji opisuje rezultat projekta.
 
 \chapter{Analiza postojećih rješenja na internetu}
 Za analizu postojećih rješenja na internetu su korištene aplikacije Sofascore\footnote{https://sofascore.com}, OneFootball\footnote{https://onefootball.com} i Rezultati.com\footnote{https://rezultati.com}.
@@ -246,7 +246,7 @@ Svi izrađeni entiteti imaju UUID identifikator koji skuži kao primarni ključ.
 Središnji entitet relacijskog modela je tablica "Game," koja sadrži osnovne podatke o utakmici.
 Ovaj entitet sadrži alternativni ključ na natjecanje kojemu pripada utakmica, domaću i gostujuću ekipu, izbornika domaće i gostujuće ekipe,
 sezonu u kojoj se igra utakmica te na entitet koji sadrži detaljniju statistiku utakmice.
-Tablica "Game" sadrži alternativni ključ na etitet "GameStatistic," ali taj podatak nije obavezan jer svaka utakmica ne mora imati podatke o statistici.
+Tablica "Game" sadrži alternativni ključ na entitet "GameStatistic," ali taj podatak nije obavezan jer svaka utakmica ne mora imati podatke o statistici.
 U slučaju kada utakmica još nije počela, entitet "Game" ne sadrži podatke o statistici pa to polje sadrži vrijednost \emph{null}.
 
 % \begin{figure}[htb]
@@ -258,7 +258,7 @@ U slučaju kada utakmica još nije počela, entitet "Game" ne sadrži podatke o 
 %
 Entitet "Game" također sadržava informaciju o vremenu početka utakmice, vremenu nadoknade u prvom i drugom poluvremenu, boju dresova domaće i gostujuće ekipe spremljenu kao heksadecimalna vrijednost,
 kao i boje dresova vratara, status utakmice, te početne postave dviju ekipa.
-Status utakmice se sprema kao enumirana vrijednost koja može poprimiti vrijednosti "NOT\textunderscore STARTED," "STARTED," "HALFTIME" te "OVER".
+Status utakmice se sprema kao enumerirana vrijednost koja može poprimiti vrijednosti "NOT\textunderscore STARTED," "STARTED," "HALFTIME" te "OVER".
 
 Početne postave prvih jedanaest se spremaju kao "jsonb"\footnote{https://www.postgresql.org/docs/9.5/functions-json.html} \citep{postgressjson} vrsta podataka.
 Podatci se spremaju kao JSON polje od jedanaest vrijednosti koje predstavljaju jedanaest igrača početne postave.
@@ -281,7 +281,7 @@ Država u kojoj se igra natjecanje je spremljena kao poseban entitet koji sadrž
 Svako natjecanje može imati više sezona, te za jednu sezonu može postojati više natjecanja.
 Sezona je spremljena kao vlastiti entitet i jedini podatak koji sadrži, pored identifikatora, je naziv te sezone.
 
-Enitet "Team" sadrži podatke o nazivu ekipe, državi iz koje potječe ekipa te URL adresu sličice grba ekipe.
+Entitet "Team" sadrži podatke o nazivu ekipe, državi iz koje potječe ekipa te URL adresu sličice grba ekipe.
 Entitet "Team" sadrži više-na-više vezu s poveznom tablicom "CompetitionInSeason" koja sadrži vezu na jedno natjecanje i sezonu.
 
 Entiteti "Manager" i "Player" su dosta slični. Oba sadrže ime, prezime, datum rođenja, alternativni ključ na trenutnu ekipu (koja nije obavezna) te alternativni ključ na entiet "Country" koji predstavlja nacionalnost osobe.
@@ -637,13 +637,13 @@ Ova metoda kao rezultat vrati SolidJs \emph{resource} \footnote{https://www.soli
 ////
 \end{lstlisting}
 
-Funckija \emph{createServerData\$()} se može pisati unutar komponente ili unutar posebne metode \emph{routeData()}.
-Resurs koji je napisan direktno u komponenti je povezan isključivo s tom komponentom i pokreće se svaki put kada se komponenta učita, dok resurs napisan unutar \emph{routeData()} funckije je povezan s određenom putanjom.
+Funkcija \emph{createServerData\$()} se može pisati unutar komponente ili unutar posebne metode \emph{routeData()}.
+Resurs koji je napisan direktno u komponenti je povezan isključivo s tom komponentom i pokreće se svaki put kada se komponenta učita, dok resurs napisan unutar \emph{routeData()} funkcije je povezan s određenom putanjom.
 U tom slučaju resurs se učita prije učitavanja same komponente koja čita taj resurs. Tako, kada se komponenta koja čita taj resurs učita imat će sve potrebne podatke i neće biti potrebe za prikazivanjem stanja učitavanja (eng. loading spinner).
 Sličnu filozofiju učitavanja podataka ima React meta-framework Remix\footnote{https://remix.run}.
 
 Osim metoda učitavanja podataka, SolidStart donosi i olakšani način pisanja podataka.
-SolidStart preko funckije \emph{createServerAction\$()}\footnote{https://start.solidjs.com/api/createServerAction} omogućava lako povezivanje HTML \emph{form} elementa i poslužiteljskog koda koji čita podatke iz forme i sprema ih u bazu podataka.
+SolidStart preko funkcije \emph{createServerAction\$()}\footnote{https://start.solidjs.com/api/createServerAction} omogućava lako povezivanje HTML \emph{form} elementa i poslužiteljskog koda koji čita podatke iz forme i sprema ih u bazu podataka.
 
 \section{Poslužitelj}
 Aplikacija se poslužuje na poslužitelju Vercel\footnote{https://vercel.com} koristeći tzv. "bezposlužiteljsku" (eng. serverless) arhitekturu.
@@ -688,9 +688,9 @@ Ekran za prijavu u sustav traži od korisnika korisničko ime i zaporku.
 \label{fig:login}
 \end{figure}
 
-Ako korisnik unese neispravo koriničko ime ili ako predana zaporka nije točna za dano korisničko ime, onda sustav prikaže grešku gdje se navodi da nije ispravno korisničko ime ili zaporka, ali se ne kaže korisniku što točno nije ispravno.
+Ako korisnik unese neispravno korisničko ime ili ako predana zaporka nije točna za dano korisničko ime, onda sustav prikaže grešku gdje se navodi da nije ispravno korisničko ime ili zaporka, ali se ne kaže korisniku što točno nije ispravno.
 Ako korisnik upiše ispravno korisničko ime i zaporku onda mu se dodijeli kolačić sjednice\footnote{https://www.cookieyes.com/blog/session-cookies/} i prebaci ga se na početnu stranicu aplikacije.
-Kolačić sjednice se koristi da bi se nadalje znalo je li korisnik autentifician i tko je korisnik.
+Kolačić sjednice se koristi da bi se nadalje znalo je li korisnik prijavljen i tko je korisnik.
 
 Korisnik koji nema napravljen korisnički račun može prijeći na stranicu registracije preko poveznice na dnu komponente za prijavu.
 Za uspješnu registraciju se od korisnika traži ime, prezime, korisničko ime te zaporka. Zaporka se mora dva puta unijeti te ako dvije unesene zaporke nisu jednake onda se korisniku ne dopušta predavanje unesenih podataka.
@@ -826,7 +826,7 @@ Pored svakog dodanog događaja na utakmici prikazana je tipka koja uklanja taj d
 Ako je korisnik za status utakmice odabrao bilo koji status, osim onoga koji označava da utakmica nije započela, onda je prikazano sučelje uređivanja statistike utakmice.
 Prikazani su pretpregledi statistike kao na stranici pregleda detalja utakmice, ali je iznad svake stavke prikazana komponenta za unos pojedinog podatka za domaću i gostujuću ekipu.
 
-Ako su svi uneseni podatci ispravni, onda se korisniku omogući spremanje podataka te utakmice. Nakon uspješnog spremanja podataka utakmice pošalje se websocket poruka da su podatci te utakmice ažurirani.
+Ako su svi uneseni podatci ispravni, onda se korisniku omogući spremanje podataka te utakmice. Nakon uspješnog spremanja podataka utakmice pošalje se WebSocket poruka da su podatci te utakmice ažurirani.
 Ako se u tom trenutku neki korisnik nalazi na stranici pregleda detalja te utakmice, onda se invalidiraju svi podatci te putanje. Tako je osigurano ažuriranje podataka detalja utakmice u stvarnom vremenu.
 
 Pošto je aplikacija podignuta na bezposlužiteljskoj okolini, nije moguće pokrenuti vlastiti WebSocket poslužitelj.
@@ -846,7 +846,7 @@ Pregled i ažuriranje podataka igrača i trenera su dosta slični. Pregled detal
 \end{figure}
 
 Ispod osnovnih podataka se nalaze dvije kartice. Prva kartica prikazuje popis ekipa po sezoni za koje je taj igrač igrao ili koje je taj trener trenirao.
-Druga kartica prikazuje popis utakmica u kojema je igrač igrao u početnoj postavi. Ako se nalazimo na pregledu trenera, onda je to popis utakmica u kojema je on bio trener domaće ili gostujuće ekipe.
+Druga kartica prikazuje popis utakmica u kojima je igrač igrao u početnoj postavi. Ako se nalazimo na pregledu trenera, onda je to popis utakmica u kojema je on bio trener domaće ili gostujuće ekipe.
 
 Stranica pregleda detalja igrača sadrži i tipku pomoću koje se dodaje ili uklanja igrača s popisa najdražih. Ako korisnik koji nije prijavljen klikne na tu tipku, onda ga se prebaci na stranicu prijave.
 
@@ -930,7 +930,7 @@ Cijeli grafički prikaz i uređivanje početnih postava izrađeno je koristeći 
 
 Sve forme za uređivanje podataka na stranici, osim one za uređivanje podataka određene utakmice, napravljene su oslanjajući se na HTML form element poboljšan SolidStart-ovim \emph{createServerAction\$()}.
 Uređivanje podataka o početnim postavama je bilo previše komplicirano pa se taj podatak šalje kao JSON.
-Kao poboljšanje bi se moglo napraviti da se prikaz svakog igača u početnoj postavi sastoji od par skrivenih \emph{input} polja koja se popune s potrebnim vrijednostima, kao identifikator odabranog igrača i broj na leđima,
+Kao poboljšanje bi se moglo napraviti da se prikaz svakog igrača u početnoj postavi sastoji od par skrivenih \emph{input} polja koja se popune s potrebnim vrijednostima, kao identifikator odabranog igrača i broj na leđima,
 nakon ispunjavanja pomoćne forme koja bi se otvorila u lebdećem prozoru nakon odabira određene pozicije u početnoj postavi.
 
 Pisanjem aplikacije u fullstack framework-u povećana je brzina izrade funkcionalnih zahtjeva.
