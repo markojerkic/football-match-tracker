@@ -7,6 +7,23 @@
 \definecolor{darkgray}{rgb}{.4,.4,.4}
 \definecolor{purple}{rgb}{0.65, 0.12, 0.82}
 
+\lstset{language=SQL,
+  belowskip=3mm,
+  breakatwhitespace=true,
+  breaklines=true,
+  classoffset=0,
+  columns=flexible,
+  commentstyle=\color{dkgreen},
+  framexleftmargin=0.25em,
+  keywordstyle=\color{blue},
+  numbers=none, %If you want line numbers, set `numbers=left`
+  numberstyle=\tiny\color{gray},
+  showstringspaces=false,
+  stringstyle=\color{mauve},
+  tabsize=3,
+  xleftmargin =1em
+}
+
 \lstdefinelanguage{JavaScript}{
   keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break, const, let, async},
   keywordstyle=\color{blue}\bfseries,
@@ -20,6 +37,21 @@
   stringstyle=\color{red}\ttfamily,
   morestring=[b]',
   morestring=[b]"
+}
+
+\lstset{
+   language=SQL,
+   extendedchars=true,
+   basicstyle=\footnotesize\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   numbers=none,
+   numberstyle=\footnotesize,
+   numbersep=9pt,
+   tabsize=2,
+   breaklines=true,
+   showtabs=false,
+   captionpos=b
 }
 
 \lstset{
@@ -45,6 +77,7 @@
          {ý}{{\'y}}1
          {ú}{{\'u}}1
          {ó}{{\'o}}1
+         {đ}{{\'đ}}1
          {ě}{{\v{e}}}1
          {š}{{\v{s}}}1
          {č}{{\v{c}}}1
@@ -109,6 +142,10 @@ Neke od stvari koje bi korisnika mogle zanimati su: igrači koji su zabili golov
 
 Internet nam također omogućuje ažuriranje podataka o utakmici u stvarnom vremenu koristeći protokol WebSockets\footnote{https://developer.mozilla.org/en\-US/docs/Web/API/WebSockets\_API}.
 Korisnik tada ne mora ponovo učitati stranicu da bi dobio najnovije podatke.
+
+U prva dva poglavlja ovoga rada napravljena je analiza postojećih riješenja na interntu i odabir glavnih funkcionalnosti koje se planiraju izraditi u sklopu projekta.
+Dalje slijedi opis modela baze podataka. Tu su opisani svi entiteti i njihove veze. Nakon toga dolazi poglavlje koje opisuje arhitekturu aplikacije, odabrane tehologije i korištene biblioteke.
+Zatim je opisn process izrade aplikacije opisivajući sve izrađene funkcionalnosti. Na kraju dolazi zaključak koji opisuje rezultat projekta.
 
 \chapter{Analiza postojećih rješenja na internetu}
 Za analizu postojećih rješenja na internetu su korištene aplikacije Sofascore\footnote{https://sofascore.com}, OneFootball\footnote{https://onefootball.com} i Rezultati.com\footnote{https://rezultati.com}.
@@ -201,22 +238,31 @@ Korisnik koji ima ulogu administratora treba imati mogućnost uređivanja i unos
 
 \chapter{Model baze podataka}
 
-Dizajnirani relacijski model podataka sadrži 18 tablica te 6 enumeracijskih vrsta podataka.
+Dizajnirani relacijski model podataka sadrži 18 tablica te četiri enumerirane vrste podataka.
 
-\section{Entiteti i veze}
+\section{Model entiteti-veze}
 
+Svi izrađeni entiteti imaju UUID identifikator koji skuži kao primarni ključ.
 Središnji entitet relacijskog modela je tablica "Game," koja sadrži osnovne podatke o utakmici.
-Ovaj entitet sadrži vezu na natjecanje kojemu pripada utakmica, domaću i gostujuću ekipu, izbornika domaće i gostujuće ekipe,
+Ovaj entitet sadrži alternativni ključ na natjecanje kojemu pripada utakmica, domaću i gostujuću ekipu, izbornika domaće i gostujuće ekipe,
 sezonu u kojoj se igra utakmica te na entitet koji sadrži detaljniju statistiku utakmice.
-Tablica "Game" sadrži foreign key na tablicu "GameStatistic," ali taj podatak nije obavezan jer svaka utakmica ne mora imati podatke o statistici.
+Tablica "Game" sadrži alternativni ključ na etitet "GameStatistic," ali taj podatak nije obavezan jer svaka utakmica ne mora imati podatke o statistici.
 U slučaju kada utakmica još nije počela, entitet "Game" ne sadrži podatke o statistici pa to polje sadrži vrijednost \emph{null}.
 
+% \begin{figure}[htb]
+% \centering
+% \includegraphics[width=14.2cm]{images/erd.png}
+% \caption{ERD dijagram baze podataka}
+% \label{fig:hero}
+% \end{figure}
+%
 Entitet "Game" također sadržava informaciju o vremenu početka utakmice, vremenu nadoknade u prvom i drugom poluvremenu, boju dresova domaće i gostujuće ekipe spremljenu kao heksadecimalna vrijednost,
 kao i boje dresova vratara, status utakmice, te početne postave dviju ekipa.
 Status utakmice se sprema kao enumirana vrijednost koja može poprimiti vrijednosti "NOT\textunderscore STARTED," "STARTED," "HALFTIME" te "OVER".
 
 Početne postave prvih jedanaest se spremaju kao "jsonb"\footnote{https://www.postgresql.org/docs/9.5/functions-json.html} \citep{postgressjson} vrsta podataka.
-Podatci se spremaju kao JSON polje od jedanaest vrijednosti koje predstavljaju jedanaest igrača početne postave. U tom JSON podatku je spremljen identifikator igrača, broj dresa koji igrač nosi na toj utakmici, broj reda u početnoj formaciji te redni broj igrača u tome redu gledajući s lijeva na desno.
+Podatci se spremaju kao JSON polje od jedanaest vrijednosti koje predstavljaju jedanaest igrača početne postave.
+U tom JSON podatku je spremljen identifikator igrača, broj dresa koji igrač nosi na toj utakmici, broj reda u početnoj formaciji te redni broj igrača u tome redu gledajući s lijeva na desno.
 Odlučeno je spremati početnu postavu kao JSON vrijednost umjesto da se stvori novi entitet koji bi imao vezu na entitet "Game" jer bi to stvorilo previše unosa u bazi podataka, točnije 22 po svakoj spremljenoj utakmici.
 Pored toga, spremanje tog podatka kao JSON je olakšalo način izrade administracije početne postave kroz klijentsku aplikaciju.
 
@@ -227,6 +273,7 @@ Razlog tomu je taj što svi ovi podatci sadrže bar jednu vezu na nekog igrača.
 Entitet "Goal" sadrži podatak o igraču koji je zabio pogodak, o igraču koji je asistirao te vrijeme u minutama kada je zabijen pogodak.
 Entitet "CardAwarded" sadrži igrača koji je dobio karton, minutu u kojoj je igrač dobio karton, te vrstu kartona koji je dodijeljen.
 A entitet "Substitution" sadrži igrača koji je izašao s terena, igrača koji ulazi u teren te minutu u kojoj je zamjena izvršena.
+Sva tri navedena entiteta imaju alternativni ključ na utakmicu kojoj pripadaju.
 
 Svaka utakmica pripada jednom natjecanju u određenoj sezoni.
 Entitet "Competition" sadrži ime, podatak o državi u kojoj se igra te podatak o tome je li to natjecanje označeno kao istaknuto.
@@ -237,11 +284,300 @@ Sezona je spremljena kao vlastiti entitet i jedini podatak koji sadrži, pored i
 Enitet "Team" sadrži podatke o nazivu ekipe, državi iz koje potječe ekipa te URL adresu sličice grba ekipe.
 Entitet "Team" sadrži više-na-više vezu s poveznom tablicom "CompetitionInSeason" koja sadrži vezu na jedno natjecanje i sezonu.
 
-Entiteti "Manager" i "Player" su dosta slični. Oba sadrže ime, prezime, datum rođenja, trenutnu ekipu (koja nije obavezna) te nacionalnost.
+Entiteti "Manager" i "Player" su dosta slični. Oba sadrže ime, prezime, datum rođenja, alternativni ključ na trenutnu ekipu (koja nije obavezna) te alternativni ključ na entiet "Country" koji predstavlja nacionalnost osobe.
 Oba imaju više-na-više vezu s poveznom tablicom "TeamInCompetition" koja sadrži podatak o ekipi koja igra u određenom natjecanju u određenoj sezoni.
-To znači da jedan izbornik ili igrač može pripadati većem broju ekipa u jednoj sezoni, ali također ne mora pripadati niti jednoj ekipi za određenu sezonu.
+To znači da jedan trener ili igrač može pripadati većem broju ekipa u jednoj sezoni, ali također ne mora pripadati niti jednoj ekipi za određenu sezonu.
 
 Pored nabrojanih entiteta postoje još entiteti potrebni za autentifikaciju te spremanje najdražih igrača i ekipa korisnika.
+
+\section{Relacijski model podataka}
+
+Model baze podataka sadrži četiri enumerirana tipa.
+\begin{lstlisting}[caption=Enumerirani tipovi, language=SQL, numbers=none]
+
+-- Vrsta kartona kojeg igrač može dobiti
+create type "CardType" as enum ('RED', 'YELLOW', 'SECOND_YELLOW');
+-- Status utakmice
+create type "Halftime" as enum ('FIRST_HALF', 'SECOND_HALF', 'EXTRA_FIRST_HALF', 'EXTRA_SECOND_HALF');
+-- Uloga korisnika
+create type "UserRole" as enum ('USER', 'ADMIN');
+-- Status utakmice
+create type "GameStatus" as enum ('NOT_STARTED', 'STARTED', 'HALFTIME', 'OVER');
+
+\end{lstlisting}
+
+Dalje slijede naredbe potrebne za stvoriti relacijski model baze podataka.
+\begin{lstlisting}[caption=Model baze podataka, language=SQL, numbers=none]
+-- Registrirani korisnik
+create table if not exists "User"
+(
+    id          text       not null primary key,
+    "firstName" text       not null,
+    "lastName"  text       not null,
+    email       text       not null,
+    role        "UserRole" not null
+);
+
+-- Trener
+create table if not exists "Manager"
+(
+    id          text not null primary key,
+    "firstName" text not null,
+    "lastName"  text not null,
+    "teamId"    text,
+    "imageSlug" text,
+    unique ("teamId")
+);
+
+-- Sezona
+create table if not exists "Season"
+(
+    id          text    not null primary key,
+    title       text    not null,
+    "isCurrent" boolean not null,
+    unique (title)
+);
+
+-- Država
+create table if not exists "Country"
+(
+    id          text not null primary key,
+    name        text not null,
+    "imageSlug" text,
+    unique (name)
+);
+
+create table if not exists "Player"
+(
+    id                   text         not null primary key,
+    "firstName"          text         not null,
+    "lastName"           text         not null,
+    "primaryShirtNumber" integer,
+    "primaryPosition"    "Position"   not null,
+    "dateOfBirth"        timestamp(3) not null,
+    "imageSlug"          text,
+    "countryId"          text         not null
+        references "Country"
+            on update cascade on delete restrict,
+    "teamId"             text
+);
+
+-- Veza korisnika i igrača koji je spremljen kao favorit
+create table if not exists "FavouritePlayer"
+(
+    id         text not null primary key,
+    "userId"   text not null
+        references "User"
+            on update cascade on delete restrict,
+    "playerId" text not null
+        references "Player"
+            on update cascade on delete restrict
+);
+
+-- Natjecnje, npr. Premier liga
+create table if not exists "Competition"
+(
+    id              text              not null primary key,
+    name            text              not null,
+    "countryId"     text              not null references "Country"
+            on update cascade on delete restrict,
+    "isHighlighted" boolean           not null,
+    "imageSlug"     text,
+);
+
+-- Veza natjecanja i sezone
+-- Npr. Premier liga u sezoni 2018./19.
+create table if not exists "CompetitionInSeason"
+(
+    id text not null primary key,
+    "competitionId" text not null references "Competition"
+            on update cascade on delete restrict,
+    "seasonId"      text not null references "Season"
+            on update cascade on delete restrict
+);
+
+-- Ekipa, npr. Liverpool
+create table if not exists "Team"
+(
+    id text not null primary key,
+    name                text not null,
+    "countryId"         text not null references "Country"
+            on update cascade on delete restrict,
+    "imageSlug"         text,
+    "groupId"           text,
+    "primaryShirtColor" text not null
+);
+
+-- Veza korisnika i ekipe koja je označena kao najdraža
+create table if not exists "FavouriteTeam"
+(
+    id       text not null primary key,
+    "userId" text not null references "User"
+            on update cascade on delete restrict,
+    "teamId" text not null references "Team"
+            on update cascade on delete restrict
+);
+
+-- Veza igrača, ekipe i sezone
+-- Npr. Lovren je igrao u Liverpool-u u sezoni 2018./19.
+create table if not exists "PlayersTeamInSeason"
+(
+    id         text not null primary key,
+    "teamId"   text not null references "Team"
+            on update cascade on delete restrict,
+    "playerId" text not null references "Player"
+            on update cascade on delete restrict,
+    "seasonId" text not null references "Season"
+            on update cascade on delete restrict,
+    unique ("teamId", "playerId", "seasonId")
+);
+
+-- Veza ekipe, natjecanja i sezone
+-- Npr, Liverpool je igrao u Premier ligi u sezoni 2021./22.
+create table if not exists "TeamInCompetition"
+(
+    id              text not null primary key,
+    "teamId"        text not null references "Team"
+            on update cascade on delete restrict,
+    "competitionId" text not null references "Competition"
+            on update cascade on delete restrict,
+    "seasonId"      text not null references "Season"
+            on update cascade on delete restrict
+);
+
+-- Ekipa koja je označena kao istaknuta
+-- Koristi se za prikaz na početnoj stranici
+create table if not exists "HighlightedTeam"
+(
+    id       text not null primary key,
+    "teamId" text not null references "Team"
+            on update cascade on delete restrict
+);
+
+-- Entitet utakmice
+create table if not exists "Game"
+(
+    id text not null primary key,
+    "competitionId" text not null references "Competition"
+            on update cascade on delete restrict,
+    "homeTeamId" text not null references "Team"
+            on update cascade on delete restrict,
+    "awayTeamId" text not null references "Team"
+            on update cascade on delete restrict,
+    "gameStatisticsId" text,
+    "kickoffTime" timestamp(3) not null,
+    "firstHalfEndedAferAdditionalTime"  integer not null,
+    "secondHalfEndedAferAdditionalTime" integer not null,
+    "seasonId" text references "Season"
+        on update cascade on delete set null,
+    "homeTeamShirtColor" text not null,
+    "homeTeamGoalkeeperShirtColor" text not null,
+    "awayTeamShirtColor" text not null,
+    "awayTeamGoalkeeperShirtColor" text not null,
+    "homeTeamLineup" jsonb not null,
+    "awayTeamLineup" jsonb not null,
+    status "GameStatus" default 'OVER'::"GameStatus" not null,
+    "awayTeamManagerId" text default 'clh6fsxgu0000uvimeozrkg1m'::text not null
+        references "Manager"
+            on update cascade on delete restrict,
+    "homeTeamManagerId" text default 'clh6fsxgu0000uvimeozrkg1m'::text not null
+        references "Manager"
+            on update cascade on delete restrict
+);
+
+-- Gol koji je zabijen na utakmici
+create table if not exists "Goal"
+(
+    id text not null primary key,
+    "scorerId" text not null references "Player"
+            on update cascade on delete restrict,
+    "isOwnGoal"           boolean not null,
+    "isPenalty"           boolean not null,
+    "scoredInMinute"      integer not null,
+    "scoredInExtraMinute" integer,
+    "isHomeTeamGoal"      boolean not null,
+    "assistentId"         text references "Player"
+            on update cascade on delete set null,
+    "gameId" text    not null references "Game"
+            on update cascade on delete restrict
+);
+
+-- Statistički detalji utakmice
+create table if not exists "GameStatistics"
+(
+    id text not null primary key,
+    "homeTeamBallPossession"   integer not null,
+    "gameId" text not null references "Game"
+            on update cascade on delete restrict,
+    "homeTeamTotalShots"       integer not null,
+    "homeTeamShotsOnTarget"    integer not null,
+    "homeTeamCornerKicks"      integer not null,
+    "homeTeamOffsides"         integer not null,
+    "homeTeamFouls"            integer not null,
+    "homeTeamBigChances"       integer not null,
+    "homeTeamPasses"           integer not null,
+    "homeTeamCrosses"          integer not null,
+    "homeTeamTackles"          integer not null,
+    "homeTeamDribles"          integer not null,
+    "homeTeamDriblesSucessful" integer not null,
+    "awayTeamBallPossession"   integer not null,
+    "awayTeamTotalShots"       integer not null,
+    "awayTeamShotsOnTarget"    integer not null,
+    "awayTeamCornerKicks"      integer not null,
+    "awayTeamOffsides"         integer not null,
+    "awayTeamFouls"            integer not null,
+    "awayTeamBigChances"       integer not null,
+    "awayTeamPasses"           integer not null,
+    "awayTeamCrosses"          integer not null,
+    "awayTeamTackles"          integer not null,
+    "awayTeamDribles"          integer not null,
+    "awayTeamDriblesSucessful" integer not null,
+    unique ("gameId")
+);
+
+-- Karton koji je dan na utakmici nekome igraču
+create table if not exists "CardAwarded"
+(
+    id text not null primary key,
+    "cardType"        "CardType" not null,
+    "playerId"        text       not null references "Player"
+            on update cascade on delete restrict,
+    "gameId" text not null references "Game"
+            on update cascade on delete restrict,
+    minute            integer    not null,
+    "extraTimeMinute" integer,
+    "isHomeTeam"      boolean    not null
+);
+
+-- Zamjena izvršena na utakmici dva igrača
+create table if not exists "Substitution"
+(
+    id text not null primary key,
+    minute            integer not null,
+    "extraTimeMinute" integer,
+    "playerInId"      text    not null references "Player"
+            on update cascade on delete restrict,
+    "playerOutId" text not null references "Player"
+            on update cascade on delete restrict,
+    "gameId" text not null references "Game"
+            on update cascade on delete restrict,
+    "isHomeTeam"      boolean not null
+);
+
+-- Veza trenera, ekipe i sezone
+-- Npr. Klopp je bio trener Liverpool-a u sezoni 2018./19.
+create table if not exists "ManagerInTeamSeason"
+(
+    id text null primary key,
+    "teamId"    text not null references "Team"
+            on update cascade on delete restrict,
+    "seasonId"  text not null references "Season"
+            on update cascade on delete restrict,
+    "managerId" text not null references "Manager"
+            on update cascade on delete restrict
+);
+\end{lstlisting}
+
 
 \chapter{Odabrane tehnologije i arhitektura}
 
