@@ -312,104 +312,92 @@ export default (props: {
           value={JSON.stringify(statistics)}
         />
 
-        <Suspense fallback={<p>Loading...</p>}>
-          <Select
-            label="Competition"
-            name="competition"
-            required
-            control={{
-              setValue: (val) => gameFormGroupControls({ competition: val }),
-              value: gameFormGroup.competition,
-            }}
-            options={props.competitions}
-          />
-        </Suspense>
+        <Select
+          label="Competition"
+          name="competition"
+          required
+          control={{
+            setValue: (val) => gameFormGroupControls({ competition: val }),
+            value: gameFormGroup.competition,
+          }}
+          options={props.competitions}
+        />
 
-        <Suspense fallback={<p>Loading...</p>}>
-          <Select
-            label="Season"
-            disabled={gameFormGroup.competition === ""}
-            name="season"
-            required
-            control={{
-              setValue: (val) => gameFormGroupControls({ season: val }),
-              value: gameFormGroup.season,
-            }}
-            options={seasons() ?? []}
-          />
-        </Suspense>
+        <Select
+          label="Season"
+          disabled={gameFormGroup.competition === ""}
+          name="season"
+          required
+          control={{
+            setValue: (val) => gameFormGroupControls({ season: val }),
+            value: gameFormGroup.season,
+          }}
+          options={seasons() ?? []}
+        />
       </div>
 
       <span class="grid grid-flow-col justify-stretch gap-2">
-        <Suspense fallback={<p>Loading...</p>}>
-          <Select
-            label="Home team"
-            disabled={gameFormGroup.season === ""}
-            name="homeTeam"
-            required
-            control={{
-              setValue: (val) => {
-                if (val !== gameFormGroup.homeTeam) {
-                  gameFormGroupControls("homeTeamLineup", []);
-                }
-                gameFormGroupControls({ season: val });
-              },
-              value: "clfqiqdjh0025uvwm2vi0pp6r",
-            }}
-            options={teams() ?? []}
-          />
-        </Suspense>
+        <Select
+          label="Home team"
+          disabled={gameFormGroup.season === ""}
+          name="homeTeam"
+          required
+          control={{
+            setValue: (val) => {
+              if (val !== gameFormGroup.homeTeam) {
+                gameFormGroupControls("homeTeamLineup", []);
+              }
+              gameFormGroupControls({ homeTeam: val });
+            },
+            value: gameFormGroup.homeTeam,
+          }}
+          options={teams() ?? []}
+        />
 
-        <Suspense fallback={<p>Loading...</p>}>
-          <Select
-            label="Away team"
-            disabled={gameFormGroup.season === ""}
-            name="awayTeam"
-            required
-            control={{
-              setValue: (val) => {
-                if (val !== gameFormGroup.awayTeam) {
-                  gameFormGroupControls("awayTeamLineup", []);
-                }
-                gameFormGroupControls({ awayTeam: val });
-              },
-              value: gameFormGroup.awayTeam,
-            }}
-            options={teams() ?? []}
-          />
-        </Suspense>
+        <Select
+          label="Away team"
+          disabled={gameFormGroup.season === ""}
+          name="awayTeam"
+          required
+          control={{
+            setValue: (val) => {
+              if (val !== gameFormGroup.awayTeam) {
+                gameFormGroupControls("awayTeamLineup", []);
+              }
+              gameFormGroupControls({ awayTeam: val });
+            },
+            value: gameFormGroup.awayTeam,
+          }}
+          options={teams() ?? []}
+        />
       </span>
 
       <span class="grid grid-cols-2 justify-stretch gap-2">
-        <Suspense fallback={<p>Loading...</p>}>
-          <Select
-            label="Home team manager"
-            disabled={gameFormGroup.homeTeam === ""}
-            name="homeTeamManager"
-            required
-            control={{
-              setValue: (val) =>
-                gameFormGroupControls({ homeTeamManager: val }),
-              value: gameFormGroup.homeTeamManager,
-            }}
-            options={homeTeamManagers() ?? []}
-          />
-        </Suspense>
+        <Select
+          label="Home team manager"
+          disabled={gameFormGroup.homeTeam === ""}
+          name="homeTeamManager"
+          required
+          control={{
+            setValue: (val) =>
+              gameFormGroupControls({ homeTeamManager: val }),
+            value: gameFormGroup.homeTeamManager,
+          }}
+          options={homeTeamManagers() ?? []}
+        />
 
-        <Suspense fallback={<p>Loading...</p>}>
-          <Select
-            label="Away team manager"
-            disabled={gameFormGroup.awayTeam === ""}
-            name="awayTeam"
-            required
-            control={{
-              setValue: (val) =>
-                gameFormGroupControls({ awayTeamManager: val }),
-              value: gameFormGroup.awayTeamManager,
-            }}
-            options={awayTeamManagers() ?? []}
-          />
-        </Suspense>
+        <Select
+          label="Away team manager"
+          disabled={gameFormGroup.awayTeam === ""}
+          name="awayTeam"
+          required
+          control={{
+            setValue: (val) =>
+              gameFormGroupControls({ awayTeamManager: val }),
+            value: gameFormGroup.awayTeamManager,
+          }}
+          options={awayTeamManagers() ?? []}
+        />
       </span>
 
       <DateSelector
@@ -437,26 +425,24 @@ export default (props: {
         <pre>{JSON.stringify(gameFormGroup, null, 2)}</pre>
       </Show>
       <div class="flex justify-start">
-        <Suspense>
-          <Show when={homeTeamPlayers() && awayTeamPlayers()}>
-            <EditLieneupWrapper
-              homeTeamPlayers={homeTeamPlayers() ?? []}
-              awayTeamPlayers={awayTeamPlayers() ?? []}
-              homeTeamShirtsColor={gameFormGroup.homeTeamShirtsColor}
-              awayTeamShirtsColor={gameFormGroup.awayTeamShirtsColor}
-              homeTeamFormation={gameFormGroup.homeTeamFormation}
-              awayTeamFormation={gameFormGroup.awayTeamFormation}
-              homeTeamGoalKeeperShirtsColor={
-                gameFormGroup.homeTeamGoalkeeperShirtsColor
-              }
-              awayTeamGoalKeeperShirtsColor={
-                gameFormGroup.awayTeamGoalkeeperShirtsColor
-              }
-              homeTeamLineup={gameFormGroup.homeTeamLineup}
-              awayTeamLineup={gameFormGroup.awayTeamLineup}
-            />
-          </Show>
-        </Suspense>
+        <Show when={homeTeamPlayers() && awayTeamPlayers()}>
+          <EditLieneupWrapper
+            homeTeamPlayers={homeTeamPlayers() ?? []}
+            awayTeamPlayers={awayTeamPlayers() ?? []}
+            homeTeamShirtsColor={gameFormGroup.homeTeamShirtsColor}
+            awayTeamShirtsColor={gameFormGroup.awayTeamShirtsColor}
+            homeTeamFormation={gameFormGroup.homeTeamFormation}
+            awayTeamFormation={gameFormGroup.awayTeamFormation}
+            homeTeamGoalKeeperShirtsColor={
+              gameFormGroup.homeTeamGoalkeeperShirtsColor
+            }
+            awayTeamGoalKeeperShirtsColor={
+              gameFormGroup.awayTeamGoalkeeperShirtsColor
+            }
+            homeTeamLineup={gameFormGroup.homeTeamLineup}
+            awayTeamLineup={gameFormGroup.awayTeamLineup}
+          />
+        </Show>
 
         <div class="flex shrink flex-col justify-between">
           <ColorPicker
@@ -539,9 +525,7 @@ export default (props: {
         />
       </div>
 
-      <Suspense fallback="Loading player data">
-        <GoalsDisplay />
-      </Suspense>
+      <GoalsDisplay />
 
       {/* Statistics */}
       <Show when={gameFormGroup.status !== "NOT_STARTED"}>

@@ -39,11 +39,9 @@ export default function Root() {
       <Body class="flex flex-col space-y-4 py-4">
         <ErrorBoundary>
           <Navbar />
-          <Suspense fallback={<div>Loading...</div>}>
-            <Routes>
-              <FileRoutes />
-            </Routes>
-          </Suspense>
+          <Routes>
+            <FileRoutes />
+          </Routes>
         </ErrorBoundary>
         <Scripts />
       </Body>
