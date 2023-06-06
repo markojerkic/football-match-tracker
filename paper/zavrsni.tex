@@ -788,6 +788,17 @@ Unutar njega su naslagani elementi zelene pozadinske boje. Zeleni elementi su po
 Nakon zelenih traka dolaze dva bloka redova igrača. Ova dva bloka su unutar jednog elementa koji služi kao roditelj i ima apsolutnu poziciju što omogućava da su redovi igrača nacrtani preko zelenih traka.
 Dva bloka redova igrača imaju istu logiku crtanja pozicija igrača, ali drugi blok ima Tailwind klasu "flex-col-reversed" što znači da red s vratarom, koji se treba prikazati prvi, se zapravo prikaže zadnji.
 
+U slučaju kada ne postoje podatci početnih postava, ili ako podatci početnih postava nisu ispravni, tada se korisniku prikaže poruka da je došlo do greške te se prikaže popis svih igrača koji su igrali za
+domaću i gostujuću ekipu te sezone.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=14.2cm]{images/lineup-fallback.jpg}
+\caption{Početnih jedanaest}
+\label{fig:formation}
+\end{figure}
+
+
 \subsection{Uređivanje podataka utakmice}
 
 Korisnik koji ima ulogu administratora može pristupiti stranici uređivanja podataka postojeće utakmice i stranici stvaranja nove utakmice.

@@ -379,8 +379,7 @@ export default (props: {
           name="homeTeamManager"
           required
           control={{
-            setValue: (val) =>
-              gameFormGroupControls({ homeTeamManager: val }),
+            setValue: (val) => gameFormGroupControls({ homeTeamManager: val }),
             value: gameFormGroup.homeTeamManager,
           }}
           options={homeTeamManagers() ?? []}
@@ -392,8 +391,7 @@ export default (props: {
           name="awayTeam"
           required
           control={{
-            setValue: (val) =>
-              gameFormGroupControls({ awayTeamManager: val }),
+            setValue: (val) => gameFormGroupControls({ awayTeamManager: val }),
             value: gameFormGroup.awayTeamManager,
           }}
           options={awayTeamManagers() ?? []}
