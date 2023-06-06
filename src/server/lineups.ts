@@ -72,7 +72,7 @@ export const getLineups = async ({ gameId }: { gameId: string }) => {
     );
 
   if (playerDetails.size !== playerIds.length) {
-    throw Error("Players with selected ids were not all found");
+    throw Error("lineups");
   }
 
   const homeTeamLineup: PlayerInLineup[][] = mapLineup({

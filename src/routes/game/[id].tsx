@@ -1,8 +1,10 @@
 import dayjs from "dayjs";
 import {
   ErrorBoundary,
+  Match,
   Show,
   Suspense,
+  Switch,
   createEffect,
   createMemo,
 } from "solid-js";
@@ -15,10 +17,13 @@ import {
   Title,
   Meta,
   refetchRouteData,
+  useLocation,
 } from "solid-start";
 import { createServerData$ } from "solid-start/server";
 import { AdminOnly } from "~/components/admin-only";
+import gameDetail from "~/components/game-detail";
 import { GameDetailWrapper } from "~/components/games";
+import { FallbackLineup } from "~/components/lineup";
 import { GameDataById, getGameDataById } from "~/server/games";
 import { subscribeGame } from "~/server/pusher";
 
@@ -63,6 +68,9 @@ const GameInfo = (gameData: GameDataById) => {
       };
     }
   });
+
+  const location = useLocation();
+  const isLineups = () => location.pathname.endsWith("/lineup");
 
   return (
     <>
@@ -138,12 +146,31 @@ const GameInfo = (gameData: GameDataById) => {
       <ErrorBoundary
         fallback={() => (
           <GameDetailWrapper gameId={gameData.id}>
-            <div class="rounded-md bg-error p-4 text-white">
-              <span>
-                Error loading data for this tab. Try another tab or another
-                game.
-              </span>
-            </div>
+            <Show
+              when={isLineups()}
+              fallback={
+                <div class="rounded-md bg-error p-4 text-white">
+                  <span>
+                    Error loading data for this tab. Try another tab or another
+                    game.
+                  </span>
+                </div>
+              }
+            >
+              <Suspense fallback="Loading...">
+                <div class="rounded-md bg-error p-4 text-white">
+                  <span>
+                    Lineups cannot be found. Here is a list of all awailable
+                    players for that season.
+                  </span>
+                </div>
+                <FallbackLineup
+                  gameId={gameData.id}
+                  homeTeam={gameData.homeTeam.name ?? ""}
+                  awayTeam={gameData.awayTeam.name ?? ""}
+                />
+              </Suspense>
+            </Show>
           </GameDetailWrapper>
         )}
       >

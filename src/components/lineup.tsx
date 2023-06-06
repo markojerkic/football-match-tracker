@@ -13,6 +13,97 @@ import { A } from "solid-start";
 import { Lineups } from "~/server/lineups";
 import { gameFormGroup, gameFormGroupControls } from "./game-edit";
 import { PlayerInLineup } from "~/util/lineups-mapper";
+import { createServerData$ } from "solid-start/server";
+import { getGameDataById } from "~/server/games";
+import { getPlayersForTeamInSeason } from "~/server/players";
+
+const PlayersList = (player: {
+  id: string;
+  imageSlug: string | null;
+  firstName: string;
+  lastName: string;
+}) => {
+  return (
+    <A href={`/player/${player.id}`} class="group relative block">
+      <span class="absolute inset-0 border-2 border-dashed border-black"></span>
+
+      <div class="relative h-full w-full transform border-2 border-black bg-white transition-transform group-hover:-translate-x-2 group-hover:-translate-y-2">
+        <div class="flex p-4">
+          {/* Content */}
+          <span class="flex space-x-4 text-sm">
+            <Show when={player.imageSlug} keyed>
+              {(slug) => (
+                <img
+                  alt={player.lastName}
+                  class="avatar h-10 object-cover"
+                  src={slug}
+                />
+              )}
+            </Show>
+          </span>
+          <span class="flex w-full flex-col space-y-1">
+            {player.firstName} {player.lastName}
+          </span>
+        </div>
+      </div>
+    </A>
+  );
+};
+
+export const FallbackLineup = (props: {
+  gameId: string;
+  homeTeam: string;
+  awayTeam: string;
+}) => {
+  const players = createServerData$(
+    async ([, gameId]) => {
+      const game = await getGameDataById(gameId);
+      const [homeTeamPlayers, awayTeamPlayers] = await Promise.all([
+        getPlayersForTeamInSeason(game.awayTeam.id, game.season?.id ?? ""),
+        getPlayersForTeamInSeason(game.homeTeam.id, game.season?.id ?? ""),
+      ]);
+
+      return {
+        homeTeamPlayers,
+        awayTeamPlayers,
+      };
+    },
+    {
+      key: () => ["fallback-lineups", props.gameId],
+    }
+  );
+
+  return (
+    <div class="grid grid-cols-2 gap-2">
+      <div class="flex flex-col space-y-2">
+        <h2>{props.homeTeam} players</h2>
+        <For each={players()?.homeTeamPlayers}>
+          {(player) => (
+            <PlayersList
+              firstName={player.player.firstName}
+              lastName={player.player.lastName}
+              imageSlug={player.player.imageSlug}
+              id={player.id}
+            />
+          )}
+        </For>
+      </div>
+      <div class="flex flex-col space-y-2">
+        <h2>{props.awayTeam} players</h2>
+        <For each={players()?.awayTeamPlayers}>
+          {(player) => (
+            <PlayersList
+              firstName={player.player.firstName}
+              lastName={player.player.lastName}
+              imageSlug={player.player.imageSlug}
+              id={player.id}
+            />
+          )}
+        </For>
+      </div>
+    </div>
+  );
+};
 
 const Divider = () => {
   return <span class="w-full border-t border-black" />;
