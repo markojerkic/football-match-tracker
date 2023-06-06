@@ -249,13 +249,13 @@ sezonu u kojoj se igra utakmica te na entitet koji sadrži detaljniju statistiku
 Tablica "Game" sadrži alternativni ključ na entitet "GameStatistic," ali taj podatak nije obavezan jer svaka utakmica ne mora imati podatke o statistici.
 U slučaju kada utakmica još nije počela, entitet "Game" ne sadrži podatke o statistici pa to polje sadrži vrijednost \emph{null}.
 
-% \begin{figure}[htb]
-% \centering
-% \includegraphics[width=14.2cm]{images/erd.png}
-% \caption{ERD dijagram baze podataka}
-% \label{fig:hero}
-% \end{figure}
-%
+\begin{figure}[htb]
+\centering
+\includegraphics[width=14cm]{images/erd-min.png}
+\caption{ERD dijagram baze podataka}
+\label{fig:hero}
+\end{figure}
+
 Entitet "Game" također sadržava informaciju o vremenu početka utakmice, vremenu nadoknade u prvom i drugom poluvremenu, boju dresova domaće i gostujuće ekipe spremljenu kao heksadecimalna vrijednost,
 kao i boje dresova vratara, status utakmice, te početne postave dviju ekipa.
 Status utakmice se sprema kao enumerirana vrijednost koja može poprimiti vrijednosti "NOT\textunderscore STARTED," "STARTED," "HALFTIME" te "OVER".
